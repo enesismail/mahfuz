@@ -1,6 +1,6 @@
 [build]
   base = "."
-  command = "cd apps/web && pnpm build && cp -r .netlify dist/ && sed -i 's|../../../dist/server|../../../server|' dist/.netlify/v1/functions/server.mjs"
+  command = "cd apps/web && pnpm build && mkdir -p ../../.netlify/v1/functions && sed 's|../../../dist/server|../../../apps/web/dist/server|' .netlify/v1/functions/server.mjs > ../../.netlify/v1/functions/server.mjs"
   publish = "apps/web/dist/client"
 
 [build.environment]
