@@ -9,7 +9,7 @@ import { useAudioStore } from "~/stores/useAudioStore";
 import type { VerseAudioData } from "@mahfuz/audio-engine";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
 import { Loading } from "~/components/ui/Loading";
-import { TOTAL_JUZ } from "@mahfuz/shared/constants";
+import { TOTAL_JUZ, TOTAL_PAGES } from "@mahfuz/shared/constants";
 import { getPagesForJuz } from "@mahfuz/shared";
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import type { ViewMode } from "~/stores/usePreferencesStore";
@@ -184,18 +184,51 @@ function JuzView() {
         </div>
       </div>
 
-      {/* View mode controls + Reading toolbar */}
-      <div className="mb-6 flex items-center justify-between">
-        <SegmentedControl options={VIEW_MODE_OPTIONS} value={viewMode} onChange={setViewMode} />
-        <div className="flex items-center gap-2">
-          <Link
-            to="/page/$pageNumber"
-            params={{ pageNumber: String(pageStart) }}
-            className="text-[12px] text-[var(--theme-text-tertiary)] transition-colors hover:text-primary-600"
-          >
-            Sayfa {pageStart}–{pageEnd}
-          </Link>
-          <ReadingToolbar />
+      {/* View mode controls + Reading toolbar — sticky band */}
+      <div className="sticky top-0 z-20 -mx-5 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-1 py-2 sm:-mx-6 sm:px-2">
+        <div className="flex items-center justify-between">
+          {/* Left arrow — prev juz */}
+          {hasPrev ? (
+            <Link
+              to="/juz/$juzId"
+              params={{ juzId: String(juzNumber - 1) }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
+              aria-label="Önceki cüz"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </Link>
+          ) : (
+            <span className="w-8 shrink-0" />
+          )}
+
+          {/* Center content */}
+          <div className="flex min-w-0 flex-1 items-center justify-center">
+            <SegmentedControl options={VIEW_MODE_OPTIONS} value={viewMode} onChange={setViewMode} />
+          </div>
+
+          {/* Right group: page info + reading toolbar + arrow */}
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Link
+              to="/page/$pageNumber"
+              params={{ pageNumber: String(pageStart) }}
+              className="hidden text-[12px] tabular-nums text-[var(--theme-text-tertiary)] transition-colors hover:text-primary-600 sm:inline"
+            >
+              Sayfa {pageStart}–{pageEnd}
+            </Link>
+            <ReadingToolbar />
+            {hasNext ? (
+              <Link
+                to="/juz/$juzId"
+                params={{ juzId: String(juzNumber + 1) }}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
+                aria-label="Sonraki cüz"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </Link>
+            ) : (
+              <span className="w-8 shrink-0" />
+            )}
+          </div>
         </div>
       </div>
 

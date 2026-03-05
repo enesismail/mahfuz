@@ -7,7 +7,7 @@ import { verseAudioQueryOptions } from "~/hooks/useAudio";
 import { VerseList, Pagination, ReadingToolbar } from "~/components/quran";
 import { Loading } from "~/components/ui/Loading";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
-import { TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
+import { TOTAL_CHAPTERS, TOTAL_PAGES } from "@mahfuz/shared/constants";
 import { getJuzForPage } from "@mahfuz/shared";
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import type { ViewMode } from "~/stores/usePreferencesStore";
@@ -325,29 +325,62 @@ function SurahView() {
         </div>
       </div>
 
-      {/* View mode controls + Reading toolbar */}
-      <div className="mb-6 flex items-center justify-between">
-        <SegmentedControl options={VIEW_MODE_OPTIONS} value={viewMode} onChange={setViewMode} />
-        <div className="flex items-center gap-2">
-          {viewMode === "mushaf" && (
-            <button
-              type="button"
-              onClick={toggleFullscreen}
-              aria-label="Tam ekran"
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--theme-hover-bg)]"
-              style={{ color: "var(--theme-text-tertiary)" }}
+      {/* View mode controls + Reading toolbar — sticky band */}
+      <div className="sticky top-0 z-20 -mx-5 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-1 py-2 sm:-mx-6 sm:px-2">
+        <div className="flex items-center justify-between">
+          {/* Left arrow — prev surah */}
+          {chapterId > 1 ? (
+            <Link
+              to="/surah/$surahId"
+              params={{ surahId: String(chapterId - 1) }}
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
+              aria-label="Önceki sure"
             >
-              {fullscreenIcon}
-            </button>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+            </Link>
+          ) : (
+            <span className="w-8 shrink-0" />
           )}
-          <Link
-            to="/page/$pageNumber"
-            params={{ pageNumber: String(chapter.pages[0]) }}
-            className="text-[12px] text-[var(--theme-text-tertiary)] transition-colors hover:text-primary-600"
-          >
-            Sayfa {chapter.pages[0]}–{chapter.pages[1]}
-          </Link>
-          <ReadingToolbar />
+
+          {/* Center content */}
+          <div className="flex min-w-0 flex-1 items-center justify-center">
+            <SegmentedControl options={VIEW_MODE_OPTIONS} value={viewMode} onChange={setViewMode} />
+          </div>
+
+          {/* Right group: page info + fullscreen + reading toolbar + arrow */}
+          <div className="flex shrink-0 items-center gap-0.5">
+            <Link
+              to="/page/$pageNumber"
+              params={{ pageNumber: String(chapter.pages[0]) }}
+              className="hidden text-[12px] tabular-nums text-[var(--theme-text-tertiary)] transition-colors hover:text-primary-600 sm:inline"
+            >
+              Sayfa {chapter.pages[0]}–{chapter.pages[1]}
+            </Link>
+            {viewMode === "mushaf" && (
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                aria-label="Tam ekran"
+                className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--theme-hover-bg)]"
+                style={{ color: "var(--theme-text-tertiary)" }}
+              >
+                {fullscreenIcon}
+              </button>
+            )}
+            <ReadingToolbar />
+            {chapterId < TOTAL_CHAPTERS ? (
+              <Link
+                to="/surah/$surahId"
+                params={{ surahId: String(chapterId + 1) }}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
+                aria-label="Sonraki sure"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
+              </Link>
+            ) : (
+              <span className="w-8 shrink-0" />
+            )}
+          </div>
         </div>
       </div>
 
@@ -377,6 +410,7 @@ function SurahView() {
           verses={versesData.verses}
           showTranslation={showTranslation}
           onPlayFromVerse={handlePlayFromVerse}
+          onTogglePlayPause={togglePlayPause}
         />
       </div>
 

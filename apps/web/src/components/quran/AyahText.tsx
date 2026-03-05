@@ -10,6 +10,7 @@ interface AyahTextProps {
   viewMode?: ViewMode;
   showTranslation?: boolean;
   onPlayFromVerse?: (verseKey: string) => void;
+  onTogglePlayPause?: () => void;
 }
 
 export function AyahText({
@@ -17,6 +18,7 @@ export function AyahText({
   viewMode: viewModeProp,
   showTranslation = true,
   onPlayFromVerse,
+  onTogglePlayPause,
 }: AyahTextProps) {
   const storeViewMode = usePreferencesStore((s) => s.viewMode);
   const colorizeWords = usePreferencesStore((s) => s.colorizeWords);
@@ -43,9 +45,13 @@ export function AyahText({
 
   const effectiveShowTranslation = showTranslation || revealed;
 
+  const isPlayingThisVerse = isCurrentVerse && isAudioPlaying;
+
   return (
     <div
       id={`verse-${verse.verse_key}`}
+      role="article"
+      aria-label={`Ayet ${verse.verse_key}`}
       className={`animate-fade-in group px-4 py-7 transition-colors sm:px-6 ${
         isCurrentVerse && isAudioPlaying
           ? "bg-primary-50/40"
@@ -57,28 +63,50 @@ export function AyahText({
           : undefined
       }
     >
+      {/* Verse ref + controls */}
+      <div className="mb-3 flex items-center justify-between sm:ml-[44px]">
+        <span className="select-all text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">
+          {verse.verse_key}
+        </span>
+        {onPlayFromVerse && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isPlayingThisVerse && onTogglePlayPause) {
+                onTogglePlayPause();
+              } else {
+                onPlayFromVerse(verse.verse_key);
+              }
+            }}
+            className={`flex h-6 w-6 items-center justify-center rounded-full transition-all ${
+              isPlayingThisVerse
+                ? "bg-primary-600 text-white"
+                : "text-[var(--theme-text-quaternary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text-secondary)]"
+            }`}
+            aria-label={
+              isPlayingThisVerse
+                ? `Ayet ${verse.verse_key} kaydını duraklat`
+                : `Ayet ${verse.verse_key}'den dinle`
+            }
+          >
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
+              {isPlayingThisVerse && playbackState === "playing" ? (
+                <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
+              ) : (
+                <path d="M8 5.14v14l11-7-11-7z" />
+              )}
+            </svg>
+          </button>
+        )}
+      </div>
       {/* Verse number + Arabic text */}
       <div className="mb-4 flex items-start gap-4">
-        <div className="relative mt-2 flex-shrink-0">
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--theme-verse-number-bg)] text-[11px] font-semibold tabular-nums text-[var(--theme-text-secondary)]">
-            {verse.verse_number}
-          </span>
-          {/* Play-from-verse button on hover */}
-          {onPlayFromVerse && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onPlayFromVerse(verse.verse_key);
-              }}
-              className="absolute inset-0 flex items-center justify-center rounded-full bg-primary-600 text-white opacity-0 transition-opacity group-hover:opacity-100"
-              aria-label={`Ayet ${verse.verse_number}'den dinle`}
-            >
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5.14v14l11-7-11-7z" />
-              </svg>
-            </button>
-          )}
-        </div>
+        <span
+          className="mt-2 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[var(--theme-verse-number-bg)] text-[11px] font-semibold tabular-nums text-[var(--theme-text-secondary)]"
+          aria-hidden="true"
+        >
+          {verse.verse_number}
+        </span>
         <div className="min-w-0 flex-1" dir="rtl">
           {viewMode === "wordByWord" && verse.words ? (
             <WordByWord

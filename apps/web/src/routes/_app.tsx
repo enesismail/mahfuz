@@ -22,16 +22,10 @@ const NAV_ITEMS = [
   { to: "/audio", label: "Dinleme", icon: HeadphonesIcon },
 ] as const;
 
-const BOTTOM_ITEMS = [
-  { to: "/surah", label: "Sureler", icon: BookIcon },
-  { to: "/memorize", label: "Ezber", icon: BrainIcon },
-  { to: "/bookmarks", label: "İmler", icon: BookmarkIcon },
-  { to: "/settings", label: "Ayarlar", icon: SettingsIcon },
-] as const;
-
 function AppLayout() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const { session } = Route.useRouteContext();
   const router = useRouter();
   const audioVisible = useAudioStore((s) => s.isVisible);
@@ -88,6 +82,18 @@ function AppLayout() {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen]);
+
   const handleSignOut = async () => {
     await signOut();
     await router.invalidate();
@@ -102,7 +108,7 @@ function AppLayout() {
           {/* Left: Logo + Chapter/page context */}
           <div className="flex min-w-0 items-center gap-1">
             {/* Logo */}
-            <Link to="/" className="mr-2 flex shrink-0 items-center gap-2 sm:mr-3">
+            <Link to="/surah" className="mr-2 flex shrink-0 items-center gap-2 sm:mr-3">
               <img src="/images/mahfuz-logo.svg" alt="Mahfuz" className="h-10 w-auto" />
             </Link>
 
@@ -125,8 +131,15 @@ function AppLayout() {
                   <span className="text-[12px] font-medium text-[var(--theme-text-tertiary)]">
                     {chapter.id}
                   </span>
-                  <span className="arabic-text text-base leading-none text-[var(--theme-text)]">
-                    {chapter.name_arabic}
+                  <span className="inline-grid text-base leading-none">
+                    {allChapters?.map((c) => (
+                      <span
+                        key={c.id}
+                        className={`arabic-text col-start-1 row-start-1 ${c.id === chapter.id ? "text-[var(--theme-text)]" : "invisible"}`}
+                      >
+                        {c.name_arabic}
+                      </span>
+                    ))}
                   </span>
                   <span className="hidden truncate text-[13px] font-medium text-[var(--theme-text-secondary)] sm:inline">
                     {chapter.translated_name.name}
@@ -218,29 +231,29 @@ function AppLayout() {
             ))}
           </nav>
 
-          {/* Right: Search + Settings + User */}
+          {/* Right: Search + Settings + User + Menu */}
           <div className="flex items-center gap-1">
             <button
               onClick={() => setPaletteOpen(true)}
-              className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
+              className="hidden items-center gap-1.5 rounded-lg px-2 py-1.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] lg:flex"
               aria-label="Ara (⌘K)"
             >
               <SearchIcon />
-              <kbd className="hidden rounded bg-[var(--theme-hover-bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--theme-text-quaternary)] sm:inline-block">
+              <kbd className="rounded bg-[var(--theme-hover-bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--theme-text-quaternary)]">
                 ⌘K
               </kbd>
             </button>
 
             <Link
               to="/settings"
-              className="rounded-lg p-1.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
+              className="hidden rounded-lg p-1.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] lg:flex"
               aria-label="Ayarlar"
             >
               <SettingsIcon />
             </Link>
 
             {session ? (
-              <div className="ml-1 flex items-center gap-1">
+              <div className="ml-1 hidden items-center gap-1 lg:flex">
                 <Link
                   to="/profile"
                   className="flex items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-[var(--theme-hover-bg)]"
@@ -268,11 +281,24 @@ function AppLayout() {
             ) : (
               <Link
                 to="/auth/login"
-                className="ml-1 rounded-full bg-primary-600 px-4 py-1 text-xs font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
+                className="ml-1 hidden rounded-full bg-primary-600 px-4 py-1 text-xs font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97] lg:inline-block"
               >
                 Giriş Yap
               </Link>
             )}
+
+            {/* Mobile hamburger — rightmost */}
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] lg:hidden"
+              aria-label={menuOpen ? "Menüyü kapat" : "Menüyü aç"}
+            >
+              <span className="flex h-4 w-5 flex-col justify-between">
+                <span className={`h-[2px] w-full rounded-full bg-current transition-all duration-300 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
+                <span className={`h-[2px] w-full rounded-full bg-current transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
+                <span className={`h-[2px] w-full rounded-full bg-current transition-all duration-300 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
+              </span>
+            </button>
           </div>
         </div>
       </header>
@@ -308,7 +334,7 @@ function AppLayout() {
       )}
 
       {/* Page content */}
-      <main ref={mainRef} className={`relative flex-1 overflow-y-auto ${audioVisible ? "pb-40" : "pb-24"} lg:pb-0`}>
+      <main ref={mainRef} className={`relative flex-1 overflow-y-auto ${audioVisible ? "pb-24 lg:pb-0" : ""}`}>
         <Outlet />
         {showScrollTop && (
           <button
@@ -327,25 +353,121 @@ function AppLayout() {
       <AudioProvider />
       <AudioBar />
 
-      {/* Mobile bottom navigation — iOS tab bar */}
-      <nav className="glass-heavy fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--theme-border)] lg:hidden">
-        <div className="flex items-center justify-around pb-[env(safe-area-inset-bottom)] pt-1.5">
-          {BOTTOM_ITEMS.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex flex-col items-center gap-0.5 px-3 py-1 text-[var(--theme-text-tertiary)] transition-colors"
-              activeProps={{
-                className:
-                  "flex flex-col items-center gap-0.5 px-3 py-1 text-primary-600 transition-colors",
-              }}
+      {/* Mobile fullscreen menu */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 flex flex-col bg-[var(--theme-bg)] lg:hidden">
+          {/* Menu header */}
+          <div className="flex h-[88px] items-center justify-between border-b border-[var(--theme-border)] px-4 sm:px-6">
+            <span className="text-lg font-semibold text-[var(--theme-text)]">Menü</span>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+              aria-label="Menüyü kapat"
             >
-              <item.icon />
-              <span className="text-[10px] font-medium">{item.label}</span>
-            </Link>
-          ))}
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Menu items */}
+          <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-6">
+            {/* Navigation items */}
+            <div className="space-y-1">
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+                  activeProps={{
+                    className:
+                      "flex items-center gap-3 rounded-xl px-4 py-3.5 bg-primary-600/10 text-primary-700 transition-colors",
+                  }}
+                >
+                  <item.icon />
+                  <span className="text-[15px] font-medium">{item.label}</span>
+                </Link>
+              ))}
+            </div>
+
+            {/* Divider */}
+            <div className="my-4 border-t border-[var(--theme-border)]" />
+
+            {/* Utility items */}
+            <div className="space-y-1">
+              <button
+                onClick={() => {
+                  setMenuOpen(false);
+                  setPaletteOpen(true);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+              >
+                <SearchIcon />
+                <span className="text-[15px] font-medium">Ara</span>
+              </button>
+              <Link
+                to="/settings"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+                activeProps={{
+                  className:
+                    "flex items-center gap-3 rounded-xl px-4 py-3.5 bg-primary-600/10 text-primary-700 transition-colors",
+                }}
+              >
+                <SettingsIcon />
+                <span className="text-[15px] font-medium">Ayarlar</span>
+              </Link>
+            </div>
+
+            {/* Divider */}
+            <div className="my-4 border-t border-[var(--theme-border)]" />
+
+            {/* Auth section */}
+            {session ? (
+              <div className="space-y-1">
+                <Link
+                  to="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+                >
+                  {session.user.image ? (
+                    <img
+                      src={session.user.image}
+                      alt={session.user.name}
+                      className="h-6 w-6 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-100 text-[10px] font-semibold text-primary-700">
+                      {session.user.name?.charAt(0)?.toUpperCase() || "?"}
+                    </span>
+                  )}
+                  <span className="text-[15px] font-medium">{session.user.name || "Profil"}</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    handleSignOut();
+                  }}
+                  className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950/20"
+                >
+                  <LogOutIcon />
+                  <span className="text-[15px] font-medium">Çıkış Yap</span>
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/auth/login"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-primary-600 transition-colors hover:bg-[var(--theme-hover-bg)]"
+              >
+                <UserIcon />
+                <span className="text-[15px] font-medium">Giriş Yap</span>
+              </Link>
+            )}
+          </div>
         </div>
-      </nav>
+      )}
     </div>
   );
 }
@@ -437,6 +559,14 @@ function LogOutIcon() {
   return (
     <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
     </svg>
   );
 }

@@ -12,6 +12,7 @@ interface VerseListProps {
   showTranslation?: boolean;
   showBismillah?: boolean;
   onPlayFromVerse?: (verseKey: string) => void;
+  onTogglePlayPause?: () => void;
 }
 
 export function VerseList({
@@ -19,6 +20,7 @@ export function VerseList({
   showTranslation = true,
   showBismillah = true,
   onPlayFromVerse,
+  onTogglePlayPause,
 }: VerseListProps) {
   const viewMode = usePreferencesStore((s) => s.viewMode);
 
@@ -42,6 +44,7 @@ export function VerseList({
               verse={verse}
               showTranslation={showTranslation}
               onPlayFromVerse={onPlayFromVerse}
+              onTogglePlayPause={onTogglePlayPause}
             />
           </div>
         );
