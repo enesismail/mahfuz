@@ -221,7 +221,7 @@ function MushafPageView() {
     [chapters, buildChapterAudio, playVerse],
   );
 
-  // Play page audio — starts from first verse on this page
+  // Play page audio, starts from first verse on this page
   const firstGroup = verseGroups[0];
   const isPlayingThisPage =
     firstGroup && audioChapterId === firstGroup.chapterId &&
@@ -284,7 +284,7 @@ function MushafPageView() {
 
   return (
     <div ref={swipeContainerRef} className="mx-auto max-w-[680px] px-5 py-8 sm:px-6 sm:py-10" style={{ touchAction: "pan-y" }}>
-      {/* Page header — compact horizontal */}
+      {/* Page header, compact horizontal */}
       <div className="relative mb-6 overflow-hidden rounded-2xl bg-[var(--theme-pill-bg)] px-4 py-3.5">
         <div className="relative z-10 flex items-center justify-between gap-3">
           {/* Left: page info */}
@@ -326,10 +326,10 @@ function MushafPageView() {
         </div>
       </div>
 
-      {/* View mode controls + Reading toolbar — sticky band */}
+      {/* View mode controls + Reading toolbar, sticky band */}
       <div className="sticky top-0 z-20 -mx-5 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-1 py-2 sm:-mx-6 sm:px-2">
         <div className="flex items-center justify-between">
-          {/* Left arrow — prev page */}
+          {/* Left arrow: prev page */}
           {pageNum > 1 ? (
             <Link
               to="/page/$pageNumber"
@@ -632,7 +632,7 @@ function PagePicker({
             ))}
           </div>
 
-          {/* Right-side juz scrubber — Apple Contacts style */}
+          {/* Right-side juz scrubber, Apple Contacts style */}
           <div
             ref={scrubberRef}
             className="absolute right-0 top-0 bottom-0 flex w-7 cursor-pointer flex-col items-center justify-around py-2 select-none touch-none"

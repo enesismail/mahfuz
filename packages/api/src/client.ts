@@ -38,7 +38,7 @@ export class QuranApiClient {
       const { cacheRepository } = await import("@mahfuz/db");
       this.cacheAdapter = cacheRepository;
     } catch {
-      // @mahfuz/db not available — proceed without cache
+      // @mahfuz/db not available, proceed without cache
     }
 
     return this.cacheAdapter;

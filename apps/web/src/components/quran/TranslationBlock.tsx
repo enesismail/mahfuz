@@ -90,7 +90,7 @@ export function TranslationBlock({
               )}
             </button>
 
-            {/* Body — animated grid */}
+            {/* Body, animated grid */}
             <div
               className="accordion-grid"
               data-open={isOpen}

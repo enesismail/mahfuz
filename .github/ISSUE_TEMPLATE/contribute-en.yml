@@ -48,7 +48,7 @@ body:
     id: ideas
     attributes:
       label: "Topic You'd Like to Work On"
-      description: "If you have a specific topic in mind, share it — otherwise leave blank and we'll guide you"
+      description: "If you have a specific topic in mind, share it. Otherwise leave blank and we'll guide you"
       placeholder: "e.g. I'd like to add a tafsir panel / I'd like to pick up an existing issue"
     validations:
       required: false

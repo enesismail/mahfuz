@@ -66,8 +66,8 @@ export const SM2_DEFAULTS = {
   PASSING_GRADE: 3,
 } as const;
 
-/** Gamification XP values */
-export { XP_VALUES } from "../types/gamification";
+/** Gamification Sevap Point values */
+export { SEVAP_POINT_VALUES } from "../types/gamification";
 
 /** QDC audio API base URL */
 export const QDC_API_BASE_URL = "https://api.qurancdn.com/api/qdc";

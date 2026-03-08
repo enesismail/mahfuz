@@ -21,7 +21,7 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
   const colors = getActiveColors({ colorPaletteId });
   const mushafArabicFontSize = usePreferencesStore((s) => s.mushafArabicFontSize);
 
-  /* ── Zoom / pan state (refs for perf, state only for touchAction toggle) ── */
+  /* Zoom / pan state (refs for perf, state only for touchAction toggle) */
   const wrapRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const scaleRef = useRef(1);
@@ -71,7 +71,7 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
     const dy = Math.abs(e.clientY - lastTap.current.y);
     lastTap.current = { time: now, x: e.clientX, y: e.clientY };
 
-    /* ── Double-tap → toggle zoom ── */
+    /* Double-tap → toggle zoom */
     if (dt < DBL_TAP_MS && dx < DBL_TAP_PX && dy < DBL_TAP_PX) {
       e.preventDefault();
       lastTap.current.time = 0;
@@ -98,7 +98,7 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
       return;
     }
 
-    /* ── Pan start (only when zoomed) ── */
+    /* Pan start (only when zoomed) */
     if (scaleRef.current > 1) {
       pan.current = {
         sx: e.clientX,
@@ -146,13 +146,13 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
               {/* Hatayi floral pattern overlay */}
               <div className="mushaf-hatayi-pattern" />
 
-              {/* Corner ornaments — köşelik */}
+              {/* Corner ornaments: köşelik */}
               <TezhipCorner position="top-left" />
               <TezhipCorner position="top-right" />
               <TezhipCorner position="bottom-left" />
               <TezhipCorner position="bottom-right" />
 
-              {/* Edge medallions — ortabağ */}
+              {/* Edge medallions: ortabağ */}
               <EdgeMedallion position="top" />
               <EdgeMedallion position="bottom" />
               <EdgeMedallion position="left" />
@@ -221,7 +221,7 @@ function toArabicNumeral(n: number): string {
 }
 
 /**
- * Ottoman köşelik — corner ornament with rumi scrollwork and hatayi flower
+ * Ottoman köşelik: corner ornament with rumi scrollwork and hatayi flower
  */
 function TezhipCorner({
   position,
@@ -272,7 +272,7 @@ function TezhipCorner({
 }
 
 /**
- * Edge medallion — ortabağ (mid-border ornament)
+ * Edge medallion: ortabağ (mid-border ornament)
  */
 function EdgeMedallion({
   position,

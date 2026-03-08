@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_app/verse")({
   component: VerseReaderView,
 });
 
-/* ── Swipe hook (from $pageNumber.tsx pattern) ── */
+/* Swipe hook (from $pageNumber.tsx pattern) */
 
 function useSwipeNavigation(
   ref: React.RefObject<HTMLElement | null>,
@@ -92,7 +92,7 @@ function useSwipeNavigation(
   }, [ref, onSwipeLeft, onSwipeRight]);
 }
 
-/* ── Main Component ── */
+/* Main Component */
 
 function VerseReaderView() {
   const { surah, verse: verseNum } = Route.useSearch();
@@ -128,7 +128,7 @@ function VerseReaderView() {
   // Auto-advance: when audio engine moves to next verse, navigate to it
   useEffect(() => {
     if (!currentVerseKey || currentVerseKey === verseKey) return;
-    // Audio moved to a different verse — follow it
+    // Audio moved to a different verse, follow it
     const [s, v] = currentVerseKey.split(":").map(Number);
     if (s && v && s === surah && playbackState === "playing") {
       navigate({ to: "/verse", search: { surah: s, verse: v } });
@@ -310,7 +310,7 @@ function VerseReaderView() {
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-6">
         {/* Arabic card */}
         <div className="relative w-full max-w-lg animate-fade-in rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
-          {/* Copy button — top right */}
+          {/* Copy button, top right */}
           <button
             onClick={handleCopy}
             className={`absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg transition-all ${

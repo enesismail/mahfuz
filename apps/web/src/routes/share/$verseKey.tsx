@@ -8,7 +8,7 @@ export const Route = createFileRoute("/share/$verseKey")({
         name: "description",
         content: `Kuran-ı Kerim ${params.verseKey} ayetini okuyun.`,
       },
-      { property: "og:title", content: `Kuran-ı Kerim — ${params.verseKey}` },
+      { property: "og:title", content: `Kuran-ı Kerim | ${params.verseKey}` },
       {
         property: "og:description",
         content: `Kuran-ı Kerim ${params.verseKey} ayetini okuyun.`,

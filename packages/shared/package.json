@@ -6,7 +6,10 @@
   "exports": {
     ".": "./src/index.ts",
     "./types": "./src/types/index.ts",
-    "./constants": "./src/constants/index.ts"
+    "./constants": "./src/constants/index.ts",
+    "./data/learn/alphabet": "./src/data/learn/alphabet.ts",
+    "./data/learn/curriculum": "./src/data/learn/curriculum.ts",
+    "./data/learn/quests": "./src/data/learn/quests.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

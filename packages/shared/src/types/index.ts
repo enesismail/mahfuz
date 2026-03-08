@@ -5,3 +5,4 @@ export * from "./memorization";
 export * from "./gamification";
 export * from "./sync";
 export * from "./api";
+export * from "./learn";

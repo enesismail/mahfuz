@@ -11,7 +11,7 @@ export interface CuratedReciter {
 }
 
 /**
- * Curated reciter list — local constant, no API dependency.
+ * Curated reciter list. Local constant, no API dependency.
  * IDs match api.qurancdn.com chapter audio endpoint.
  * Names verified against audio URL paths + API responses.
  */

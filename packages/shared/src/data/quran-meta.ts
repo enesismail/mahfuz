@@ -1,5 +1,5 @@
 /**
- * Static Quran metadata — juz-page boundaries
+ * Static Quran metadata: juz-page boundaries
  * Verified against quran.com API v4
  */
 

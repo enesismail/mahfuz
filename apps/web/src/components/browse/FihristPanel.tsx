@@ -53,7 +53,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
 
   return (
     <>
-      {/* ── Konu Bazlı İndeks ── */}
+      {/* Konu Bazlı İndeks */}
       <section className="mb-8">
         <h2 className="mb-3 text-[15px] font-semibold text-[var(--theme-text)]">
           Konulara Göre
@@ -83,7 +83,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
         />
       </section>
 
-      {/* ── Sure Listesi ── */}
+      {/* Sure Listesi */}
       <section>
         <h2 className="mb-3 text-[15px] font-semibold text-[var(--theme-text)]">
           Sure Listesi
@@ -191,7 +191,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
   );
 }
 
-/* ── Juz Picker ── */
+/* Juz Picker */
 
 function JuzPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [open, setOpen] = useState(false);
@@ -268,7 +268,7 @@ function JuzPicker({ value, onChange }: { value: string; onChange: (v: string) =
   );
 }
 
-/* ── Topic Grid with inline row expansion ── */
+/* Topic Grid with inline row expansion */
 
 import type { Chapter } from "@mahfuz/shared/types";
 

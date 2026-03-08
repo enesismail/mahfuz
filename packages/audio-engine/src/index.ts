@@ -1,4 +1,4 @@
-// @mahfuz/audio-engine — HTML5 Audio + word-level sync
+// @mahfuz/audio-engine: HTML5 Audio + word-level sync
 
 import type {
   PlaybackState,

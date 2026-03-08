@@ -10,7 +10,7 @@ import { useAudioStore } from "~/stores/useAudioStore";
 import { TranslationPicker } from "./TranslationPicker";
 import { useTranslation } from "~/hooks/useTranslation";
 
-/* ─── Shared helpers ─── */
+/* ─Shared helpers ─*/
 
 function SizeSlider({
   label,
@@ -48,7 +48,7 @@ function ToggleSwitch({ checked, onChange }: { checked: boolean; onChange: (v: b
   );
 }
 
-/* ─── Live Preview ─── */
+/* ─Live Preview ─*/
 
 function PreviewCard({ verse }: { verse: Verse }) {
   const viewMode = usePreferencesStore((s) => s.viewMode);
@@ -73,7 +73,7 @@ function PreviewCard({ verse }: { verse: Verse }) {
   const wordItems = verse.words?.filter((w) => w.char_type_name === "word") || [];
   const colorOf = (i: number) => (colorizeWords && colors.length > 0 ? colors[i % colors.length] : undefined);
 
-  // Preview base sizes — must match actual rendering components
+  // Preview base sizes, must match actual rendering components
   const arabicPx = 26.4 * arabicScale;  // 1.65rem (AyahText.tsx)
   const wbwArabicPx = 24 * arabicScale;  // 1.5rem (WordByWord.tsx)
   const translationPx = 15 * translationScale;  // 15px (AyahText.tsx)
@@ -124,7 +124,7 @@ function PreviewCard({ verse }: { verse: Verse }) {
   );
 }
 
-/* ─── Mode selector options ─── */
+/* ─Mode selector options ─*/
 
 function getModeOptions(t: ReturnType<typeof useTranslation>["t"]): { value: ViewMode; label: string; icon: React.ReactNode }[] {
   return [
@@ -143,7 +143,7 @@ function getModeOptions(t: ReturnType<typeof useTranslation>["t"]): { value: Vie
   ];
 }
 
-/* ─── iOS-style setting card ─── */
+/* ─iOS-style setting card ─*/
 
 function SettingCard({ icon, iconBg, label, subtitle, checked, onChange, children }: {
   icon: React.ReactNode; iconBg: string; label: string; subtitle: string;
@@ -177,7 +177,7 @@ function CompactSlider({ value, onChange }: { value: number; onChange: (v: numbe
   );
 }
 
-/* ─── Tab: Boyut ─── */
+/* ─Tab: Boyut ─*/
 
 function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormalArabicFontSize, wbwArabicFontSize, setWbwArabicFontSize, mushafArabicFontSize, setMushafArabicFontSize, translationFontSize, setNormalTranslationFontSize, normalShowTranslation, setNormalShowTranslation, normalShowWordHover, setNormalShowWordHover, wbwShowTranslation, setWbwShowTranslation, wbwShowWordTranslation, setWbwShowWordTranslation, wordTranslationSize, setWordTranslationSize, wbwShowWordTransliteration, setWbwShowWordTransliteration, wordTransliterationSize, setWordTransliterationSize, wbwTransliterationFirst, setWbwTransliterationFirst }: {
   viewMode: ViewMode; setViewMode: (m: ViewMode) => void;
@@ -263,7 +263,7 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
   );
 }
 
-/* ─── Main Component ─── */
+/* ─Main Component ─*/
 
 export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}) {
   const [open, setOpen] = useState(false);
@@ -273,7 +273,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
 
   const audioVisible = useAudioStore((s) => s.isVisible);
 
-  // Preview verse (Besmele — Fatiha 1)
+  // Preview verse (Besmele, Fatiha 1)
   const { data: rawPreviewVerse } = useQuery(verseByKeyQueryOptions("1:1"));
   const translatedPreview = useTranslatedVerses(rawPreviewVerse ? [rawPreviewVerse] : []);
   const previewVerse = translatedPreview[0] ?? rawPreviewVerse;

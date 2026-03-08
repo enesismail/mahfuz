@@ -14,7 +14,7 @@ export function ChapterCard({ chapter }: ChapterCardProps) {
       params={{ surahId: String(chapter.id) }}
       className="group relative flex flex-col justify-between overflow-hidden rounded-2xl bg-[var(--theme-bg-primary)] p-4 transition-all hover:shadow-[var(--shadow-elevated)] active:scale-[0.98]"
     >
-      {/* Background illustration — pinned to bottom-right as subtle watermark */}
+      {/* Background illustration, pinned to bottom-right as subtle watermark */}
       <img
         src={isMakkah ? "/images/kaaba.png" : "/images/nabawi.png"}
         alt=""

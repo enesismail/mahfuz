@@ -1,4 +1,4 @@
-/** Quran chapter (surah) — matches quran.com API v4 response */
+/** Quran chapter (surah). Matches quran.com API v4 response. */
 export interface Chapter {
   id: number;
   revelation_place: "makkah" | "madinah";

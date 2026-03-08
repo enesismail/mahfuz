@@ -16,7 +16,7 @@ function LandingPage() {
         <span className="text-[#86868b]">{t.landing.banner}</span>
       </div>
 
-      {/* Header — Apple.com nav style */}
+      {/* Header: Apple.com nav style */}
       <header className="glass sticky top-0 z-20 border-b border-black/[0.06] px-6 py-3">
         <div className="mx-auto flex max-w-[980px] items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
@@ -56,7 +56,7 @@ function LandingPage() {
         </div>
       </header>
 
-      {/* Hero — Apple product page style */}
+      {/* Hero: Apple product page style */}
       <main className="flex-1">
         <section className="relative overflow-hidden bg-white px-6 pb-24 pt-20 sm:pt-28">
           <div className="mx-auto max-w-[980px] text-center">
@@ -70,7 +70,7 @@ function LandingPage() {
               </p>
             </div>
 
-            {/* CTAs — Apple pill buttons */}
+            {/* CTAs: Apple pill buttons */}
             <div className="animate-fade-in mb-16 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link
                 to="/surah"
@@ -92,7 +92,7 @@ function LandingPage() {
               </Link>
             </div>
 
-            {/* Hero verse — dramatic centerpiece */}
+            {/* Hero verse: dramatic centerpiece */}
             <div className="animate-slide-up mx-auto max-w-2xl">
               <p
                 className="arabic-text mb-6 text-[2.5rem] leading-[2.2] text-[#1d1d1f] sm:text-[3rem]"
@@ -102,14 +102,14 @@ function LandingPage() {
               </p>
               <p className="text-sm text-[#86868b]">
                 <span className="font-medium text-[#6e6e73]">{t.landing.verseRef}</span>
-                {" — "}
+                {" | "}
                 "{t.landing.verseText}"
               </p>
             </div>
           </div>
         </section>
 
-        {/* Features — Apple feature grid */}
+        {/* Features: Apple feature grid */}
         <section className="bg-[#f5f5f7] px-6 py-20">
           <div className="mx-auto max-w-[980px]">
             <h2 className="mb-1 text-center text-[32px] font-semibold tracking-[-0.025em] text-[#1d1d1f] sm:text-[40px]">
@@ -147,7 +147,7 @@ function LandingPage() {
           </div>
         </section>
 
-        {/* Stats — Apple-style large numbers */}
+        {/* Stats: Apple-style large numbers */}
         <section className="bg-white px-6 py-20">
           <div className="mx-auto grid max-w-[800px] grid-cols-2 gap-6 sm:grid-cols-4">
             <Stat value="114" label={t.landing.statSurahs} />
@@ -158,7 +158,7 @@ function LandingPage() {
         </section>
       </main>
 
-      {/* Footer — Apple minimal footer */}
+      {/* Footer: Apple minimal footer */}
       <footer className="border-t border-[#d2d2d7] bg-[#f5f5f7] px-6 py-5">
         <div className="mx-auto flex max-w-[980px] flex-col items-center justify-between gap-3 sm:flex-row">
           <div className="flex items-center gap-3">

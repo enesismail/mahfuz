@@ -233,7 +233,7 @@ function SurahView() {
         <TopicNavBar topicIndex={topicParam} currentSurahId={chapterId} t={t} />
       )}
 
-      {/* Surah header — standard picker pattern */}
+      {/* Surah header, standard picker pattern */}
       <div className="relative mb-6 overflow-hidden rounded-2xl bg-[var(--theme-pill-bg)] px-4 py-3.5">
         <div className="relative z-10 flex items-center justify-between gap-3">
           {/* Left: surah name */}
@@ -288,10 +288,10 @@ function SurahView() {
         </div>
       </div>
 
-      {/* View mode controls + Reading toolbar — sticky band */}
+      {/* View mode controls + Reading toolbar, sticky band */}
       <div className="sticky top-0 z-20 -mx-5 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-1 py-2 sm:-mx-6 sm:px-2">
         <div className="flex items-center justify-between">
-          {/* Left arrow — prev surah */}
+          {/* Left arrow: prev surah */}
           {chapterId > 1 ? (
             <Link
               to="/surah/$surahId"
@@ -348,7 +348,7 @@ function SurahView() {
         ref={mushafContainerRef}
         className={isFullscreen ? "h-screen overflow-y-auto bg-[var(--theme-bg)] px-5 py-8 sm:px-6" : ""}
       >
-        {/* Exit fullscreen button — inside container so it's visible in fullscreen */}
+        {/* Exit fullscreen button, inside container so it's visible in fullscreen */}
         {isFullscreen && (
           <button
             type="button"

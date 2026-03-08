@@ -74,7 +74,7 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                   : "border-[var(--theme-divider)] bg-[var(--theme-bg)]"
               }`}
             >
-              {/* Star — primary indicator */}
+              {/* Star: primary indicator */}
               <button
                 type="button"
                 onClick={() => makePrimary(i)}

@@ -127,7 +127,7 @@ function JuzView() {
 
   return (
     <div className="mx-auto max-w-[680px] px-5 py-8 sm:px-6 sm:py-10">
-      {/* Juz header — compact horizontal */}
+      {/* Juz header, compact horizontal */}
       <div className="relative mb-6 overflow-hidden rounded-2xl bg-[var(--theme-pill-bg)] px-4 py-3.5">
         <div className="relative z-10 flex items-center justify-between gap-3">
           {/* Left: juz info */}
@@ -170,10 +170,10 @@ function JuzView() {
         </div>
       </div>
 
-      {/* View mode controls + Reading toolbar — sticky band */}
+      {/* View mode controls + Reading toolbar, sticky band */}
       <div className="sticky top-0 z-20 -mx-5 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-1 py-2 sm:-mx-6 sm:px-2">
         <div className="flex items-center justify-between">
-          {/* Left arrow — prev juz */}
+          {/* Left arrow: prev juz */}
           {hasPrev ? (
             <Link
               to="/juz/$juzId"
@@ -196,7 +196,7 @@ function JuzView() {
             </div>
           </div>
 
-          {/* Right arrow — next juz */}
+          {/* Right arrow: next juz */}
           {hasNext ? (
             <Link
               to="/juz/$juzId"

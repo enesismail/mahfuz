@@ -174,7 +174,7 @@ export function ExpandedFihrist({ open, onClose, chapters }: ExpandedFihristProp
   );
 }
 
-/* ── Category Section ── */
+/* Category Section */
 
 function CategorySection({
   category,
@@ -241,7 +241,7 @@ function CategorySection({
   );
 }
 
-/* ── Topic Grid (expanded version with inline detail) ── */
+/* Topic Grid (expanded version with inline detail) */
 
 function TopicGridExpanded({
   categoryId,

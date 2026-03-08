@@ -14,7 +14,7 @@ interface SegmentedControlProps<T extends string> {
   stretch?: boolean;
   /** When true, labels are hidden on mobile (icon-only) */
   iconOnlyMobile?: boolean;
-  /** When true, no background/padding — parent provides the container */
+  /** When true, no background/padding. Parent provides the container. */
   transparent?: boolean;
 }
 

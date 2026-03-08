@@ -10,7 +10,7 @@ interface LocalTranslationData {
 /**
  * Fetches and caches multiple local translation JSON files in parallel.
  * Returns a Map<translationId, Map<verseKey, text>> for all non-API ids.
- * API ids ("diyanet-api") are skipped — they come from the verse response.
+ * API ids ("diyanet-api") are skipped. They come from the verse response.
  */
 export function useLocalTranslations(ids: string[]) {
   const localIds = ids.filter((id) => id !== "diyanet-api");

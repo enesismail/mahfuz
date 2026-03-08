@@ -19,8 +19,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_DIR = join(__dirname, "..", "apps", "web", "public", "translations");
 
-// ── Types ──
-
+// Types
 interface GitHubTranslation {
   name: string;
   sures: {
@@ -35,8 +34,7 @@ interface UnifiedTranslation {
   verses: Record<string, string>;
 }
 
-// ── GitHub downloads ──
-
+// GitHub downloads
 const GITHUB_BASE =
   "https://raw.githubusercontent.com/alialparslan/Kuran-Meali-Ebook-Olusturucu/master/JSON";
 
@@ -73,8 +71,7 @@ async function fetchGitHubTranslations(): Promise<UnifiedTranslation[]> {
   return results;
 }
 
-// ── Ömer Çelik scraping ──
-
+// Ömer Çelik scraping
 // Surah slug mapping for www.kuranvemeali.com URLs (extracted from site dropdown)
 const SURAH_SLUGS = [
   "fatiha", "bakara", "aliimran", "nisa", "maide", "enam", "araf", "enfal",
@@ -158,8 +155,7 @@ async function scrapeOmerCelik(): Promise<UnifiedTranslation> {
   return { id: "omer-celik", name: "Ömer Çelik", verses };
 }
 
-// ── Main ──
-
+// Main
 async function main() {
   mkdirSync(OUTPUT_DIR, { recursive: true });
 

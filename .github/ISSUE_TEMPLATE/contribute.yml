@@ -48,7 +48,7 @@ body:
     id: ideas
     attributes:
       label: "Çalışmak İstediğiniz Konu"
-      description: "Aklınızda belirli bir konu varsa paylaşın, yoksa boş bırakın — yönlendirelim"
+      description: "Aklınızda belirli bir konu varsa paylaşın, yoksa boş bırakın, yönlendirelim"
       placeholder: "örn. Tefsir paneli eklemek istiyorum / Mevcut issue'lardan birine bakmak isterim"
     validations:
       required: false

@@ -197,7 +197,7 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Glass surfaces — Apple vibrancy */
+/* Glass surfaces: Apple vibrancy */
 .glass {
   background: var(--theme-glass-bg);
   backdrop-filter: saturate(180%) blur(20px);
@@ -232,9 +232,9 @@ body {
   font-size: calc(1em * var(--translation-font-scale, 1));
 }
 
-/* ═══ Mushaf — Ottoman Imperial Tezhip (Karahisari Style) ═══ */
+/* ═══ Mushaf: Ottoman Imperial Tezhip (Karahisari Style) ═══ */
 
-/* Mushaf palette tokens — per theme */
+/* Mushaf palette tokens: per theme */
 :root, [data-theme="light"] {
   --mushaf-paper: #faf5ea;
   --mushaf-ink: #2c1810;
@@ -284,7 +284,7 @@ body {
   --mushaf-shadow: 0 12px 48px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.2);
 }
 
-/* ── Page container ── */
+/* Page container */
 .mushaf-page {
   max-width: 640px;
   margin: 0 auto;
@@ -310,7 +310,7 @@ body {
   }
 }
 
-/* ── Outer cetvel — triple gold ruling ── */
+/* Outer cetvel: triple gold ruling */
 .mushaf-cetvel-outer {
   border: 1px solid var(--mushaf-gold-dark);
   background: var(--mushaf-gold);
@@ -318,7 +318,7 @@ body {
   box-shadow: inset 0 0 0 1px var(--mushaf-gold-shine);
 }
 
-/* ── Tezhip band — lapis lazuli illumination border ── */
+/* Tezhip band: lapis lazuli illumination border */
 .mushaf-tezhip-band {
   position: relative;
   padding: 16px;
@@ -333,7 +333,7 @@ body {
   .mushaf-tezhip-band { padding: 22px; }
 }
 
-/* ── Hatayi floral pattern — CSS arabesque on lapis ── */
+/* Hatayi floral pattern: CSS arabesque on lapis */
 .mushaf-hatayi-pattern {
   position: absolute;
   inset: 0;
@@ -390,7 +390,7 @@ body {
   pointer-events: none;
 }
 
-/* ── Köşelik — corner ornament SVG ── */
+/* Köşelik: corner ornament SVG */
 .mushaf-koselik {
   width: 56px;
   height: 56px;
@@ -402,7 +402,7 @@ body {
   .mushaf-koselik { width: 64px; height: 64px; }
 }
 
-/* ── Inner cetvel — double gold ruling around text ── */
+/* Inner cetvel: double gold ruling around text */
 .mushaf-cetvel-inner {
   position: relative;
   background: var(--mushaf-paper);
@@ -418,7 +418,7 @@ body {
   justify-content: center;
 }
 
-/* ── Content area ── */
+/* Content area */
 .mushaf-content {
   width: 100%;
   padding: 1.25rem 1.25rem;
@@ -427,7 +427,7 @@ body {
   .mushaf-content { padding: 2rem 2.5rem; }
 }
 
-/* ── Durak — verse-end marker (Ottoman rosette style) ── */
+/* Durak: verse-end marker (Ottoman rosette style) */
 .mushaf-durak {
   display: inline-flex;
   align-items: center;
@@ -469,13 +469,13 @@ body {
   color: var(--color-gold-500);
 }
 
-/* Smooth scrollbar — Apple style */
+/* Smooth scrollbar: Apple style */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--theme-scrollbar-thumb); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--theme-scrollbar-thumb-hover); }
 
-/* Animations — Apple spring-like */
+/* Animations: Apple spring-like */
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
@@ -509,7 +509,7 @@ body {
   animation: audio-bar-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Audio progress track — clickable area */
+/* Audio progress track: clickable area */
 .audio-progress-track {
   position: relative;
 }
@@ -539,7 +539,7 @@ body {
   border: none;
 }
 
-/* Focus ring — Apple style */
+/* Focus ring: Apple style */
 :focus-visible {
   outline: 4px solid rgba(5, 150, 105, 0.4);
   outline-offset: 1px;
@@ -556,7 +556,7 @@ body {
   transform-origin: top right;
 }
 
-/* Accordion animation — grid-template-rows for smooth height */
+/* Accordion animation: grid-template-rows for smooth height */
 .accordion-grid {
   display: grid;
   grid-template-rows: 0fr;
