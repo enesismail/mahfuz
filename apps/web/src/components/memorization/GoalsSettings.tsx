@@ -1,5 +1,6 @@
 import { useMemorizationStore } from "~/stores/useMemorizationStore";
 import { memorizationRepository } from "@mahfuz/db";
+import { useTranslation } from "~/hooks/useTranslation";
 
 interface GoalsSettingsProps {
   userId: string;
@@ -9,6 +10,7 @@ export function GoalsSettings({ userId }: GoalsSettingsProps) {
   const newCardsPerDay = useMemorizationStore((s) => s.newCardsPerDay);
   const reviewCardsPerDay = useMemorizationStore((s) => s.reviewCardsPerDay);
   const setGoals = useMemorizationStore((s) => s.setGoals);
+  const { t } = useTranslation();
 
   const handleChange = async (newCards: number, reviewCards: number) => {
     setGoals(newCards, reviewCards);
@@ -22,19 +24,19 @@ export function GoalsSettings({ userId }: GoalsSettingsProps) {
   return (
     <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)]">
       <h3 className="mb-4 text-base font-semibold text-[var(--theme-text)]">
-        Günlük Hedefler
+        {t.memorize.goalsSettings.title}
       </h3>
 
       <div className="space-y-4">
         <GoalRow
-          label="Yeni ayet / gün"
+          label={t.memorize.goalsSettings.newPerDay}
           value={newCardsPerDay}
           onChange={(v) => handleChange(v, reviewCardsPerDay)}
           min={1}
           max={30}
         />
         <GoalRow
-          label="Tekrar / gün"
+          label={t.memorize.goalsSettings.reviewPerDay}
           value={reviewCardsPerDay}
           onChange={(v) => handleChange(newCardsPerDay, v)}
           min={5}

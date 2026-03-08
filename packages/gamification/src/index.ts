@@ -1,3 +1,7 @@
-// @mahfuz/gamification — XP, streak, achievements
-// Implementation in Phase 7
-export {};
+export {
+  BADGE_DEFINITIONS,
+  type BadgeDefinition,
+  type BadgeCategory,
+  type BadgeCheckContext,
+} from "./badges";
+export { checkNewBadges } from "./badge-checker";

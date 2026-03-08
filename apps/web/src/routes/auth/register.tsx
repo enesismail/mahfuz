@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { signUp, signIn } from "~/lib/auth-client";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute("/auth/register")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -17,6 +18,7 @@ function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +27,13 @@ function RegisterPage() {
     try {
       const result = await signUp.email({ name, email, password });
       if (result.error) {
-        setError(result.error.message || "Kayıt olunamadı.");
+        setError(result.error.message || t.auth.registerFailed);
       } else {
         await router.invalidate();
         router.navigate({ to: redirect || "/surah" });
       }
     } catch {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setError(t.auth.registerError);
     } finally {
       setLoading(false);
     }
@@ -45,10 +47,10 @@ function RegisterPage() {
         callbackURL: redirect || "/surah",
       });
       if (result?.error) {
-        setError(result.error.message || "Google ile kayıt olunamadı.");
+        setError(result.error.message || t.auth.googleRegisterFailed);
       }
     } catch {
-      setError("Google ile kayıt olunamadı. Lütfen tekrar deneyin.");
+      setError(t.auth.googleRegisterError);
     }
   };
 
@@ -60,10 +62,10 @@ function RegisterPage() {
         callbackURL: redirect || "/surah",
       });
       if (result?.error) {
-        setError(result.error.message || "Apple ile kayıt olunamadı.");
+        setError(result.error.message || t.auth.appleRegisterFailed);
       }
     } catch {
-      setError("Apple ile kayıt olunamadı. Lütfen tekrar deneyin.");
+      setError(t.auth.appleRegisterError);
     }
   };
 
@@ -78,10 +80,10 @@ function RegisterPage() {
             </span>
           </Link>
           <h1 className="mt-4 text-[28px] font-semibold tracking-tight text-[var(--theme-text)]">
-            Hesap Oluştur
+            {t.auth.registerTitle}
           </h1>
           <p className="mt-1 text-[15px] text-[var(--theme-text-secondary)]">
-            Mahfuz'a hoş geldiniz
+            {t.auth.registerSubtitle}
           </p>
         </div>
 
@@ -101,7 +103,7 @@ function RegisterPage() {
               className="flex w-full items-center justify-center gap-3 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-4 py-3 text-[15px] font-medium text-[var(--theme-text)] transition-all hover:bg-[var(--theme-bg)] active:scale-[0.98]"
             >
               <GoogleIcon />
-              Google ile devam et
+              {t.auth.continueWithGoogle}
             </button>
             <button
               type="button"
@@ -109,14 +111,14 @@ function RegisterPage() {
               className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl bg-[#1d1d1f]/40 px-4 py-3 text-[15px] font-medium text-white/50"
             >
               <AppleIcon />
-              Apple ile devam et (yakında)
+              {t.auth.continueWithApple}
             </button>
           </div>
 
           {/* Divider */}
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-[var(--theme-divider)]" />
-            <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">veya</span>
+            <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">{t.common.or}</span>
             <div className="h-px flex-1 bg-[var(--theme-divider)]" />
           </div>
 
@@ -127,7 +129,7 @@ function RegisterPage() {
                 htmlFor="name"
                 className="mb-1.5 block text-[13px] font-medium text-[var(--theme-text-secondary)]"
               >
-                Ad Soyad
+                {t.auth.fullName}
               </label>
               <input
                 id="name"
@@ -136,7 +138,7 @@ function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-[15px] text-[var(--theme-text)] outline-none transition-all placeholder:text-[var(--theme-text-quaternary)] focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                placeholder="Adınız Soyadınız"
+                placeholder={t.auth.fullNamePlaceholder}
               />
             </div>
             <div>
@@ -144,7 +146,7 @@ function RegisterPage() {
                 htmlFor="email"
                 className="mb-1.5 block text-[13px] font-medium text-[var(--theme-text-secondary)]"
               >
-                E-posta
+                {t.auth.email}
               </label>
               <input
                 id="email"
@@ -153,7 +155,7 @@ function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-[15px] text-[var(--theme-text)] outline-none transition-all placeholder:text-[var(--theme-text-quaternary)] focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                placeholder="ornek@email.com"
+                placeholder={t.auth.emailPlaceholder}
               />
             </div>
             <div>
@@ -161,7 +163,7 @@ function RegisterPage() {
                 htmlFor="password"
                 className="mb-1.5 block text-[13px] font-medium text-[var(--theme-text-secondary)]"
               >
-                Şifre
+                {t.auth.password}
               </label>
               <input
                 id="password"
@@ -171,7 +173,7 @@ function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-[15px] text-[var(--theme-text)] outline-none transition-all placeholder:text-[var(--theme-text-quaternary)] focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                placeholder="En az 8 karakter"
+                placeholder={t.auth.passwordMinChars}
               />
             </div>
             <button
@@ -179,19 +181,19 @@ function RegisterPage() {
               disabled={loading}
               className="w-full rounded-xl bg-primary-600 py-3 text-[15px] font-semibold text-white transition-all hover:bg-primary-700 active:scale-[0.98] disabled:opacity-50"
             >
-              {loading ? "Hesap oluşturuluyor..." : "Kayıt Ol"}
+              {loading ? t.auth.registering : t.auth.register}
             </button>
           </form>
         </div>
 
         <p className="mt-6 text-center text-[13px] text-[var(--theme-text-tertiary)]">
-          Zaten hesabınız var mı?{" "}
+          {t.auth.hasAccount}{" "}
           <Link
             to="/auth/login"
             search={{ redirect }}
             className="font-medium text-primary-600 hover:underline"
           >
-            Giriş Yap
+            {t.auth.login}
           </Link>
         </p>
       </div>

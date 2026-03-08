@@ -12,6 +12,8 @@ import { InstallPrompt } from "~/components/ui/InstallPrompt";
 import { getSession } from "~/lib/auth-session";
 import type { Session } from "~/lib/auth";
 import { useFontLoader } from "~/hooks/useFontLoader";
+import { useTranslation } from "~/hooks/useTranslation";
+import { useI18nStore } from "~/stores/useI18nStore";
 
 interface RouterContext {
   queryClient: QueryClient;
@@ -97,9 +99,10 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   useFontLoader();
+  const locale = useI18nStore((s) => s.locale);
 
   return (
-    <html lang="tr">
+    <html lang={locale}>
       <head>
         <HeadContent />
       </head>
@@ -114,20 +117,21 @@ function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
 }
 
 function NotFound() {
+  const { t } = useTranslation();
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6">
       <p className="arabic-text mb-6 text-5xl text-primary-600" dir="rtl">
         ٤٠٤
       </p>
       <h1 className="mb-2 text-2xl font-semibold tracking-tight text-[var(--theme-text)]">
-        Sayfa Bulunamadı
+        {t.error.notFound}
       </h1>
-      <p className="text-[var(--theme-text-secondary)]">Aradığınız sayfa mevcut değil.</p>
+      <p className="text-[var(--theme-text-secondary)]">{t.error.notFoundDesc}</p>
       <a
         href="/"
         className="mt-8 inline-flex rounded-full bg-primary-600 px-7 py-3 text-sm font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
       >
-        Ana Sayfaya Dön
+        {t.error.goHome}
       </a>
     </div>
   );

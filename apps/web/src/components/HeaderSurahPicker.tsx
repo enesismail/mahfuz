@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import type { Chapter } from "@mahfuz/shared/types";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export function HeaderSurahPicker({
   currentChapterId,
@@ -12,6 +13,7 @@ export function HeaderSurahPicker({
   onSelect: (chapterId: number) => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const currentRef = useRef<HTMLButtonElement>(null);
@@ -96,7 +98,7 @@ export function HeaderSurahPicker({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Sure ara..."
+          placeholder={t.surahPicker.placeholder}
           className="flex-1 bg-transparent text-[13px] text-[var(--theme-text)] placeholder-[var(--theme-text-tertiary)] outline-none"
         />
       </div>
@@ -136,7 +138,7 @@ export function HeaderSurahPicker({
                   </span>
                 </div>
                 <span className="text-[10px] text-[var(--theme-text-tertiary)]">
-                  {ch.verses_count} ayet
+                  {ch.verses_count} {t.browse.versesCount}
                 </span>
               </div>
               <span
@@ -150,7 +152,7 @@ export function HeaderSurahPicker({
         })}
         {filtered.length === 0 && (
           <p className="px-3 py-4 text-center text-[12px] text-[var(--theme-text-tertiary)]">
-            Sonuç bulunamadı
+            {t.common.noResults}
           </p>
         )}
       </div>

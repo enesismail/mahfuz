@@ -8,6 +8,7 @@ import { verseByKeyQueryOptions } from "~/hooks/useVerses";
 import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
 import { useAudioStore } from "~/stores/useAudioStore";
 import { TranslationPicker } from "./TranslationPicker";
+import { useTranslation } from "~/hooks/useTranslation";
 
 /* ─── Shared helpers ─── */
 
@@ -125,20 +126,22 @@ function PreviewCard({ verse }: { verse: Verse }) {
 
 /* ─── Mode selector options ─── */
 
-const INNER_MODE_OPTIONS: { value: ViewMode; label: string; icon: React.ReactNode }[] = [
-  {
-    value: "normal", label: "Normal",
-    icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h7M3 12h10" /></svg>,
-  },
-  {
-    value: "wordByWord", label: "Kelime",
-    icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1.5" y="3" width="4" height="4.5" rx="1" /><rect x="7.5" y="3" width="4" height="4.5" rx="1" /><rect x="1.5" y="9.5" width="4" height="4.5" rx="1" /><rect x="7.5" y="9.5" width="4" height="4.5" rx="1" /></svg>,
-  },
-  {
-    value: "mushaf", label: "Mushaf",
-    icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 2.5h4.5a1.5 1.5 0 0 1 1.5 1.5v10S6.5 13 4.25 13 2 14 2 14V2.5z" /><path d="M14 2.5H9.5A1.5 1.5 0 0 0 8 4v10s1.5-1 3.75-1S14 14 14 14V2.5z" /></svg>,
-  },
-];
+function getModeOptions(t: ReturnType<typeof useTranslation>["t"]): { value: ViewMode; label: string; icon: React.ReactNode }[] {
+  return [
+    {
+      value: "normal", label: t.settings.viewModes.normal,
+      icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h7M3 12h10" /></svg>,
+    },
+    {
+      value: "wordByWord", label: t.settings.viewModes.wordByWord,
+      icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1.5" y="3" width="4" height="4.5" rx="1" /><rect x="7.5" y="3" width="4" height="4.5" rx="1" /><rect x="1.5" y="9.5" width="4" height="4.5" rx="1" /><rect x="7.5" y="9.5" width="4" height="4.5" rx="1" /></svg>,
+    },
+    {
+      value: "mushaf", label: t.settings.viewModes.mushaf,
+      icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 2.5h4.5a1.5 1.5 0 0 1 1.5 1.5v10S6.5 13 4.25 13 2 14 2 14V2.5z" /><path d="M14 2.5H9.5A1.5 1.5 0 0 0 8 4v10s1.5-1 3.75-1S14 14 14 14V2.5z" /></svg>,
+    },
+  ];
+}
 
 /* ─── iOS-style setting card ─── */
 
@@ -191,16 +194,19 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
   wordTransliterationSize: number; setWordTransliterationSize: (s: number) => void;
   wbwTransliterationFirst: boolean; setWbwTransliterationFirst: (v: boolean) => void;
 }) {
+  const { t } = useTranslation();
+  const modeOptions = getModeOptions(t);
+
   const arabicSize = viewMode === "wordByWord" ? wbwArabicFontSize : viewMode === "mushaf" ? mushafArabicFontSize : normalArabicFontSize;
   const setArabicSize = viewMode === "wordByWord" ? setWbwArabicFontSize : viewMode === "mushaf" ? setMushafArabicFontSize : setNormalArabicFontSize;
 
   return (
     <>
       <div className="mb-4">
-        <SegmentedControl options={INNER_MODE_OPTIONS} value={viewMode} onChange={setViewMode} stretch />
+        <SegmentedControl options={modeOptions} value={viewMode} onChange={setViewMode} stretch />
       </div>
 
-      <SizeSlider label="Arapça Boyutu" value={arabicSize} onChange={setArabicSize}
+      <SizeSlider label={t.settings.arabicSize} value={arabicSize} onChange={setArabicSize}
         smallIcon={<span className="-translate-y-[4px] text-[15px] leading-none text-[var(--theme-text-tertiary)]" style={{ fontFamily: 'var(--font-arabic)' }}>ع</span>}
         largeIcon={<span className="-translate-y-[5px] text-[24px] leading-none text-[var(--theme-text-tertiary)]" style={{ fontFamily: 'var(--font-arabic)' }}>ع</span>}
       />
@@ -209,7 +215,7 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
         <>
           <SettingCard
             icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h6M3 12h8" /></svg>}
-            iconBg="bg-blue-500" label="Çeviri" subtitle="Meal metnini göster"
+            iconBg="bg-blue-500" label={t.reading.translation} subtitle={t.reading.translationSubtitle}
             checked={normalShowTranslation} onChange={setNormalShowTranslation}
           >
             <CompactSlider value={translationFontSize} onChange={setNormalTranslationFontSize} />
@@ -217,7 +223,7 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
           </SettingCard>
           <SettingCard
             icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg>}
-            iconBg="bg-teal-500" label="Kelime Bilgisi" subtitle="Kelimeye dokununca çeviri ve okunuş"
+            iconBg="bg-teal-500" label={t.reading.wordInfo} subtitle={t.reading.wordInfoSubtitle}
             checked={normalShowWordHover} onChange={setNormalShowWordHover}
           />
         </>
@@ -227,12 +233,12 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
         <>
           {(wbwTransliterationFirst
             ? [
-                { key: "tl", label: "Transliterasyon", subtitle: "Okunuş rehberi", checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
-                { key: "tr", label: "Kelime Çevirisi", subtitle: "Her kelimenin anlamı", checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
+                { key: "tl", label: t.reading.transliterationLabel, subtitle: t.reading.transliterationSubtitle, checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
+                { key: "tr", label: t.reading.wordTranslationLabel, subtitle: t.reading.wordTranslationSubtitle, checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
               ]
             : [
-                { key: "tr", label: "Kelime Çevirisi", subtitle: "Her kelimenin anlamı", checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
-                { key: "tl", label: "Transliterasyon", subtitle: "Okunuş rehberi", checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
+                { key: "tr", label: t.reading.wordTranslationLabel, subtitle: t.reading.wordTranslationSubtitle, checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
+                { key: "tl", label: t.reading.transliterationLabel, subtitle: t.reading.transliterationSubtitle, checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
               ]
           ).map((item) => (
             <SettingCard key={item.key} icon={item.icon} iconBg={item.iconBg} label={item.label} subtitle={item.subtitle} checked={item.checked} onChange={item.onChange}>
@@ -241,7 +247,7 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
           ))}
           <SettingCard
             icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h6M3 12h8" /></svg>}
-            iconBg="bg-blue-500" label="Çeviri" subtitle="Meal metnini göster"
+            iconBg="bg-blue-500" label={t.reading.translation} subtitle={t.reading.translationSubtitle}
             checked={wbwShowTranslation} onChange={setWbwShowTranslation}
           >
             <TranslationPicker compact />
@@ -249,7 +255,7 @@ function ModeTabContent({ viewMode, setViewMode, normalArabicFontSize, setNormal
           <button type="button" onClick={() => setWbwTransliterationFirst(!wbwTransliterationFirst)}
             className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--theme-pill-bg)] px-3 py-2 text-[12px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]">
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M7 4v16M7 4l-4 4M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4" /></svg>
-            Sırayı Değiştir
+            {t.reading.swapOrder}
           </button>
         </>
       )}
@@ -263,6 +269,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
   const [open, setOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const { t } = useTranslation();
 
   const audioVisible = useAudioStore((s) => s.isVisible);
 
@@ -335,7 +342,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
             ? `relative z-[1] justify-center rounded-lg px-2.5 py-1.5 text-[12px] sm:px-3.5 ${open ? "text-[var(--theme-text)]" : "text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]"}`
             : `h-8 rounded-full px-3 text-[13px] ${open ? "bg-primary-600 text-white" : "bg-[var(--theme-pill-bg)] text-[var(--theme-text)] hover:bg-[var(--theme-hover-bg)]"}`
         }`}
-        aria-label="Okuma ayarları" aria-expanded={open}
+        aria-label={t.reading.settings} aria-expanded={open}
       >
         <span className="text-[14px] font-semibold">A</span>
         <span className="arabic-text text-[14px] font-semibold leading-none">ع</span>
@@ -350,10 +357,10 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
           >
             {/* Mobile header */}
             <div className="mb-3 flex items-center justify-between sm:hidden">
-              <span className="text-[14px] font-semibold text-[var(--theme-text)]">Okuma Ayarları</span>
-              <button onClick={() => setOpen(false)} className="flex h-7 items-center gap-1 rounded-full bg-primary-600 px-2.5 text-[12px] font-medium text-white transition-colors hover:bg-primary-700" aria-label="Kapat">
+              <span className="text-[14px] font-semibold text-[var(--theme-text)]">{t.reading.settingsTitle}</span>
+              <button onClick={() => setOpen(false)} className="flex h-7 items-center gap-1 rounded-full bg-primary-600 px-2.5 text-[12px] font-medium text-white transition-colors hover:bg-primary-700" aria-label={t.common.close}>
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                Tamam
+                {t.common.ok}
               </button>
             </div>
 

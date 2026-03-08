@@ -1,4 +1,5 @@
 import type { SessionResult } from "~/stores/useMemorizationStore";
+import { useTranslation } from "~/hooks/useTranslation";
 
 interface SessionResultsProps {
   results: SessionResult[];
@@ -6,6 +7,7 @@ interface SessionResultsProps {
 }
 
 export function SessionResults({ results, onContinue }: SessionResultsProps) {
+  const { t } = useTranslation();
   const total = results.length;
   const correct = results.filter((r) => r.wasCorrect).length;
   const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
@@ -13,7 +15,7 @@ export function SessionResults({ results, onContinue }: SessionResultsProps) {
   return (
     <div className="animate-scale-in rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
       <h2 className="mb-6 text-center text-xl font-bold text-[var(--theme-text)]">
-        Oturum Tamamlandı
+        {t.memorize.results.title}
       </h2>
 
       {/* Summary */}
@@ -23,19 +25,19 @@ export function SessionResults({ results, onContinue }: SessionResultsProps) {
             {total}
           </p>
           <p className="text-[12px] text-[var(--theme-text-tertiary)]">
-            Toplam
+            {t.memorize.results.total}
           </p>
         </div>
         <div>
           <p className="text-2xl font-bold text-emerald-600">{correct}</p>
           <p className="text-[12px] text-[var(--theme-text-tertiary)]">
-            Doğru
+            {t.memorize.results.correct}
           </p>
         </div>
         <div>
           <p className="text-2xl font-bold text-primary-600">{accuracy}%</p>
           <p className="text-[12px] text-[var(--theme-text-tertiary)]">
-            Doğruluk
+            {t.memorize.results.accuracy}
           </p>
         </div>
       </div>
@@ -67,7 +69,7 @@ export function SessionResults({ results, onContinue }: SessionResultsProps) {
         onClick={onContinue}
         className="w-full rounded-xl bg-primary-600 py-3 text-[15px] font-semibold text-white shadow-sm transition-all hover:bg-primary-700 active:scale-[0.98]"
       >
-        Devam Et
+        {t.memorize.results.continue}
       </button>
     </div>
   );

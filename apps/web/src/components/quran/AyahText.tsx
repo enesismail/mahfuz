@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { Verse } from "@mahfuz/shared/types";
 import { WordByWord } from "./WordByWord";
 import { TranslationBlock } from "./TranslationBlock";
 import { usePreferencesStore, getActiveColors } from "~/stores/usePreferencesStore";
 import type { ViewMode } from "~/stores/usePreferencesStore";
 import { useAudioStore } from "~/stores/useAudioStore";
+import { useTranslation } from "~/hooks/useTranslation";
 
 interface AyahTextProps {
   verse: Verse;
@@ -19,6 +20,7 @@ export function AyahText({
   onPlayFromVerse,
   onTogglePlayPause,
 }: AyahTextProps) {
+  const { t } = useTranslation();
   const storeViewMode = usePreferencesStore((s) => s.viewMode);
   const colorizeWords = usePreferencesStore((s) => s.colorizeWords);
   const colorPaletteId = usePreferencesStore((s) => s.colorPaletteId);
@@ -53,11 +55,44 @@ export function AyahText({
 
   const isPlayingThisVerse = isCurrentVerse && isAudioPlaying;
 
+  // Copy to clipboard
+  const [expandedTranslations, setExpandedTranslations] = useState<Set<number>>(
+    () => new Set([0]),
+  );
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const arabicText = verse.words
+      ? verse.words
+          .filter((w) => w.char_type_name === "word")
+          .map((w) => w.text_uthmani)
+          .join(" ")
+      : verse.text_uthmani;
+
+    const parts = [verse.verse_key, "", arabicText];
+
+    if (verse.translations) {
+      const expanded = verse.translations.length === 1
+        ? verse.translations
+        : verse.translations.filter((_, i) => expandedTranslations.has(i));
+
+      for (const t of expanded) {
+        const plainText = t.text.replace(/<[^>]*>/g, "");
+        parts.push("", `${t.resource_name}: ${plainText}`);
+      }
+    }
+
+    await navigator.clipboard.writeText(parts.join("\n"));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [verse, expandedTranslations]);
+
   return (
     <div
       id={`verse-${verse.verse_key}`}
       role="article"
-      aria-label={`Ayet ${verse.verse_key}`}
+      aria-label={`${t.quranReader.verseLabel} ${verse.verse_key}`}
       className={`animate-fade-in group px-4 py-7 transition-colors sm:px-6 ${
         isCurrentVerse && isAudioPlaying
           ? "bg-[var(--theme-highlight-bg)]"
@@ -74,6 +109,27 @@ export function AyahText({
         <span className="select-all text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">
           {verse.verse_key}
         </span>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={handleCopy}
+            className={`flex h-8 w-8 items-center justify-center rounded-full transition-all sm:h-6 sm:w-6 ${
+              copied
+                ? "bg-green-500 text-white"
+                : "text-[var(--theme-text-quaternary)] hover:text-[var(--theme-text-tertiary)]"
+            }`}
+            aria-label={t.quranReader.copy}
+          >
+            <svg className="h-3.5 w-3.5 sm:h-3 sm:w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              {copied ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              ) : (
+                <>
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </>
+              )}
+            </svg>
+          </button>
         {onPlayFromVerse && (
           <button
             onClick={(e) => {
@@ -91,8 +147,8 @@ export function AyahText({
             }`}
             aria-label={
               isPlayingThisVerse
-                ? `Ayet ${verse.verse_key} kaydını duraklat`
-                : `Ayet ${verse.verse_key}'den dinle`
+                ? `${t.quranReader.pauseVerseAudio} ${verse.verse_key}`
+                : `${t.quranReader.playFromVerse} ${verse.verse_key}`
             }
           >
             <svg className="h-3.5 w-3.5 sm:h-3 sm:w-3" viewBox="0 0 24 24" fill="currentColor">
@@ -104,6 +160,7 @@ export function AyahText({
             </svg>
           </button>
         )}
+        </div>
       </div>
       {/* Verse number + Arabic text */}
       <div className="mb-4 flex items-start gap-4">
@@ -167,6 +224,7 @@ export function AyahText({
             translations={verse.translations}
             fontSize={normalTranslationFontSize}
             revealed={revealed && !showTranslation}
+            onExpandedChange={setExpandedTranslations}
           />
         </div>
       )}

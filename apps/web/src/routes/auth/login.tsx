@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { signIn } from "~/lib/auth-client";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute("/auth/login")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -16,6 +17,7 @@ function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,13 +26,13 @@ function LoginPage() {
     try {
       const result = await signIn.email({ email, password });
       if (result.error) {
-        setError(result.error.message || "Giriş yapılamadı.");
+        setError(result.error.message || t.auth.loginFailed);
       } else {
         await router.invalidate();
         router.navigate({ to: redirect || "/surah" });
       }
     } catch {
-      setError("Bir hata oluştu. Lütfen tekrar deneyin.");
+      setError(t.auth.loginError);
     } finally {
       setLoading(false);
     }
@@ -44,10 +46,10 @@ function LoginPage() {
         callbackURL: redirect || "/surah",
       });
       if (result?.error) {
-        setError(result.error.message || "Google ile giriş yapılamadı.");
+        setError(result.error.message || t.auth.googleLoginFailed);
       }
     } catch {
-      setError("Google ile giriş yapılamadı. Lütfen tekrar deneyin.");
+      setError(t.auth.googleLoginError);
     }
   };
 
@@ -59,10 +61,10 @@ function LoginPage() {
         callbackURL: redirect || "/surah",
       });
       if (result?.error) {
-        setError(result.error.message || "Apple ile giriş yapılamadı.");
+        setError(result.error.message || t.auth.appleLoginFailed);
       }
     } catch {
-      setError("Apple ile giriş yapılamadı. Lütfen tekrar deneyin.");
+      setError(t.auth.appleLoginError);
     }
   };
 
@@ -77,10 +79,10 @@ function LoginPage() {
             </span>
           </Link>
           <h1 className="mt-4 text-[28px] font-semibold tracking-tight text-[var(--theme-text)]">
-            Giriş Yap
+            {t.auth.login}
           </h1>
           <p className="mt-1 text-[15px] text-[var(--theme-text-secondary)]">
-            Hesabınıza giriş yapın
+            {t.auth.loginSubtitle}
           </p>
         </div>
 
@@ -100,7 +102,7 @@ function LoginPage() {
               className="flex w-full items-center justify-center gap-3 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-4 py-3 text-[15px] font-medium text-[var(--theme-text)] transition-all hover:bg-[var(--theme-bg)] active:scale-[0.98]"
             >
               <GoogleIcon />
-              Google ile devam et
+              {t.auth.continueWithGoogle}
             </button>
             <button
               type="button"
@@ -108,14 +110,14 @@ function LoginPage() {
               className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl bg-[#1d1d1f]/40 px-4 py-3 text-[15px] font-medium text-white/50"
             >
               <AppleIcon />
-              Apple ile devam et (yakında)
+              {t.auth.continueWithApple}
             </button>
           </div>
 
           {/* Divider */}
           <div className="my-6 flex items-center gap-4">
             <div className="h-px flex-1 bg-[var(--theme-divider)]" />
-            <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">veya</span>
+            <span className="text-xs font-medium text-[var(--theme-text-tertiary)]">{t.common.or}</span>
             <div className="h-px flex-1 bg-[var(--theme-divider)]" />
           </div>
 
@@ -126,7 +128,7 @@ function LoginPage() {
                 htmlFor="email"
                 className="mb-1.5 block text-[13px] font-medium text-[var(--theme-text-secondary)]"
               >
-                E-posta
+                {t.auth.email}
               </label>
               <input
                 id="email"
@@ -135,7 +137,7 @@ function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-[15px] text-[var(--theme-text)] outline-none transition-all placeholder:text-[var(--theme-text-quaternary)] focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                placeholder="ornek@email.com"
+                placeholder={t.auth.emailPlaceholder}
               />
             </div>
             <div>
@@ -143,7 +145,7 @@ function LoginPage() {
                 htmlFor="password"
                 className="mb-1.5 block text-[13px] font-medium text-[var(--theme-text-secondary)]"
               >
-                Şifre
+                {t.auth.password}
               </label>
               <input
                 id="password"
@@ -153,7 +155,7 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-[15px] text-[var(--theme-text)] outline-none transition-all placeholder:text-[var(--theme-text-quaternary)] focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20"
-                placeholder="••••••••"
+                placeholder={t.auth.passwordPlaceholder}
               />
             </div>
             <button
@@ -161,19 +163,19 @@ function LoginPage() {
               disabled={loading}
               className="w-full rounded-xl bg-primary-600 py-3 text-[15px] font-semibold text-white transition-all hover:bg-primary-700 active:scale-[0.98] disabled:opacity-50"
             >
-              {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+              {loading ? t.auth.loggingIn : t.auth.login}
             </button>
           </form>
         </div>
 
         <p className="mt-6 text-center text-[13px] text-[var(--theme-text-tertiary)]">
-          Hesabınız yok mu?{" "}
+          {t.auth.noAccount}{" "}
           <Link
             to="/auth/register"
             search={{ redirect }}
             className="font-medium text-primary-600 hover:underline"
           >
-            Kayıt Ol
+            {t.auth.register}
           </Link>
         </p>
       </div>

@@ -5,6 +5,7 @@ import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { searchQueryOptions } from "~/hooks/useSearch";
 import { TOTAL_PAGES, TOTAL_JUZ, TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
 import type { Chapter } from "@mahfuz/shared/types";
+import { useTranslation } from "~/hooks/useTranslation";
 
 // Turkish character normalization for fuzzy matching
 function normalize(s: string): string {
@@ -30,6 +31,7 @@ interface NavResult {
 function parseStructuralResults(
   query: string,
   chapters: Chapter[],
+  t: ReturnType<typeof useTranslation>["t"],
 ): NavResult[] {
   const q = query.trim();
   if (!q) return [];
@@ -66,8 +68,8 @@ function parseStructuralResults(
     if (n >= 1 && n <= TOTAL_JUZ) {
       results.push({
         type: "juz",
-        label: `Cüz ${n}`,
-        sublabel: `${n}. cüz`,
+        label: `${t.common.juz} ${n}`,
+        sublabel: `${n}. ${t.common.juz}`,
         to: "/juz/$juzId",
         params: { juzId: String(n) },
       });
@@ -82,8 +84,8 @@ function parseStructuralResults(
     if (n >= 1 && n <= TOTAL_PAGES) {
       results.push({
         type: "page",
-        label: `Sayfa ${n}`,
-        sublabel: `Mushaf sayfa ${n}`,
+        label: `${t.common.page} ${n}`,
+        sublabel: `${t.commandPalette.mushafPage} ${n}`,
         to: "/page/$pageNumber",
         params: { pageNumber: String(n) },
       });
@@ -116,7 +118,7 @@ function parseStructuralResults(
       results.push({
         type: "surah",
         label: `${matched.translated_name.name}`,
-        sublabel: `${matched.id}. sure · ${matched.verses_count} ayet`,
+        sublabel: `${matched.id}. ${t.commandPalette.surahUnit} · ${matched.verses_count} ${t.common.verse}`,
         to: "/surah/$surahId",
         params: { surahId: String(matched.id) },
       });
@@ -134,7 +136,7 @@ function parseStructuralResults(
         results.push({
           type: "surah",
           label: ch.translated_name.name,
-          sublabel: `${ch.id}. sure · ${ch.name_simple} · ${ch.verses_count} ayet`,
+          sublabel: `${ch.id}. ${t.commandPalette.surahUnit} · ${ch.name_simple} · ${ch.verses_count} ${t.common.verse}`,
           to: "/surah/$surahId",
           params: { surahId: String(n) },
         });
@@ -143,8 +145,8 @@ function parseStructuralResults(
     if (n >= 1 && n <= TOTAL_PAGES) {
       results.push({
         type: "page",
-        label: `Sayfa ${n}`,
-        sublabel: `Mushaf sayfa ${n}`,
+        label: `${t.common.page} ${n}`,
+        sublabel: `${t.commandPalette.mushafPage} ${n}`,
         to: "/page/$pageNumber",
         params: { pageNumber: String(n) },
       });
@@ -152,8 +154,8 @@ function parseStructuralResults(
     if (n >= 1 && n <= TOTAL_JUZ) {
       results.push({
         type: "juz",
-        label: `Cüz ${n}`,
-        sublabel: `${n}. cüz`,
+        label: `${t.common.juz} ${n}`,
+        sublabel: `${n}. ${t.common.juz}`,
         to: "/juz/$juzId",
         params: { juzId: String(n) },
       });
@@ -175,7 +177,7 @@ function parseStructuralResults(
     results.push({
       type: "surah",
       label: ch.translated_name.name,
-      sublabel: `${ch.id}. sure · ${ch.name_simple} · ${ch.verses_count} ayet`,
+      sublabel: `${ch.id}. ${t.commandPalette.surahUnit} · ${ch.name_simple} · ${ch.verses_count} ${t.common.verse}`,
       to: "/surah/$surahId",
       params: { surahId: String(ch.id) },
     });
@@ -216,6 +218,7 @@ function TypeIcon({ type }: { type: NavResult["type"] }) {
 }
 
 export function CommandPalette({ onClose }: { onClose: () => void }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -229,8 +232,8 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
 
   // Structural (instant) results
   const navResults = useMemo(
-    () => parseStructuralResults(query, chapters),
-    [query, chapters],
+    () => parseStructuralResults(query, chapters, t),
+    [query, chapters, t],
   );
 
   // Debounce for API search
@@ -354,7 +357,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Sure, ayet, sayfa veya cüz ara..."
+            placeholder={t.commandPalette.placeholder}
             className="flex-1 bg-transparent text-[16px] text-[var(--theme-text)] placeholder-[var(--theme-text-tertiary)] outline-none"
           />
           {query && (
@@ -388,7 +391,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
           {!query.trim() && (
             <div className="px-4 py-8 text-center">
               <p className="text-[13px] text-[var(--theme-text-tertiary)]">
-                Sure adı, ayet numarası, sayfa veya cüz yazın
+                {t.commandPalette.emptyDesc}
               </p>
               <div className="mx-auto mt-3 flex max-w-[320px] flex-wrap justify-center gap-1.5">
                 {["fatiha", "bakara 255", "33:35", "5", "cüz 29", "sayfa 300"].map(
@@ -410,7 +413,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
           {navResults.length > 0 && (
             <div>
               <p className="px-4 pt-3 text-[11px] font-medium uppercase tracking-wider text-[var(--theme-text-quaternary)]">
-                Hızlı Geçiş
+                {t.commandPalette.quickNav}
               </p>
               {navResults.map((item, i) => (
                 <button
@@ -446,14 +449,14 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
           {/* API search results */}
           {shouldSearch && searchLoading && (
             <p className="px-4 py-6 text-center text-[13px] text-[var(--theme-text-tertiary)]">
-              Aranıyor...
+              {t.commandPalette.searching}
             </p>
           )}
 
           {searchResults.length > 0 && (
             <div>
               <p className="px-4 pt-3 text-[11px] font-medium uppercase tracking-wider text-[var(--theme-text-quaternary)]">
-                Ayet Sonuçları · {searchData!.total_results} sonuç
+                {t.commandPalette.verseResults} · {searchData!.total_results} {t.commandPalette.results}
               </p>
               {searchResults.map((result, i) => {
                 const idx = navResults.length + i;
@@ -499,7 +502,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
             shouldSearch &&
             searchResults.length === 0 && (
               <p className="px-4 py-6 text-center text-[13px] text-[var(--theme-text-tertiary)]">
-                Sonuç bulunamadı
+                {t.common.noResults}
               </p>
             )}
         </div>

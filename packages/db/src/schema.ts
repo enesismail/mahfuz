@@ -45,12 +45,33 @@ export interface MemorizationGoalsEntry {
   reviewCardsPerDay: number;
 }
 
+/** Sync queue record for offline-first sync */
+export interface SyncQueueRecord {
+  id: string;
+  table: "memorization_cards" | "review_entries" | "memorization_goals";
+  recordId: string;
+  action: "upsert" | "delete";
+  data: string; // JSON stringified record
+  synced: 0 | 1;
+  createdAt: number;
+}
+
+/** User badge entry stored in IndexedDB */
+export interface UserBadgeEntry {
+  id: string;
+  userId: string;
+  badgeId: string;
+  unlockedAt: number;
+}
+
 /** Dexie database for Mahfuz offline cache + memorization */
 export class MahfuzDB extends Dexie {
   cache!: EntityTable<CacheEntry, "key">;
   memorization_cards!: EntityTable<MemorizationCardEntry, "id">;
   review_entries!: EntityTable<ReviewEntryRecord, "id">;
   memorization_goals!: EntityTable<MemorizationGoalsEntry, "userId">;
+  sync_queue!: EntityTable<SyncQueueRecord, "id">;
+  user_badges!: EntityTable<UserBadgeEntry, "id">;
 
   constructor() {
     super("mahfuz-cache");
@@ -65,6 +86,16 @@ export class MahfuzDB extends Dexie {
         "id, [userId+verseKey], [userId+nextReviewDate], [userId+confidence]",
       review_entries: "id, cardId, [userId+reviewedAt]",
       memorization_goals: "userId",
+    });
+
+    this.version(3).stores({
+      cache: "key",
+      memorization_cards:
+        "id, [userId+verseKey], [userId+nextReviewDate], [userId+confidence]",
+      review_entries: "id, cardId, [userId+reviewedAt]",
+      memorization_goals: "userId",
+      sync_queue: "id, [table+synced], createdAt",
+      user_badges: "id, [userId+badgeId], userId",
     });
   }
 }

@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -6,12 +7,13 @@ export const Route = createFileRoute("/")({
 
 function LandingPage() {
   const { session } = Route.useRouteContext();
+  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       {/* Apple-style top promo banner */}
       <div className="bg-[#1d1d1f] px-4 py-2.5 text-center text-[13px] text-[#f5f5f7]">
-        <span className="text-[#86868b]">Eşsiz Yaratıcının izniyle</span>
+        <span className="text-[#86868b]">{t.landing.banner}</span>
       </div>
 
       {/* Header — Apple.com nav style */}
@@ -26,7 +28,7 @@ function LandingPage() {
                 to="/surah"
                 className="rounded-full bg-primary-600 px-5 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
               >
-                Uygulamaya Git
+                {t.landing.goToApp}
               </Link>
             ) : (
               <>
@@ -34,19 +36,19 @@ function LandingPage() {
                   to="/surah"
                   className="hidden rounded-full px-4 py-1.5 text-xs font-medium text-[#1d1d1f] transition-colors hover:bg-black/[0.04] sm:block"
                 >
-                  Okumaya Başla
+                  {t.landing.startReading}
                 </Link>
                 <Link
                   to="/auth/login"
                   className="rounded-full px-4 py-1.5 text-xs font-medium text-[#1d1d1f] transition-colors hover:bg-black/[0.04]"
                 >
-                  Giriş
+                  {t.landing.login}
                 </Link>
                 <Link
                   to="/auth/register"
                   className="ml-1 rounded-full bg-primary-600 px-4 py-1.5 text-xs font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
                 >
-                  Kayıt Ol
+                  {t.landing.register}
                 </Link>
               </>
             )}
@@ -64,7 +66,7 @@ function LandingPage() {
                 Mahfuz
               </h1>
               <p className="mb-10 text-xl font-medium tracking-[-0.01em] text-[#6e6e73] sm:text-2xl">
-                Kuran-ı Kerim ile yolculuğunuza başlayın.
+                {t.landing.heroSubtitle}
               </p>
             </div>
 
@@ -74,7 +76,7 @@ function LandingPage() {
                 to="/surah"
                 className="inline-flex items-center gap-2 rounded-full bg-primary-600 px-8 py-3 text-[17px] font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
               >
-                Okumaya Başla
+                {t.landing.ctaRead}
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                 </svg>
@@ -83,7 +85,7 @@ function LandingPage() {
                 to="/memorize"
                 className="inline-flex items-center gap-2 rounded-full px-8 py-3 text-[17px] font-medium text-primary-600 transition-all hover:bg-primary-50 active:scale-[0.97]"
               >
-                Ezbere Başla
+                {t.landing.ctaMemorize}
                 <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                 </svg>
@@ -99,9 +101,9 @@ function LandingPage() {
                 إِنَّا نَحْنُ نَزَّلْنَا ٱلذِّكْرَ وَإِنَّا لَهُۥ لَحَـٰفِظُونَ
               </p>
               <p className="text-sm text-[#86868b]">
-                <span className="font-medium text-[#6e6e73]">Hicr 15:9</span>
+                <span className="font-medium text-[#6e6e73]">{t.landing.verseRef}</span>
                 {" — "}
-                "Hiç şüphesiz Kur'an'ı biz indirdik, onu koruyacak olan da biziz."
+                "{t.landing.verseText}"
               </p>
             </div>
           </div>
@@ -111,35 +113,34 @@ function LandingPage() {
         <section className="bg-[#f5f5f7] px-6 py-20">
           <div className="mx-auto max-w-[980px]">
             <h2 className="mb-1 text-center text-[32px] font-semibold tracking-[-0.025em] text-[#1d1d1f] sm:text-[40px]">
-              Her şey tek yerde.
+              {t.landing.featuresTitle}
             </h2>
             <p className="mx-auto mb-16 max-w-lg text-center text-lg text-[#6e6e73]">
-              Okuyun, dinleyin, ezberleyin ve anlayın. Kelime kelime takip, akıllı
-              tekrar ve ilerleme sistemi ile.
+              {t.landing.featuresSubtitle}
             </p>
             <div className="grid gap-5 sm:grid-cols-2">
               <FeatureCard
                 icon={<BookSvg />}
-                title="Okuma"
-                description="Sure, sayfa ve cüz görünümleri. Kelime kelime Türkçe meal."
+                title={t.landing.featureReading}
+                description={t.landing.featureReadingDesc}
                 gradient="from-primary-500 to-primary-700"
               />
               <FeatureCard
                 icon={<HeadphonesSvg />}
-                title="Dinleme"
-                description="60+ kariden kelime bazlı takipli dinleme ve tekrar modu."
+                title={t.landing.featureListening}
+                description={t.landing.featureListeningDesc}
                 gradient="from-gold-500 to-gold-700"
               />
               <FeatureCard
                 icon={<BrainSvg />}
-                title="Ezberleme"
-                description="SM-2 akıllı tekrar algoritması ile hafızlık desteği."
+                title={t.landing.featureMemorization}
+                description={t.landing.featureMemorizationDesc}
                 gradient="from-primary-600 to-primary-800"
               />
               <FeatureCard
                 icon={<ChartSvg />}
-                title="İlerleme"
-                description="XP, streak, rozetler ve hatim sayacı ile motivasyon."
+                title={t.landing.featureProgress}
+                description={t.landing.featureProgressDesc}
                 gradient="from-gold-500 to-gold-600"
               />
             </div>
@@ -149,10 +150,10 @@ function LandingPage() {
         {/* Stats — Apple-style large numbers */}
         <section className="bg-white px-6 py-20">
           <div className="mx-auto grid max-w-[800px] grid-cols-2 gap-6 sm:grid-cols-4">
-            <Stat value="114" label="Sure" />
-            <Stat value="6.236" label="Ayet" />
-            <Stat value="30" label="Cüz" />
-            <Stat value="604" label="Sayfa" />
+            <Stat value="114" label={t.landing.statSurahs} />
+            <Stat value="6.236" label={t.landing.statVerses} />
+            <Stat value="30" label={t.landing.statJuzs} />
+            <Stat value="604" label={t.landing.statPages} />
           </div>
         </section>
       </main>
@@ -162,7 +163,7 @@ function LandingPage() {
         <div className="mx-auto flex max-w-[980px] flex-col items-center justify-between gap-3 sm:flex-row">
           <div className="flex items-center gap-3">
             <img src="/images/mahfuz-logo.svg" alt="Mahfuz" className="logo-invert h-6 w-auto" />
-            <span className="text-xs text-[#86868b]">Açık kaynak Kuran-ı Kerim uygulaması</span>
+            <span className="text-xs text-[#86868b]">{t.footer.tagline}</span>
           </div>
           <a
             href="https://github.com/theilgaz/mahfuz"

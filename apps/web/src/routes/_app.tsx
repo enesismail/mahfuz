@@ -8,6 +8,11 @@ import { usePreferencesStore, COLOR_PALETTES, ARABIC_FONTS } from "~/stores/useP
 import type { Theme, ColorPaletteId } from "~/stores/usePreferencesStore";
 import { CommandPalette } from "~/components/CommandPalette";
 import { HeaderSurahPicker } from "~/components/HeaderSurahPicker";
+import { SyncIndicator } from "~/components/ui/SyncIndicator";
+import { useTranslation } from "~/hooks/useTranslation";
+import { useI18nStore } from "~/stores/useI18nStore";
+import { useSyncStore } from "~/stores/useSyncStore";
+import { SyncEngine } from "~/lib/sync-engine";
 import type { Chapter } from "@mahfuz/shared/types";
 import { TOTAL_PAGES } from "@mahfuz/shared/constants";
 
@@ -16,9 +21,9 @@ export const Route = createFileRoute("/_app")({
 });
 
 const NAV_ITEMS = [
-  { to: "/browse", label: "Mahfuz", icon: BookIcon },
-  { to: "/memorize", label: "Ezberleme", icon: BrainIcon },
-  { to: "/audio", label: "Dinleme", icon: HeadphonesIcon },
+  { to: "/browse", labelKey: "mahfuz" as const, icon: BookIcon },
+  { to: "/memorize", labelKey: "memorization" as const, icon: BrainIcon },
+  { to: "/audio", labelKey: "audio" as const, icon: HeadphonesIcon },
 ] as const;
 
 function AppLayout() {
@@ -30,6 +35,7 @@ function AppLayout() {
   const audioVisible = useAudioStore((s) => s.isVisible);
   const matches = useMatches();
   const queryClient = useQueryClient();
+  const { t, locale } = useTranslation();
 
   // Global Cmd+K / Ctrl+K shortcut
   useEffect(() => {
@@ -42,6 +48,30 @@ function AppLayout() {
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Sync engine: start when authenticated
+  const syncSetStatus = useSyncStore((s) => s.setStatus);
+  const syncLastSyncAt = useSyncStore((s) => s.lastSyncAt);
+  const syncEngineRef = useRef<SyncEngine | null>(null);
+
+  useEffect(() => {
+    const userId = session?.user?.id;
+    if (!userId) {
+      syncEngineRef.current?.stop();
+      syncEngineRef.current = null;
+      return;
+    }
+
+    const engine = new SyncEngine(userId, syncLastSyncAt || 0, (status, error) => {
+      syncSetStatus(status as any, error);
+    });
+    syncEngineRef.current = engine;
+    engine.start();
+
+    return () => {
+      engine.stop();
+    };
+  }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Detect surah page and get chapter info from cache
   const surahMatch = matches.find((m) => m.routeId === "/_app/surah/$surahId");
@@ -118,7 +148,7 @@ function AppLayout() {
                   to="/surah/$surahId"
                   params={{ surahId: String(Math.max(1, chapter.id - 1)) }}
                   className={`shrink-0 rounded-md p-1 transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] ${chapter.id > 1 ? "text-[var(--theme-text-tertiary)]" : "pointer-events-none invisible"}`}
-                  aria-label="Önceki sure"
+                  aria-label={t.nav.prevSurah}
                 >
                   <ChevronLeftIcon />
                 </Link>
@@ -157,7 +187,7 @@ function AppLayout() {
                   to="/surah/$surahId"
                   params={{ surahId: String(Math.min(114, chapter.id + 1)) }}
                   className={`shrink-0 rounded-md p-1 transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] ${chapter.id < 114 ? "text-[var(--theme-text-tertiary)]" : "pointer-events-none invisible"}`}
-                  aria-label="Sonraki sure"
+                  aria-label={t.nav.nextSurah}
                 >
                   <ChevronRightIcon />
                 </Link>
@@ -187,20 +217,20 @@ function AppLayout() {
                     to="/page/$pageNumber"
                     params={{ pageNumber: String(currentPage - 1) }}
                     className="rounded-md p-1 text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-                    aria-label="Önceki sayfa"
+                    aria-label={t.nav.prevPage}
                   >
                     <ChevronLeftIcon />
                   </Link>
                 )}
                 <span className="text-[13px] font-medium text-[var(--theme-text-secondary)]">
-                  Sayfa {currentPage}
+                  {t.common.page} {currentPage}
                 </span>
                 {currentPage < TOTAL_PAGES && (
                   <Link
                     to="/page/$pageNumber"
                     params={{ pageNumber: String(currentPage + 1) }}
                     className="rounded-md p-1 text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-                    aria-label="Sonraki sayfa"
+                    aria-label={t.nav.nextPage}
                   >
                     <ChevronRightIcon />
                   </Link>
@@ -220,11 +250,11 @@ function AppLayout() {
                   className:
                     "flex items-center gap-1.5 rounded-lg px-2 py-1.5 bg-primary-600/10 text-primary-700 transition-colors",
                 }}
-                title={item.label}
+                title={t.nav[item.labelKey]}
               >
                 <item.icon />
                 <span className="text-[12px] font-medium">
-                  {item.label}
+                  {t.nav[item.labelKey]}
                 </span>
               </Link>
             ))}
@@ -239,15 +269,17 @@ function AppLayout() {
                 className:
                   "hidden items-center justify-center rounded-lg p-1.5 text-primary-700 bg-primary-600/10 transition-colors lg:flex",
               }}
-              title="Yer İmleri"
+              title={t.nav.bookmarks}
             >
               <BookmarkIcon />
             </Link>
+            <LanguageToggle />
             <ThemePopup />
             <FontPopup />
 
             {session ? (
               <div className="ml-1 hidden items-center gap-1 lg:flex">
+                <SyncIndicator />
                 <Link
                   to="/profile"
                   className="flex items-center gap-2 rounded-full px-2 py-1 transition-colors hover:bg-[var(--theme-hover-bg)]"
@@ -267,7 +299,7 @@ function AppLayout() {
                 <button
                   onClick={handleSignOut}
                   className="rounded-lg p-1.5 text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-                  aria-label="Çıkış yap"
+                  aria-label={t.nav.signOut}
                 >
                   <LogOutIcon />
                 </button>
@@ -277,7 +309,7 @@ function AppLayout() {
                 to="/auth/login"
                 className="ml-1 hidden rounded-full bg-primary-600 px-4 py-1 text-xs font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97] lg:inline-block"
               >
-                Giriş Yap
+                {t.nav.login}
               </Link>
             )}
 
@@ -285,7 +317,7 @@ function AppLayout() {
             <button
               onClick={() => setMenuOpen((v) => !v)}
               className="relative flex h-9 w-9 items-center justify-center rounded-lg text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] lg:hidden"
-              aria-label={menuOpen ? "Menüyü kapat" : "Menüyü aç"}
+              aria-label={menuOpen ? t.nav.closeMenu : t.nav.openMenu}
             >
               <span className="flex h-4 w-5 flex-col justify-between">
                 <span className={`h-[2px] w-full rounded-full bg-current transition-all duration-300 ${menuOpen ? "translate-y-[7px] rotate-45" : ""}`} />
@@ -315,7 +347,7 @@ function AppLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
             </svg>
             <span className="flex-1 text-[14px] text-[var(--theme-text-tertiary)]">
-              Sure, ayet veya sayfa ara...
+              {t.commandPalette.placeholder}
             </span>
             <kbd className="hidden rounded-md bg-[var(--theme-hover-bg)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--theme-text-quaternary)] sm:inline-block">
               ⌘K
@@ -335,11 +367,11 @@ function AppLayout() {
         <footer className="border-t border-[var(--theme-border)] px-6 py-6">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 sm:flex-row sm:justify-between">
             <span className="text-[12px] text-[var(--theme-text-quaternary)]">
-              Mahfuz — Kur'an-ı Kerim
+              {t.footer.brand}
             </span>
             <div className="flex items-center gap-4">
               <Link to="/credits" className="text-[12px] text-[var(--theme-text-quaternary)] transition-colors hover:text-[var(--theme-text-secondary)]">
-                Katkıda Bulunanlar
+                {t.nav.credits}
               </Link>
               <a href="https://github.com/theilgaz/mahfuz" target="_blank" rel="noopener noreferrer" className="text-[12px] text-[var(--theme-text-quaternary)] transition-colors hover:text-[var(--theme-text-secondary)]">
                 GitHub
@@ -352,7 +384,7 @@ function AppLayout() {
           <button
             onClick={scrollToTop}
             className="fixed bottom-18 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--theme-bg-primary)] shadow-[var(--shadow-elevated)] transition-all hover:shadow-[var(--shadow-modal)] active:scale-95 lg:bottom-6 lg:right-6"
-            aria-label="Yukarı dön"
+            aria-label={t.nav.scrollToTop}
           >
             <svg className="h-5 w-5 text-[var(--theme-text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
@@ -370,11 +402,11 @@ function AppLayout() {
         <div className="fixed inset-0 z-40 flex flex-col bg-[var(--theme-bg)] lg:hidden">
           {/* Menu header */}
           <div className="flex h-[88px] items-center justify-between border-b border-[var(--theme-border)] px-4 sm:px-6">
-            <span className="text-lg font-semibold text-[var(--theme-text)]">Menü</span>
+            <span className="text-lg font-semibold text-[var(--theme-text)]">{t.nav.menu}</span>
             <button
               onClick={() => setMenuOpen(false)}
               className="flex h-9 w-9 items-center justify-center rounded-lg text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-              aria-label="Menüyü kapat"
+              aria-label={t.nav.closeMenu}
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -398,7 +430,7 @@ function AppLayout() {
                   }}
                 >
                   <item.icon />
-                  <span className="text-[15px] font-medium">{item.label}</span>
+                  <span className="text-[15px] font-medium">{t.nav[item.labelKey]}</span>
                 </Link>
               ))}
             </div>
@@ -416,7 +448,7 @@ function AppLayout() {
                 className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
               >
                 <SearchIcon />
-                <span className="text-[15px] font-medium">Ara</span>
+                <span className="text-[15px] font-medium">{t.nav.search}</span>
               </button>
               <Link
                 to="/settings"
@@ -428,7 +460,7 @@ function AppLayout() {
                 }}
               >
                 <SettingsIcon />
-                <span className="text-[15px] font-medium">Ayarlar</span>
+                <span className="text-[15px] font-medium">{t.nav.settings}</span>
               </Link>
               <Link
                 to="/credits"
@@ -440,8 +472,19 @@ function AppLayout() {
                 }}
               >
                 <CreditsIcon />
-                <span className="text-[15px] font-medium">Katkıda Bulunanlar</span>
+                <span className="text-[15px] font-medium">{t.nav.credits}</span>
               </Link>
+              <button
+                onClick={() => {
+                  const next = useI18nStore.getState().locale === "tr" ? "en" : "tr";
+                  useI18nStore.getState().setLocale(next);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+              >
+                <GlobeIcon />
+                <span className="text-[15px] font-medium">{t.settings.language}</span>
+                <span className="ml-auto text-[13px] text-[var(--theme-text-tertiary)]">{locale === "tr" ? "TR → EN" : "EN → TR"}</span>
+              </button>
             </div>
 
             {/* Divider */}
@@ -466,7 +509,7 @@ function AppLayout() {
                       {session.user.name?.charAt(0)?.toUpperCase() || "?"}
                     </span>
                   )}
-                  <span className="text-[15px] font-medium">{session.user.name || "Profil"}</span>
+                  <span className="text-[15px] font-medium">{session.user.name || t.nav.profile}</span>
                 </Link>
                 <button
                   onClick={() => {
@@ -476,7 +519,7 @@ function AppLayout() {
                   className="flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-red-500 transition-colors hover:bg-red-50 dark:hover:bg-red-950/20"
                 >
                   <LogOutIcon />
-                  <span className="text-[15px] font-medium">Çıkış Yap</span>
+                  <span className="text-[15px] font-medium">{t.nav.signOut}</span>
                 </button>
               </div>
             ) : (
@@ -486,7 +529,7 @@ function AppLayout() {
                 className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-primary-600 transition-colors hover:bg-[var(--theme-hover-bg)]"
               >
                 <UserIcon />
-                <span className="text-[15px] font-medium">Giriş Yap</span>
+                <span className="text-[15px] font-medium">{t.nav.login}</span>
               </Link>
             )}
           </div>
@@ -517,13 +560,34 @@ function usePopup() {
   return { open, setOpen, popRef, btnRef };
 }
 
+// -- Language Toggle --
+
+function LanguageToggle() {
+  const { locale } = useTranslation();
+  const setLocale = useI18nStore((s) => s.setLocale);
+  const next = locale === "tr" ? "en" : "tr";
+
+  return (
+    <button
+      onClick={() => setLocale(next)}
+      className="hidden items-center gap-1 rounded-lg px-2 py-1.5 text-[12px] font-medium text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] lg:flex"
+      aria-label={locale === "tr" ? "Switch to English" : "Türkçe'ye geç"}
+    >
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5a17.92 17.92 0 01-8.716-2.247m0 0A8.966 8.966 0 003 12c0-1.264.26-2.466.732-3.559" />
+      </svg>
+      <span>{locale === "tr" ? "EN" : "TR"}</span>
+    </button>
+  );
+}
+
 // -- Theme Popup --
 
-const QS_THEMES: { value: Theme; label: string; color: string; border: string }[] = [
-  { value: "light", label: "Açık", color: "#ffffff", border: "#d2d2d7" },
-  { value: "sepia", label: "Sepia", color: "#f5ead6", border: "#d4b882" },
-  { value: "dark", label: "Koyu", color: "#1a1a1a", border: "#444" },
-  { value: "dimmed", label: "Gece", color: "#22272e", border: "#444c56" },
+const QS_THEMES: { value: Theme; labelKey: "light" | "sepia" | "dark" | "dimmed"; color: string; border: string }[] = [
+  { value: "light", labelKey: "light", color: "#ffffff", border: "#d2d2d7" },
+  { value: "sepia", labelKey: "sepia", color: "#f5ead6", border: "#d4b882" },
+  { value: "dark", labelKey: "dark", color: "#1a1a1a", border: "#444" },
+  { value: "dimmed", labelKey: "dimmed", color: "#22272e", border: "#444c56" },
 ];
 
 function ThemePopup() {
@@ -534,6 +598,7 @@ function ThemePopup() {
   const setColorizeWords = usePreferencesStore((s) => s.setColorizeWords);
   const colorPaletteId = usePreferencesStore((s) => s.colorPaletteId);
   const setColorPalette = usePreferencesStore((s) => s.setColorPalette);
+  const { t } = useTranslation();
 
   const currentTheme = QS_THEMES.find((t) => t.value === theme);
 
@@ -543,7 +608,7 @@ function ThemePopup() {
         ref={btnRef}
         onClick={() => setOpen((v) => !v)}
         className={`flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-[12px] font-medium transition-colors ${open ? "bg-[var(--theme-hover-bg)] text-[var(--theme-text)]" : "text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"}`}
-        aria-label="Tema ayarları"
+        aria-label={t.theme.settings}
         aria-expanded={open}
       >
         <span className="h-4 w-4 rounded-full border-2" style={{ backgroundColor: currentTheme?.color, borderColor: currentTheme?.border }} />
@@ -552,17 +617,17 @@ function ThemePopup() {
       {open && (
         <div ref={popRef} className="absolute right-0 top-full z-50 mt-2 w-56 animate-toolbar-in rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] p-3.5 shadow-[var(--shadow-float)]" style={{ backdropFilter: "saturate(180%) blur(20px)" }}>
           <div className="mb-3 flex items-center gap-3">
-            {QS_THEMES.map((t) => (
-              <button key={t.value} onClick={() => setTheme(t.value)} className="flex flex-col items-center gap-1" aria-label={t.label}>
-                <span className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${theme === t.value ? "border-primary-600 ring-2 ring-primary-600/30" : "border-[var(--theme-divider)]"}`} style={{ backgroundColor: t.color }}>
-                  {theme === t.value && <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke={t.value === "dark" || t.value === "dimmed" ? "#e5e5e5" : "#059669"} strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+            {QS_THEMES.map((th) => (
+              <button key={th.value} onClick={() => setTheme(th.value)} className="flex flex-col items-center gap-1" aria-label={t.theme[th.labelKey]}>
+                <span className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-all ${theme === th.value ? "border-primary-600 ring-2 ring-primary-600/30" : "border-[var(--theme-divider)]"}`} style={{ backgroundColor: th.color }}>
+                  {theme === th.value && <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke={th.value === "dark" || th.value === "dimmed" ? "#e5e5e5" : "#059669"} strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
                 </span>
-                <span className="text-[10px] text-[var(--theme-text-tertiary)]">{t.label}</span>
+                <span className="text-[10px] text-[var(--theme-text-tertiary)]">{t.theme[th.labelKey]}</span>
               </button>
             ))}
           </div>
           <div className="flex items-center justify-between border-t border-[var(--theme-border)] pt-2.5">
-            <span className="text-[11px] font-medium text-[var(--theme-text-secondary)]">Kelime Renklendirme</span>
+            <span className="text-[11px] font-medium text-[var(--theme-text-secondary)]">{t.theme.colorizeWords}</span>
             <button onClick={() => setColorizeWords(!colorizeWords)} className={`relative h-[20px] w-[36px] rounded-full transition-colors ${colorizeWords ? "bg-primary-600" : "bg-[var(--theme-divider)]"}`} role="switch" aria-checked={colorizeWords}>
               <span className={`absolute top-[2px] left-[2px] h-[16px] w-[16px] rounded-full bg-white shadow-sm transition-transform ${colorizeWords ? "translate-x-[16px]" : ""}`} />
             </button>
@@ -584,21 +649,13 @@ function ThemePopup() {
 
 // -- Font Popup --
 
-const FONT_SHORT_LABELS: Record<string, string> = {
-  "uthmani-hafs": "Mushaf · Klasik",
-  "scheherazade-new": "Nesih · Zarif",
-  "amiri": "Nesih · Matbaa",
-  "noto-naskh-arabic": "Modern · Temiz",
-  "rubik": "Modern · Yumuşak",
-  "zain": "Modern · İnce",
-  "reem-kufi": "Kûfi · Güçlü",
-  "playpen-sans-arabic": "El Yazısı · Samimi",
-};
+// Font short labels are now in locale files: t.fonts.shortLabels
 
 function FontPopup() {
   const { open, setOpen, popRef, btnRef } = usePopup();
   const arabicFontId = usePreferencesStore((s) => s.arabicFontId);
   const setArabicFont = usePreferencesStore((s) => s.setArabicFont);
+  const { t } = useTranslation();
 
   // Lazy-load Google Fonts when popup opens
   useEffect(() => {
@@ -623,7 +680,7 @@ function FontPopup() {
         ref={btnRef}
         onClick={() => setOpen((v) => !v)}
         className={`flex items-center gap-1 rounded-lg px-2 py-1.5 text-[13px] font-semibold transition-colors ${open ? "bg-[var(--theme-hover-bg)] text-[var(--theme-text)]" : "text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"}`}
-        aria-label="Yazı tipi"
+        aria-label={t.theme.fontLabel}
         aria-expanded={open}
       >
         <span className="arabic-text leading-none">ع</span>
@@ -633,7 +690,7 @@ function FontPopup() {
         <div ref={popRef} className="absolute right-0 top-full z-50 mt-2 w-60 animate-toolbar-in rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-elevated)] p-2 shadow-[var(--shadow-float)]" style={{ backdropFilter: "saturate(180%) blur(20px)" }}>
           <div className="flex flex-col gap-0.5">
             {ARABIC_FONTS.map((f) => {
-              const tag = FONT_SHORT_LABELS[f.id] ?? f.name;
+              const tag = (t.fonts.shortLabels as Record<string, string>)[f.id] ?? f.name;
               return (
                 <button
                   key={f.id}
@@ -750,6 +807,14 @@ function LogOutIcon() {
   return (
     <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+    </svg>
+  );
+}
+
+function GlobeIcon() {
+  return (
+    <svg className="h-[18px] w-[18px]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5a17.92 17.92 0 01-8.716-2.247m0 0A8.966 8.966 0 003 12c0-1.264.26-2.466.732-3.559" />
     </svg>
   );
 }

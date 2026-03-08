@@ -2,15 +2,22 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { MemorizationCard, QualityGrade } from "@mahfuz/shared/types";
 import { verseByKeyQueryOptions } from "~/hooks/useVerses";
+import { useTranslation } from "~/hooks/useTranslation";
 
-const GRADE_LABELS: Record<QualityGrade, { label: string; color: string }> = {
-  0: { label: "Hatırlamadım", color: "bg-red-500 hover:bg-red-600" },
-  1: { label: "Çok Zor", color: "bg-red-400 hover:bg-red-500" },
-  2: { label: "Zor", color: "bg-orange-400 hover:bg-orange-500" },
-  3: { label: "Orta", color: "bg-yellow-500 hover:bg-yellow-600" },
-  4: { label: "Kolay", color: "bg-blue-500 hover:bg-blue-600" },
-  5: { label: "Çok Kolay", color: "bg-emerald-500 hover:bg-emerald-600" },
+const GRADE_COLORS: Record<QualityGrade, string> = {
+  0: "bg-red-500 hover:bg-red-600",
+  1: "bg-red-400 hover:bg-red-500",
+  2: "bg-orange-400 hover:bg-orange-500",
+  3: "bg-yellow-500 hover:bg-yellow-600",
+  4: "bg-blue-500 hover:bg-blue-600",
+  5: "bg-emerald-500 hover:bg-emerald-600",
 };
+
+const SIMPLE_GRADE_CONFIGS: { grade: QualityGrade; color: string }[] = [
+  { grade: 1, color: "bg-red-500 hover:bg-red-600" },
+  { grade: 3, color: "bg-orange-400 hover:bg-orange-500" },
+  { grade: 5, color: "bg-emerald-500 hover:bg-emerald-600" },
+];
 
 interface ReviewCardProps {
   card: MemorizationCard;
@@ -35,6 +42,7 @@ export function ReviewCard({
     verseByKeyQueryOptions(card.verseKey),
   );
 
+  const { t } = useTranslation();
   const verse = verseData;
   const words = verse?.words?.filter((w: any) => w.char_type_name === "word") || [];
   const isFullyRevealed = revealedWords >= words.length && words.length > 0;
@@ -58,7 +66,7 @@ export function ReviewCard({
     return (
       <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-card)]">
         <p className="text-[var(--theme-text-tertiary)]">
-          Ayet yüklenemedi: {card.verseKey}
+          {t.memorize.review.verseLoadError}: {card.verseKey}
         </p>
       </div>
     );
@@ -73,7 +81,7 @@ export function ReviewCard({
         </span>
         {words.length > 0 && !isFullyRevealed && (
           <p className="mt-1 text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">
-            {revealedWords} / {words.length} kelime
+            {revealedWords} / {words.length} {t.memorize.review.wordCount}
           </p>
         )}
       </div>
@@ -111,20 +119,20 @@ export function ReviewCard({
               onClick={onRevealNext}
               className="rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-medium text-white shadow-sm transition-all hover:bg-primary-700 active:scale-[0.97]"
             >
-              Sonraki Kelime
+              {t.memorize.review.nextWord}
             </button>
             <button
               onClick={onRevealAll}
               className="rounded-xl bg-[var(--theme-hover-bg)] px-5 py-2.5 text-[14px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-pill-bg)]"
             >
-              Tamamını Göster
+              {t.memorize.review.revealAll}
             </button>
           </div>
           <button
             onClick={() => onGrade(5)}
             className="text-[13px] text-[var(--theme-text-tertiary)] transition-colors hover:text-emerald-600"
           >
-            Ezberledim ✓
+            {t.memorize.review.memorized}
           </button>
         </div>
       ) : (
@@ -149,19 +157,29 @@ export function ReviewCard({
   );
 }
 
-const SIMPLE_GRADES: { grade: QualityGrade; label: string; color: string }[] = [
-  { grade: 1, label: "Tekrar", color: "bg-red-500 hover:bg-red-600" },
-  { grade: 3, label: "Zor", color: "bg-orange-400 hover:bg-orange-500" },
-  { grade: 5, label: "Kolay", color: "bg-emerald-500 hover:bg-emerald-600" },
-];
-
 function GradeButtons({ onGrade }: { onGrade: (grade: QualityGrade) => void }) {
   const [showDetailed, setShowDetailed] = useState(false);
+  const { t } = useTranslation();
+
+  const DETAILED_GRADE_LABELS: Record<QualityGrade, string> = {
+    0: t.memorize.review.detailedGrades.blackout,
+    1: t.memorize.review.detailedGrades.veryHard,
+    2: t.memorize.review.detailedGrades.hard,
+    3: t.memorize.review.detailedGrades.medium,
+    4: t.memorize.review.detailedGrades.easy,
+    5: t.memorize.review.detailedGrades.veryEasy,
+  };
+
+  const SIMPLE_GRADES: { grade: QualityGrade; label: string; color: string }[] = [
+    { grade: 1, label: t.memorize.review.grades.again, color: "bg-red-500 hover:bg-red-600" },
+    { grade: 3, label: t.memorize.review.grades.hard, color: "bg-orange-400 hover:bg-orange-500" },
+    { grade: 5, label: t.memorize.review.grades.easy, color: "bg-emerald-500 hover:bg-emerald-600" },
+  ];
 
   return (
     <div className="mt-4">
       <p className="mb-3 text-center text-[13px] text-[var(--theme-text-tertiary)]">
-        Bu ayeti ne kadar hatırladın?
+        {t.memorize.review.gradePrompt}
       </p>
       {!showDetailed ? (
         <div className="grid grid-cols-3 gap-2">
@@ -181,11 +199,11 @@ function GradeButtons({ onGrade }: { onGrade: (grade: QualityGrade) => void }) {
             <button
               key={grade}
               onClick={() => onGrade(grade)}
-              className={`rounded-xl px-2 py-2.5 text-[13px] font-medium text-white transition-all active:scale-[0.97] ${GRADE_LABELS[grade].color}`}
+              className={`rounded-xl px-2 py-2.5 text-[13px] font-medium text-white transition-all active:scale-[0.97] ${GRADE_COLORS[grade]}`}
             >
               <span className="block text-[16px]">{grade}</span>
               <span className="block text-[11px] opacity-90">
-                {GRADE_LABELS[grade].label}
+                {DETAILED_GRADE_LABELS[grade]}
               </span>
             </button>
           ))}
@@ -195,7 +213,7 @@ function GradeButtons({ onGrade }: { onGrade: (grade: QualityGrade) => void }) {
         onClick={() => setShowDetailed(!showDetailed)}
         className="mt-2 w-full text-center text-[12px] text-[var(--theme-text-quaternary)] hover:text-[var(--theme-text-tertiary)]"
       >
-        {showDetailed ? "Basit puanlama" : "Detaylı puanlama"}
+        {showDetailed ? t.memorize.review.simpleGrading : t.memorize.review.detailedGrading}
       </button>
     </div>
   );

@@ -5,12 +5,14 @@ interface TranslationBlockProps {
   translations: Translation[];
   fontSize: number;
   revealed?: boolean;
+  onExpandedChange?: (expandedIndices: Set<number>) => void;
 }
 
 export function TranslationBlock({
   translations,
   fontSize,
   revealed,
+  onExpandedChange,
 }: TranslationBlockProps) {
   const [expandedSet, setExpandedSet] = useState<Set<number>>(
     () => new Set([0]),
@@ -27,6 +29,7 @@ export function TranslationBlock({
       } else {
         next.add(index);
       }
+      onExpandedChange?.(next);
       return next;
     });
   }

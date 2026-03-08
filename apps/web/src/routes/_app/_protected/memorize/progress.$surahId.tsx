@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { chapterQueryOptions } from "~/hooks/useChapters";
 import { useSurahProgress } from "~/hooks/useMemorization";
 import { ProgressHeatmap } from "~/components/memorization";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute(
   "/_app/_protected/memorize/progress/$surahId",
@@ -42,6 +43,7 @@ function ProgressContent({
 }) {
   const { data: chapter } = useSuspenseQuery(chapterQueryOptions(surahId));
   const { progressMap, isLoading } = useSurahProgress(userId, surahId);
+  const { t } = useTranslation();
 
   const cardCount = progressMap.size;
   const dueCount = Array.from(progressMap.values()).filter(
@@ -56,7 +58,7 @@ function ProgressContent({
           to="/memorize"
           className="mb-2 inline-block text-[13px] text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]"
         >
-          &larr; Ezberleme
+          {t.memorize.backToMemorize}
         </Link>
         <div className="flex items-center justify-between">
           <div>
@@ -64,7 +66,7 @@ function ProgressContent({
               {chapter.name_simple}
             </h1>
             <p className="text-[14px] text-[var(--theme-text-tertiary)]">
-              {cardCount} / {chapter.verses_count} ayet eklendi
+              {cardCount} / {chapter.verses_count} {t.memorize.versesAdded}
             </p>
           </div>
           <div className="flex gap-2">
@@ -74,7 +76,7 @@ function ProgressContent({
                 search={{ surahId }}
                 className="rounded-xl bg-primary-600 px-4 py-2 text-[13px] font-medium text-white shadow-sm transition-all hover:bg-primary-700"
               >
-                Tekrar ({dueCount})
+                {t.memorize.startReview} ({dueCount})
               </Link>
             )}
             <Link
@@ -82,7 +84,7 @@ function ProgressContent({
               params={{ surahId: String(surahId) }}
               className="rounded-xl bg-[var(--theme-hover-bg)] px-4 py-2 text-[13px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-pill-bg)]"
             >
-              Ayet Ekle
+              {t.memorize.addVerse}
             </Link>
           </div>
         </div>

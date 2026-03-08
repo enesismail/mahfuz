@@ -1,30 +1,25 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useReviewSession, useMemorizationDashboard } from "~/hooks/useMemorization";
 import { ReviewCard, SessionResults } from "~/components/memorization";
-import { GoalCelebration } from "~/components/memorization/GoalCelebration";
-import { useMemorizationStore } from "~/stores/useMemorizationStore";
 import { useTranslation } from "~/hooks/useTranslation";
 
-interface ReviewSearch {
+interface PracticeSearch {
   surahId?: number;
 }
 
-export const Route = createFileRoute("/_app/_protected/memorize/review")({
-  component: ReviewPage,
-  validateSearch: (search: Record<string, unknown>): ReviewSearch => ({
+export const Route = createFileRoute("/_app/_protected/memorize/practice")({
+  component: PracticePage,
+  validateSearch: (search: Record<string, unknown>): PracticeSearch => ({
     surahId: search.surahId ? Number(search.surahId) : undefined,
   }),
 });
 
-function ReviewPage() {
+function PracticePage() {
   const { session } = Route.useRouteContext();
   const userId = session!.user.id;
   const { surahId } = Route.useSearch();
   const navigate = useNavigate();
-  const [showCelebration, setShowCelebration] = useState(false);
-  const [celebrationShown, setCelebrationShown] = useState(false);
-  const reviewGoal = useMemorizationStore((s) => s.reviewCardsPerDay);
 
   const {
     phase,
@@ -42,13 +37,13 @@ function ReviewPage() {
     resetSession,
   } = useReviewSession(userId);
 
-  const { stats, refreshStats } = useMemorizationDashboard(userId);
+  const { refreshStats } = useMemorizationDashboard(userId);
   const { t } = useTranslation();
 
-  // Auto-start review on mount
+  // Auto-start practice session on mount
   useEffect(() => {
-    if (phase === "idle") {
-      startReview(surahId);
+    if (phase === "idle" && surahId) {
+      startReview(surahId, "practice");
     }
   }, [phase, surahId, startReview]);
 
@@ -65,47 +60,25 @@ function ReviewPage() {
     navigate({ to: "/memorize" });
   };
 
-  // Check goal completion when results are shown
-  const reviewedTotal = (stats?.reviewedToday || 0) + sessionResults.length;
-  const goalMet = reviewedTotal >= reviewGoal && !celebrationShown;
-
   // Results screen
   if (phase === "results") {
-    // Show celebration if goal was met during this session
-    if (goalMet && !showCelebration) {
-      setShowCelebration(true);
-      setCelebrationShown(true);
-    }
-
     return (
       <div className="mx-auto max-w-2xl px-6 py-8 animate-fade-in">
-        {showCelebration && (
-          <GoalCelebration
-            onBackToPanel={handleContinue}
-            onContinue={() => {
-              setShowCelebration(false);
-              // Restart a new batch
-              resetSession();
-              startReview(surahId);
-            }}
-          />
-        )}
         <SessionResults results={sessionResults} onContinue={handleContinue} />
       </div>
     );
   }
 
-  // Empty state
+  // Empty state — no cards for this surah
   if (phase === "reviewing" && !currentCard) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-8">
         <div className="animate-scale-in rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-card)]">
-          <p className="mb-1 text-3xl">✓</p>
           <p className="mb-2 text-lg font-semibold text-[var(--theme-text)]">
-            {t.memorize.congratulations}
+            {t.memorize.practice.noCards}
           </p>
           <p className="mb-6 text-[var(--theme-text-tertiary)]">
-            {t.memorize.allCardsDone}
+            {t.memorize.practice.noCardsDesc}
           </p>
           <button
             onClick={() => navigate({ to: "/memorize" })}
@@ -131,7 +104,7 @@ function ReviewPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-8 animate-fade-in">
-      {/* Progress bar */}
+      {/* Header */}
       <div className="mb-6">
         <div className="mb-2 flex items-center justify-between">
           <button
@@ -140,13 +113,16 @@ function ReviewPage() {
           >
             {t.common.close}
           </button>
+          <span className="rounded-full bg-amber-50 px-2.5 py-0.5 text-[12px] font-medium text-amber-700">
+            {t.memorize.practice.label}
+          </span>
           <span className="text-[13px] tabular-nums text-[var(--theme-text-tertiary)]">
             {currentCardIndex + 1} / {sessionCards.length}
           </span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-[var(--theme-hover-bg)]">
           <div
-            className="h-full rounded-full bg-primary-600 transition-all"
+            className="h-full rounded-full bg-amber-500 transition-all"
             style={{
               width: `${((currentCardIndex + 1) / sessionCards.length) * 100}%`,
             }}

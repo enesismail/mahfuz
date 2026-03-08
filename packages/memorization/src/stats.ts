@@ -62,6 +62,73 @@ export function computeStats(
  * Expects sorted epoch-ms timestamps (one per review).
  * Returns number of consecutive days ending at today.
  */
+/**
+ * Compute Quran-wide progress: mastered verses count and mastered surah count.
+ */
+export function computeQuranProgress(cards: MemorizationCard[]): {
+  masteredVerses: number;
+  masteredSurahs: number;
+} {
+  let masteredVerses = 0;
+  const surahCards = new Map<number, { total: number; mastered: number }>();
+
+  for (const card of cards) {
+    const surahId = parseInt(card.verseKey.split(":")[0]);
+    let entry = surahCards.get(surahId);
+    if (!entry) {
+      entry = { total: 0, mastered: 0 };
+      surahCards.set(surahId, entry);
+    }
+    entry.total++;
+    if (card.confidence === "mastered") {
+      masteredVerses++;
+      entry.mastered++;
+    }
+  }
+
+  // A surah is mastered if ALL its added verses are mastered
+  // (simplified: we don't know total verse count here, just check added ones)
+  let masteredSurahs = 0;
+  for (const [, entry] of surahCards) {
+    if (entry.total > 0 && entry.mastered === entry.total) {
+      masteredSurahs++;
+    }
+  }
+
+  return { masteredVerses, masteredSurahs };
+}
+
+/**
+ * Compute daily review history for last N days.
+ */
+export function computeDailyHistory(
+  reviews: { reviewedAt: number; grade: number }[],
+  days: number = 30,
+  now: Date = new Date(),
+): { date: string; reviews: number; accuracy: number }[] {
+  const result: { date: string; reviews: number; accuracy: number }[] = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    const dayStart = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const dayEnd = dayStart + 24 * 60 * 60 * 1000;
+
+    const dayReviews = reviews.filter(
+      (r) => r.reviewedAt >= dayStart && r.reviewedAt < dayEnd,
+    );
+    const correct = dayReviews.filter((r) => r.grade >= 3).length;
+
+    result.push({
+      date: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`,
+      reviews: dayReviews.length,
+      accuracy: dayReviews.length > 0 ? correct / dayReviews.length : 0,
+    });
+  }
+
+  return result;
+}
+
 export function computeStreak(reviewDates: number[], now: Date = new Date()): number {
   if (reviewDates.length === 0) return 0;
 

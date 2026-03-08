@@ -5,6 +5,7 @@ import type { MemorizationCardEntry } from "@mahfuz/db";
 import { useState, useEffect, useMemo } from "react";
 import { memorizationRepository } from "@mahfuz/db";
 import type { ConfidenceLevel } from "@mahfuz/shared/types";
+import { useTranslation } from "~/hooks/useTranslation";
 
 const CONFIDENCE_COLORS: Record<ConfidenceLevel, string> = {
   struggling: "bg-red-500",
@@ -26,6 +27,7 @@ interface SurahProgress {
 export function SurahSelector({ userId }: SurahSelectorProps) {
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
   const [search, setSearch] = useState("");
+  const { t } = useTranslation();
 
   const [progress, setProgress] = useState<Map<number, SurahProgress>>(
     new Map(),
@@ -119,19 +121,43 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
           {p?.total || 0}/{ch.verses_count}
         </span>
         <div className="flex gap-1.5">
+          {p && p.total > 0 && p.byConfidence.mastered === ch.verses_count ? (
+            <span className="flex items-center gap-1 rounded-lg bg-emerald-50 px-2.5 py-1 text-[12px] font-medium text-emerald-700">
+              ✓ {t.memorize.confidence.mastered}
+            </span>
+          ) : (
+            <>
+              <Link
+                to="/memorize/verify/$surahId"
+                params={{ surahId: String(ch.id) }}
+                className="rounded-lg px-2.5 py-1 text-[12px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50"
+              >
+                {t.memorize.surahSelector.verify}
+              </Link>
+              {p && p.total > 0 && (
+                <Link
+                  to="/memorize/practice"
+                  search={{ surahId: ch.id }}
+                  className="rounded-lg px-2.5 py-1 text-[12px] font-medium text-amber-600 transition-colors hover:bg-amber-50"
+                >
+                  {t.memorize.surahSelector.practice}
+                </Link>
+              )}
+            </>
+          )}
           <Link
             to="/memorize/progress/$surahId"
             params={{ surahId: String(ch.id) }}
             className="rounded-lg px-2.5 py-1 text-[12px] font-medium text-primary-600 transition-colors hover:bg-primary-50"
           >
-            İlerleme
+            {t.memorize.surahSelector.progress}
           </Link>
           <Link
             to="/memorize/add/$surahId"
             params={{ surahId: String(ch.id) }}
             className="rounded-lg px-2.5 py-1 text-[12px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
           >
-            Ekle
+            {t.memorize.surahSelector.add}
           </Link>
         </div>
       </div>
@@ -142,7 +168,7 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
     <div className="rounded-2xl bg-[var(--theme-bg-primary)] shadow-[var(--shadow-card)]">
       <div className="border-b border-[var(--theme-divider)] px-6 py-4">
         <h2 className="mb-3 text-base font-semibold text-[var(--theme-text)]">
-          Sureler
+          {t.memorize.surahSelector.surahs}
         </h2>
         {/* Search */}
         <div className="relative">
@@ -163,7 +189,7 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Sûre ara..."
+            placeholder={t.memorize.surahSelector.searchPlaceholder}
             className="w-full rounded-xl bg-[var(--theme-input-bg)] py-2.5 pl-10 pr-4 text-[15px] text-[var(--theme-text)] placeholder-[var(--theme-text-tertiary)] outline-none transition-colors focus:bg-[var(--theme-bg-primary)] focus:shadow-[var(--shadow-elevated)]"
           />
         </div>
@@ -171,10 +197,10 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
       {filtered.length === 0 ? (
         <div className="py-12 text-center">
           <p className="text-[15px] text-[var(--theme-text-secondary)]">
-            Sûre bulunamadı
+            {t.memorize.surahSelector.noResults}
           </p>
           <p className="mt-1 text-[13px] text-[var(--theme-text-tertiary)]">
-            Farklı bir arama terimi deneyin
+            {t.memorize.surahSelector.noResultsHint}
           </p>
         </div>
       ) : (
@@ -183,13 +209,13 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
           <>
             <div className="border-b border-[var(--theme-divider)] bg-[var(--theme-hover-bg)] px-6 py-2.5">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                Eklenen Sureler ({addedChapters.length})
+                {t.memorize.surahSelector.addedSurahs} ({addedChapters.length})
               </span>
             </div>
             {addedChapters.map((ch) => renderRow(ch, true))}
             <div className="border-b border-[var(--theme-divider)] bg-[var(--theme-hover-bg)] px-6 py-2.5">
               <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                Tüm Sureler
+                {t.memorize.surahSelector.allSurahs}
               </span>
             </div>
           </>

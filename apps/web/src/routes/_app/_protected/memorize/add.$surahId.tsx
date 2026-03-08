@@ -4,6 +4,7 @@ import { Suspense, useState, useCallback } from "react";
 import { chapterQueryOptions } from "~/hooks/useChapters";
 import { useAddVerses, useSurahProgress } from "~/hooks/useMemorization";
 import type { ConfidenceLevel } from "@mahfuz/shared/types";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute(
   "/_app/_protected/memorize/add/$surahId",
@@ -32,12 +33,12 @@ function AddVersesPage() {
   );
 }
 
-const CONFIDENCE_BADGE: Record<ConfidenceLevel, { label: string; color: string }> = {
-  struggling: { label: "Zor", color: "bg-red-100 text-red-700" },
-  learning: { label: "Öğreniyor", color: "bg-orange-100 text-orange-700" },
-  familiar: { label: "Tanıdık", color: "bg-yellow-100 text-yellow-700" },
-  confident: { label: "Emin", color: "bg-blue-100 text-blue-700" },
-  mastered: { label: "Ezber", color: "bg-emerald-100 text-emerald-700" },
+const CONFIDENCE_BADGE_COLORS: Record<ConfidenceLevel, string> = {
+  struggling: "bg-red-100 text-red-700",
+  learning: "bg-orange-100 text-orange-700",
+  familiar: "bg-yellow-100 text-yellow-700",
+  confident: "bg-blue-100 text-blue-700",
+  mastered: "bg-emerald-100 text-emerald-700",
 };
 
 function AddContent({
@@ -51,6 +52,7 @@ function AddContent({
   const { progressMap, refresh } = useSurahProgress(userId, surahId);
   const { addVerses, isAdding } = useAddVerses(userId);
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [selected, setSelected] = useState<Set<number>>(new Set());
 
@@ -95,25 +97,25 @@ function AddContent({
           &larr; {chapter.name_simple}
         </Link>
         <h1 className="text-2xl font-bold text-[var(--theme-text)]">
-          Ayet Ekle — {chapter.name_simple}
+          {t.memorize.addVersesTitle} — {chapter.name_simple}
         </h1>
         <p className="mt-1 text-[14px] text-[var(--theme-text-tertiary)]">
-          {availableVerses.length} ayet eklenebilir,{" "}
-          {progressMap.size} ayet zaten mevcut
+          {availableVerses.length} {t.memorize.versesAvailable},{" "}
+          {progressMap.size} {t.memorize.versesExisting}
         </p>
       </div>
 
       {availableVerses.length === 0 ? (
         <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-card)]">
           <p className="text-[var(--theme-text-secondary)]">
-            Bu sûrenin tüm ayetleri zaten eklenmiş.
+            {t.memorize.allVersesAdded}
           </p>
           <Link
             to="/memorize/progress/$surahId"
             params={{ surahId: String(surahId) }}
             className="mt-4 inline-block rounded-xl bg-primary-600 px-5 py-2 text-[14px] font-medium text-white"
           >
-            İlerlemeye Bak
+            {t.memorize.viewProgress}
           </Link>
         </div>
       ) : (
@@ -125,17 +127,17 @@ function AddContent({
                 onClick={selectAll}
                 className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-primary-600 hover:bg-primary-50"
               >
-                Tümünü Seç
+                {t.memorize.selectAll}
               </button>
               <button
                 onClick={selectNone}
                 className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-[var(--theme-text-tertiary)] hover:bg-[var(--theme-hover-bg)]"
               >
-                Temizle
+                {t.memorize.deselectAll}
               </button>
             </div>
             <span className="text-[13px] tabular-nums text-[var(--theme-text-tertiary)]">
-              {selected.size} seçili
+              {selected.size} {t.memorize.selected}
             </span>
           </div>
 
@@ -143,7 +145,7 @@ function AddContent({
           {availableVerses.length > 5 && (
             <div className="mb-4 flex items-center gap-2">
               <span className="text-[12px] text-[var(--theme-text-tertiary)]">
-                Hızlı seç:
+                {t.memorize.quickSelect}
               </span>
               {[5, 10, 20]
                 .filter((n) => n <= availableVerses.length)
@@ -153,7 +155,7 @@ function AddContent({
                     onClick={() => selectFirst(n)}
                     className="rounded-lg bg-[var(--theme-hover-bg)] px-2.5 py-1 text-[12px] font-medium text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-pill-bg)]"
                   >
-                    İlk {n}
+                    {t.memorize.firstN} {n}
                   </button>
                 ))}
             </div>
@@ -203,13 +205,13 @@ function AddContent({
                         <div className="h-5 w-5" />
                       )}
                       <span className="text-[14px] tabular-nums text-[var(--theme-text)]">
-                        Ayet {num}
+                        {t.memorize.verseNum} {num}
                       </span>
                       {existing && (
                         <span
-                          className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-medium ${CONFIDENCE_BADGE[existing.confidence].color}`}
+                          className={`ml-auto rounded-full px-2 py-0.5 text-[11px] font-medium ${CONFIDENCE_BADGE_COLORS[existing.confidence]}`}
                         >
-                          {CONFIDENCE_BADGE[existing.confidence].label}
+                          {t.memorize.confidence[existing.confidence]}
                         </span>
                       )}
                     </div>
@@ -228,8 +230,8 @@ function AddContent({
                 className="w-full rounded-xl bg-primary-600 py-3 text-[15px] font-semibold text-white shadow-lg transition-all hover:bg-primary-700 active:scale-[0.98] disabled:opacity-60"
               >
                 {isAdding
-                  ? "Ekleniyor..."
-                  : `${selected.size} Ayeti Ezberle`}
+                  ? t.memorize.adding
+                  : `${selected.size} ${t.memorize.memorizeVerses}`}
               </button>
             </div>
           )}

@@ -1,21 +1,23 @@
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import { LOCAL_TRANSLATIONS } from "@mahfuz/shared/constants";
+import { useTranslation } from "~/hooks/useTranslation";
 
 interface TranslationPickerProps {
   compact?: boolean;
 }
 
 export function TranslationPicker({ compact }: TranslationPickerProps) {
+  const { t } = useTranslation();
   const selectedTranslations = usePreferencesStore((s) => s.selectedTranslations);
   const setSelectedTranslations = usePreferencesStore((s) => s.setSelectedTranslations);
 
-  const selected = LOCAL_TRANSLATIONS.filter((t) => selectedTranslations.includes(t.id));
+  const selected = LOCAL_TRANSLATIONS.filter((tr) => selectedTranslations.includes(tr.id));
   // Maintain store order
   const orderedSelected = selectedTranslations
-    .map((id) => selected.find((t) => t.id === id))
+    .map((id) => selected.find((tr) => tr.id === id))
     .filter(Boolean) as typeof selected;
 
-  const available = LOCAL_TRANSLATIONS.filter((t) => !selectedTranslations.includes(t.id));
+  const available = LOCAL_TRANSLATIONS.filter((tr) => !selectedTranslations.includes(tr.id));
 
   const moveUp = (index: number) => {
     if (index <= 0) return;
@@ -41,7 +43,7 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
 
   const remove = (id: string) => {
     if (selectedTranslations.length <= 1) return;
-    setSelectedTranslations(selectedTranslations.filter((t) => t !== id));
+    setSelectedTranslations(selectedTranslations.filter((tr) => tr !== id));
   };
 
   const add = (id: string) => {
@@ -58,14 +60,14 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
     <div className={compact ? "mt-2" : ""}>
       {/* Selected translations */}
       <span className={`mb-1.5 block font-medium text-[var(--theme-text-tertiary)] ${compact ? "text-[11px]" : "text-[12px]"}`}>
-        Seçili Mealler
+        {t.translationPicker.selected}
       </span>
       <div className="space-y-1">
-        {orderedSelected.map((t, i) => {
+        {orderedSelected.map((tr, i) => {
           const isPrimary = i === 0;
           return (
             <div
-              key={t.id}
+              key={tr.id}
               className={`flex items-center gap-1.5 rounded-xl border ${px} ${py} transition-all ${
                 isPrimary
                   ? "border-primary-500/40 bg-primary-600/5"
@@ -81,7 +83,7 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                     ? "text-amber-500"
                     : "text-[var(--theme-text-quaternary)] hover:text-amber-400"
                 }`}
-                title={isPrimary ? "Birincil meal" : "Birincil yap"}
+                title={isPrimary ? t.translationPicker.isPrimary : t.translationPicker.makePrimary}
               >
                 {isPrimary ? (
                   <svg className={iconSize} viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth={1}>
@@ -99,11 +101,11 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                 <span className={`block font-medium leading-tight ${textSize} ${
                   isPrimary ? "text-primary-700" : "text-[var(--theme-text)]"
                 }`}>
-                  {t.name}
+                  {tr.name}
                 </span>
                 {!compact && (
                   <span className="block text-[11px] leading-tight text-[var(--theme-text-tertiary)]">
-                    {t.author}
+                    {tr.author}
                   </span>
                 )}
               </div>
@@ -114,7 +116,7 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                   type="button"
                   onClick={() => moveUp(i)}
                   className={`flex shrink-0 items-center justify-center ${btnSize} rounded-md text-[var(--theme-text-quaternary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text-secondary)]`}
-                  title="Yukarı taşı"
+                  title={t.translationPicker.moveUp}
                 >
                   <svg className={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M18 15l-6-6-6 6" />
@@ -128,7 +130,7 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                   type="button"
                   onClick={() => moveDown(i)}
                   className={`flex shrink-0 items-center justify-center ${btnSize} rounded-md text-[var(--theme-text-quaternary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text-secondary)]`}
-                  title="Aşağı taşı"
+                  title={t.translationPicker.moveDown}
                 >
                   <svg className={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 9l6 6 6-6" />
@@ -139,14 +141,14 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
               {/* Remove */}
               <button
                 type="button"
-                onClick={() => remove(t.id)}
+                onClick={() => remove(tr.id)}
                 disabled={selectedTranslations.length <= 1}
                 className={`flex shrink-0 items-center justify-center ${btnSize} rounded-md transition-colors ${
                   selectedTranslations.length <= 1
                     ? "cursor-not-allowed text-[var(--theme-text-quaternary)] opacity-30"
                     : "text-[var(--theme-text-quaternary)] hover:bg-red-50 hover:text-red-500"
                 }`}
-                title="Kaldır"
+                title={t.common.remove}
               >
                 <svg className={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M18 6L6 18M6 6l12 12" />
@@ -161,14 +163,14 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
       {available.length > 0 && (
         <>
           <span className={`mt-3 mb-1.5 block font-medium text-[var(--theme-text-tertiary)] ${compact ? "text-[11px]" : "text-[12px]"}`}>
-            Ekle
+            {t.common.add}
           </span>
           <div className="space-y-1">
-            {available.map((t) => (
+            {available.map((tr) => (
               <button
-                key={t.id}
+                key={tr.id}
                 type="button"
-                onClick={() => add(t.id)}
+                onClick={() => add(tr.id)}
                 className={`flex w-full items-center gap-1.5 rounded-xl border border-dashed border-[var(--theme-divider)] ${px} ${py} text-left transition-all hover:border-primary-400 hover:bg-primary-600/5`}
               >
                 <span className={`flex shrink-0 items-center justify-center ${btnSize} rounded-md text-primary-600`}>
@@ -178,11 +180,11 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <span className={`block font-medium leading-tight text-[var(--theme-text-secondary)] ${textSize}`}>
-                    {t.name}
+                    {tr.name}
                   </span>
                   {!compact && (
                     <span className="block text-[11px] leading-tight text-[var(--theme-text-tertiary)]">
-                      {t.author}
+                      {tr.author}
                     </span>
                   )}
                 </div>

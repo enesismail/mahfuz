@@ -14,7 +14,7 @@ import {
   memorizationRepository,
   type MemorizationCardEntry,
 } from "@mahfuz/db";
-import { useMemorizationStore } from "~/stores/useMemorizationStore";
+import { useMemorizationStore, type SessionType } from "~/stores/useMemorizationStore";
 import { verseByKeyQueryOptions } from "./useVerses";
 
 // ── Helpers ──
@@ -84,28 +84,27 @@ export function useReviewSession(userId: string | undefined) {
   const queryClient = useQueryClient();
 
   const startReview = useCallback(
-    async (surahId?: number) => {
+    async (surahId?: number, mode: SessionType = "review") => {
       if (!userId) return;
 
       const now = Date.now();
       const limit = store.reviewCardsPerDay;
 
-      let dueEntries: MemorizationCardEntry[];
-      if (surahId) {
+      let entries: MemorizationCardEntry[];
+      if (mode === "practice" && surahId) {
+        // Practice mode: all cards for surah, no due date filter
+        entries = await memorizationRepository.getCardsBySurah(userId, surahId);
+      } else if (surahId) {
         const surahCards = await memorizationRepository.getCardsBySurah(
           userId,
           surahId,
         );
-        dueEntries = surahCards.filter((c) => c.nextReviewDate <= now);
+        entries = surahCards.filter((c) => c.nextReviewDate <= now);
       } else {
-        dueEntries = await memorizationRepository.getDueCards(
-          userId,
-          now,
-          limit,
-        );
+        entries = await memorizationRepository.getDueCards(userId, now, limit);
       }
 
-      const cards = dueEntries.map(entryToCard);
+      const cards = entries.map(entryToCard);
 
       if (cards.length === 0) return false;
 
@@ -114,7 +113,7 @@ export function useReviewSession(userId: string | undefined) {
         queryClient.prefetchQuery(verseByKeyQueryOptions(card.verseKey));
       }
 
-      store.startSession(cards);
+      store.startSession(cards, mode);
       return true;
     },
     [userId, store, queryClient],
@@ -177,6 +176,7 @@ export function useReviewSession(userId: string | undefined) {
 
   return {
     phase: store.phase,
+    sessionType: store.sessionType,
     sessionCards: store.sessionCards,
     currentCardIndex: store.currentCardIndex,
     sessionResults: store.sessionResults,

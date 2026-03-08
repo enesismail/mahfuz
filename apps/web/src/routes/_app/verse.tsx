@@ -10,6 +10,7 @@ import { useAudioStore } from "~/stores/useAudioStore";
 import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
 import { TranslationBlock } from "~/components/quran/TranslationBlock";
 import { TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
+import { useTranslation } from "~/hooks/useTranslation";
 
 import type { ChapterAudioData } from "@mahfuz/audio-engine";
 
@@ -97,6 +98,7 @@ function VerseReaderView() {
   const { surah, verse: verseNum } = Route.useSearch();
   const navigate = useNavigate();
   const router = useRouter();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const { data: chapter } = useSuspenseQuery(chapterQueryOptions(surah));
@@ -235,6 +237,38 @@ function VerseReaderView() {
     playVerseAction(surah, chapter.translated_name.name, verseKey, audioData);
   }, [isPlaying, isPaused, togglePlayPause, fetchChapterAudio, playVerseAction, surah, chapter.translated_name.name, verseKey]);
 
+  // Copy to clipboard
+  const [expandedTranslations, setExpandedTranslations] = useState<Set<number>>(
+    () => new Set([0]),
+  );
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    const arabicText = displayVerse.words
+      ? displayVerse.words
+          .filter((w) => w.char_type_name === "word")
+          .map((w) => w.text_uthmani)
+          .join(" ")
+      : displayVerse.text_uthmani;
+
+    const parts = [`${chapter.translated_name.name} ${verseKey}`, "", arabicText];
+
+    if (displayVerse.translations) {
+      const expanded = displayVerse.translations.length === 1
+        ? displayVerse.translations
+        : displayVerse.translations.filter((_, i) => expandedTranslations.has(i));
+
+      for (const t of expanded) {
+        const plainText = t.text.replace(/<[^>]*>/g, "");
+        parts.push("", `${t.resource_name}: ${plainText}`);
+      }
+    }
+
+    await navigator.clipboard.writeText(parts.join("\n"));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }, [displayVerse, chapter.translated_name.name, verseKey, expandedTranslations]);
+
   const progress = Math.round((verseNum / totalVerses) * 100);
 
   return (
@@ -248,7 +282,7 @@ function VerseReaderView() {
         <button
           onClick={goBack}
           className="flex h-9 w-9 items-center justify-center rounded-xl text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-          aria-label="Geri"
+          aria-label={t.common.back}
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -275,7 +309,28 @@ function VerseReaderView() {
       {/* Verse card area */}
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-6">
         {/* Arabic card */}
-        <div className="w-full max-w-lg animate-fade-in rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
+        <div className="relative w-full max-w-lg animate-fade-in rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
+          {/* Copy button — top right */}
+          <button
+            onClick={handleCopy}
+            className={`absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+              copied
+                ? "bg-green-500 text-white"
+                : "text-[var(--theme-text-quaternary)] hover:text-[var(--theme-text-tertiary)] hover:bg-[var(--theme-hover-bg)]"
+            }`}
+            aria-label={t.quranReader.copy}
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+              {copied ? (
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              ) : (
+                <>
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </>
+              )}
+            </svg>
+          </button>
           <div dir="rtl" className="text-center">
             <p
               className="arabic-text leading-[2.6] text-[var(--theme-text)]"
@@ -314,7 +369,7 @@ function VerseReaderView() {
                   ? "bg-primary-600 text-white shadow-sm"
                   : "bg-[var(--theme-hover-bg)] text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]"
               }`}
-              aria-label={isPlaying ? "Duraklat" : "Ayeti dinle"}
+              aria-label={isPlaying ? t.quranReader.pauseVerse : t.quranReader.listenVerse}
             >
               <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor">
                 {isPlaying ? (
@@ -333,6 +388,7 @@ function VerseReaderView() {
             <TranslationBlock
               translations={displayVerse.translations}
               fontSize={normalTranslationFontSize}
+              onExpandedChange={setExpandedTranslations}
             />
           </div>
         )}
@@ -341,15 +397,15 @@ function VerseReaderView() {
         {showEndPrompt && (
           <div className="mt-6 w-full max-w-lg animate-fade-in rounded-2xl bg-[var(--theme-bg-primary)] p-5 text-center shadow-[var(--shadow-card)]">
             <p className="mb-3 text-[14px] font-medium text-[var(--theme-text)]">
-              Sure bitti.
-              {surah < TOTAL_CHAPTERS && " Sonraki sureye geçmek ister misiniz?"}
+              {t.quranReader.surahEnd}
+              {surah < TOTAL_CHAPTERS && ` ${t.quranReader.nextSurahPrompt}`}
             </p>
             {surah < TOTAL_CHAPTERS && (
               <button
                 onClick={goNextSurah}
                 className="rounded-full bg-primary-600 px-5 py-2 text-[13px] font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
               >
-                Sonraki Sure
+                {t.quranReader.nextSurah}
               </button>
             )}
           </div>
@@ -367,20 +423,20 @@ function VerseReaderView() {
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Önceki
+            {t.quranReader.prev}
           </button>
           <button
             onClick={goBack}
             className="flex h-11 items-center justify-center rounded-xl px-5 text-[14px] font-medium text-primary-600 transition-all hover:bg-primary-600/10 active:scale-[0.97]"
           >
-            Tamam
+            {t.quranReader.done}
           </button>
           <button
             onClick={goNext}
             disabled={!hasNext && showEndPrompt}
             className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-xl text-[14px] font-medium transition-all disabled:opacity-30 bg-[var(--theme-hover-bg)] text-[var(--theme-text)] hover:bg-[var(--theme-pill-bg)] active:scale-[0.97]"
           >
-            Sonraki
+            {t.quranReader.next}
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>

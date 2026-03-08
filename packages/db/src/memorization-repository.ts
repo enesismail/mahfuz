@@ -4,6 +4,8 @@ import {
   type MemorizationCardEntry,
   type ReviewEntryRecord,
   type MemorizationGoalsEntry,
+  type SyncQueueRecord,
+  type UserBadgeEntry,
 } from "./schema";
 
 export class MemorizationRepository {
@@ -59,17 +61,28 @@ export class MemorizationRepository {
 
   /** Upsert a single card */
   async upsertCard(card: MemorizationCardEntry): Promise<void> {
-    await db.memorization_cards.put(card);
+    await db.transaction("rw", db.memorization_cards, db.sync_queue, async () => {
+      await db.memorization_cards.put(card);
+      await this.enqueueSync("memorization_cards", card.id, "upsert", card);
+    });
   }
 
   /** Bulk create cards */
   async createCards(cards: MemorizationCardEntry[]): Promise<void> {
-    await db.memorization_cards.bulkPut(cards);
+    await db.transaction("rw", db.memorization_cards, db.sync_queue, async () => {
+      await db.memorization_cards.bulkPut(cards);
+      for (const card of cards) {
+        await this.enqueueSync("memorization_cards", card.id, "upsert", card);
+      }
+    });
   }
 
   /** Add a review entry */
   async addReview(entry: ReviewEntryRecord): Promise<void> {
-    await db.review_entries.add(entry);
+    await db.transaction("rw", db.review_entries, db.sync_queue, async () => {
+      await db.review_entries.add(entry);
+      await this.enqueueSync("review_entries", entry.id, "upsert", entry);
+    });
   }
 
   /** Get reviews for today (reviewedAt >= todayStart) */
@@ -101,7 +114,119 @@ export class MemorizationRepository {
 
   /** Set memorization goals */
   async setGoals(goals: MemorizationGoalsEntry): Promise<void> {
-    await db.memorization_goals.put(goals);
+    await db.transaction("rw", db.memorization_goals, db.sync_queue, async () => {
+      await db.memorization_goals.put(goals);
+      await this.enqueueSync("memorization_goals", goals.userId, "upsert", goals);
+    });
+  }
+
+  // ── Badge methods ──
+
+  /** Get all unlocked badges for a user */
+  async getUnlockedBadges(userId: string): Promise<UserBadgeEntry[]> {
+    return db.user_badges
+      .where("userId")
+      .equals(userId)
+      .toArray();
+  }
+
+  /** Add a badge for a user */
+  async addBadge(userId: string, badgeId: string): Promise<void> {
+    const existing = await db.user_badges
+      .where("[userId+badgeId]")
+      .equals([userId, badgeId])
+      .first();
+    if (existing) return; // Already unlocked
+
+    const entry: UserBadgeEntry = {
+      id: crypto.randomUUID(),
+      userId,
+      badgeId,
+      unlockedAt: Date.now(),
+    };
+    await db.user_badges.add(entry);
+  }
+
+  // ── Sync queue helpers ──
+
+  private async enqueueSync(
+    table: SyncQueueRecord["table"],
+    recordId: string,
+    action: SyncQueueRecord["action"],
+    data: unknown,
+  ): Promise<void> {
+    const record: SyncQueueRecord = {
+      id: crypto.randomUUID(),
+      table,
+      recordId,
+      action,
+      data: JSON.stringify(data),
+      synced: 0,
+      createdAt: Date.now(),
+    };
+    await db.sync_queue.add(record);
+  }
+
+  /** Get pending sync queue records */
+  async getPendingSyncRecords(): Promise<SyncQueueRecord[]> {
+    return db.sync_queue
+      .where("[table+synced]")
+      .between([Dexie.minKey, 0], [Dexie.maxKey, 0], true, true)
+      .toArray();
+  }
+
+  /** Mark sync records as synced */
+  async markSynced(ids: string[]): Promise<void> {
+    await db.sync_queue
+      .where("id")
+      .anyOf(ids)
+      .modify({ synced: 1 });
+  }
+
+  /** Clear synced records older than given timestamp */
+  async clearSyncedRecords(olderThan: number): Promise<void> {
+    await db.sync_queue
+      .where("createdAt")
+      .below(olderThan)
+      .and((r) => r.synced === 1)
+      .delete();
+  }
+
+  /** Bulk mark all verses of a surah as mastered */
+  async bulkMasterSurah(
+    userId: string,
+    surahId: number,
+    verseCount: number,
+  ): Promise<void> {
+    const now = Date.now();
+    const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+
+    await db.transaction("rw", db.memorization_cards, db.sync_queue, async () => {
+      for (let v = 1; v <= verseCount; v++) {
+        const verseKey = `${surahId}:${v}` as VerseKey;
+        const existing = await db.memorization_cards
+          .where("[userId+verseKey]")
+          .equals([userId, verseKey])
+          .first();
+
+        const card: MemorizationCardEntry = {
+          id: existing?.id || crypto.randomUUID(),
+          userId,
+          verseKey,
+          easeFactor: 2.5,
+          repetition: 7,
+          interval: 30,
+          nextReviewDate: now + thirtyDaysMs,
+          confidence: "mastered" as const,
+          totalReviews: existing?.totalReviews || 0,
+          correctReviews: existing?.correctReviews || 0,
+          createdAt: existing?.createdAt || now,
+          updatedAt: now,
+        };
+        await db.memorization_cards.put(card);
+        await this.enqueueSync("memorization_cards", card.id, "upsert", card);
+      }
+    });
   }
 }
 

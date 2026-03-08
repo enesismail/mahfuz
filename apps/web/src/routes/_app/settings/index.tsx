@@ -11,6 +11,9 @@ import {
 import type { ViewMode, ColorPaletteId, Theme } from "~/stores/usePreferencesStore";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
 import { TranslationPicker } from "~/components/quran/TranslationPicker";
+import { useTranslation } from "~/hooks/useTranslation";
+import { useI18nStore } from "~/stores/useI18nStore";
+import type { Locale } from "~/stores/useI18nStore";
 
 export const Route = createFileRoute("/_app/settings/")({
   component: SettingsPage,
@@ -19,7 +22,7 @@ export const Route = createFileRoute("/_app/settings/")({
 const BISMILLAH =
   "\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0651\u064E\u0647\u0650 \u0627\u0644\u0631\u0651\u064E\u062D\u0652\u0645\u064E\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064E\u062D\u0650\u064A\u0645\u0650";
 
-const SAMPLE_TRANSLATION = "Rahm\u00e2n ve Rah\u00eem olan Allah\u2019\u0131n ad\u0131yla";
+// SAMPLE_TRANSLATION is now sourced from t.settings.sampleTranslation inside NormalTabContent
 
 const SAMPLE_WORDS = [
   "\u0628\u0650\u0633\u0652\u0645\u0650",
@@ -42,22 +45,19 @@ const SAMPLE_WORD_TRANSLITERATIONS = [
   "ar-rah\u00eemi",
 ];
 
-const THEME_OPTIONS: { value: Theme; label: string; color: string }[] = [
-  { value: "light", label: "Açık", color: "#ffffff" },
-  { value: "sepia", label: "Sepia", color: "#f5ead6" },
-  { value: "dark", label: "Koyu", color: "#1a1a1a" },
-  { value: "dimmed", label: "Gece", color: "#22272e" },
+const THEME_OPTIONS: { value: Theme; color: string }[] = [
+  { value: "light", color: "#ffffff" },
+  { value: "sepia", color: "#f5ead6" },
+  { value: "dark", color: "#1a1a1a" },
+  { value: "dimmed", color: "#22272e" },
 ];
 
 type SettingsTab = "normal" | "wordByWord" | "mushaf";
 
-const TAB_OPTIONS: { value: SettingsTab; label: string }[] = [
-  { value: "normal", label: "Normal" },
-  { value: "wordByWord", label: "Kelime" },
-  { value: "mushaf", label: "Mushaf" },
-];
-
 function SettingsPage() {
+  const { t } = useTranslation();
+  const { locale, setLocale } = useI18nStore();
+
   const arabicFontId = usePreferencesStore((s) => s.arabicFontId);
   const viewMode = usePreferencesStore((s) => s.viewMode);
   const colorizeWords = usePreferencesStore((s) => s.colorizeWords);
@@ -92,6 +92,19 @@ function SettingsPage() {
   const activeColors = getActiveColors({ colorPaletteId });
   const [activeTab, setActiveTab] = useState<SettingsTab>(viewMode);
 
+  const TAB_OPTIONS: { value: SettingsTab; label: string }[] = [
+    { value: "normal", label: t.settings.viewModes.normal },
+    { value: "wordByWord", label: t.settings.viewModes.wordByWord },
+    { value: "mushaf", label: t.settings.viewModes.mushaf },
+  ];
+
+  const themeLabels: Record<Theme, string> = {
+    light: t.theme.light,
+    sepia: t.theme.sepia,
+    dark: t.theme.dark,
+    dimmed: t.theme.dimmed,
+  };
+
   // Pre-load all Google Arabic fonts for live preview
   useEffect(() => {
     for (const font of ARABIC_FONTS) {
@@ -114,23 +127,23 @@ function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-8">
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-[var(--theme-text)]">
-        Ayarlar
+        {t.settings.title}
       </h1>
       <p className="mb-10 text-sm text-[var(--theme-text-tertiary)]">
-        Okuma deneyiminizi kişiselleştirin
+        {t.settings.subtitle}
       </p>
 
       {/* ═══ GENERAL SETTINGS ═══ */}
-      <SettingsSection title="Genel">
+      <SettingsSection title={t.settings.general}>
         {/* Theme */}
-        <SettingsLabel>Tema</SettingsLabel>
+        <SettingsLabel>{t.theme.settings}</SettingsLabel>
         <div className="mt-2 flex gap-3">
-          {THEME_OPTIONS.map((t) => {
-            const active = theme === t.value;
+          {THEME_OPTIONS.map((opt) => {
+            const active = theme === opt.value;
             return (
               <button
-                key={t.value}
-                onClick={() => setTheme(t.value)}
+                key={opt.value}
+                onClick={() => setTheme(opt.value)}
                 className={`flex flex-1 flex-col items-center gap-2 rounded-2xl border px-3 py-3 transition-all ${
                   active
                     ? "border-primary-500 bg-primary-50 shadow-sm"
@@ -141,16 +154,16 @@ function SettingsPage() {
                   className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
                     active ? "border-primary-600" : "border-[var(--theme-divider)]"
                   }`}
-                  style={{ backgroundColor: t.color }}
+                  style={{ backgroundColor: opt.color }}
                 >
                   {active && (
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke={t.value === "dark" || t.value === "dimmed" ? "#e5e5e5" : "#059669"} strokeWidth={2.5}>
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke={opt.value === "dark" || opt.value === "dimmed" ? "#e5e5e5" : "#059669"} strokeWidth={2.5}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                 </span>
                 <span className={`text-[12px] font-medium ${active ? "text-primary-700" : "text-[var(--theme-text)]"}`}>
-                  {t.label}
+                  {themeLabels[opt.value]}
                 </span>
               </button>
             );
@@ -160,9 +173,9 @@ function SettingsPage() {
         {/* Colorize toggle */}
         <div className="mt-6 flex items-center justify-between">
           <div>
-            <SettingsLabel>Kelimeleri Renklendir</SettingsLabel>
+            <SettingsLabel>{t.settings.colorizeWords}</SettingsLabel>
             <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
-              Her kelimeyi farklı renkte göster
+              {t.settings.colorizeWordsDesc}
             </p>
           </div>
           <ToggleSwitch checked={colorizeWords} onChange={setColorizeWords} />
@@ -171,7 +184,7 @@ function SettingsPage() {
         {/* Color Palette picker */}
         {colorizeWords && (
           <div className="mt-4">
-            <SettingsLabel>Renk Paleti</SettingsLabel>
+            <SettingsLabel>{t.settings.colorPalette}</SettingsLabel>
             <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {COLOR_PALETTES.map((palette) => {
                 const active = colorPaletteId === palette.id;
@@ -208,9 +221,9 @@ function SettingsPage() {
         {/* Translation toggle */}
         <div className="mt-6 flex items-center justify-between">
           <div>
-            <SettingsLabel>Çeviri Göster</SettingsLabel>
+            <SettingsLabel>{t.settings.showTranslation}</SettingsLabel>
             <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
-              Normal modda ayet çevirilerini göster
+              {t.settings.showTranslationDesc}
             </p>
           </div>
           <ToggleSwitch checked={normalShowTranslation} onChange={setNormalShowTranslation} />
@@ -219,13 +232,29 @@ function SettingsPage() {
         {/* Translation picker — reorder/add/remove/primary */}
         {normalShowTranslation && (
           <div className="mt-4">
-            <SettingsLabel>Meal Seçimi</SettingsLabel>
+            <SettingsLabel>{t.settings.translationSelection}</SettingsLabel>
             <p className="mt-0.5 mb-2 text-[12px] text-[var(--theme-text-tertiary)]">
-              Sırayı değiştirin, birincil meali seçin
+              {t.settings.translationSelectionDesc}
             </p>
             <TranslationPicker />
           </div>
         )}
+
+        {/* Language picker */}
+        <div className="mt-6 flex items-center justify-between">
+          <SettingsLabel label={t.settings.language} description={t.settings.languageDesc} />
+          <div className="flex items-center gap-1 rounded-lg bg-[var(--theme-input-bg)] p-0.5">
+            {(["tr", "en"] as const).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLocale(l)}
+                className={`rounded-md px-3 py-1 text-[12px] font-medium transition-all ${locale === l ? "bg-[var(--theme-bg-primary)] text-[var(--theme-text)] shadow-sm" : "text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]"}`}
+              >
+                {l === "tr" ? "Türkçe" : "English"}
+              </button>
+            ))}
+          </div>
+        </div>
       </SettingsSection>
 
       {/* ═══ FONT PICKER ═══ */}
@@ -237,7 +266,7 @@ function SettingsPage() {
       />
 
       {/* ═══ MODE-SPECIFIC SETTINGS ═══ */}
-      <SettingsSection title="Okuma Modu Ayarları">
+      <SettingsSection title={t.settings.readingMode}>
         {/* Segmented tab control */}
         <SegmentedControl options={TAB_OPTIONS} value={activeTab} onChange={setActiveTab} stretch />
 
@@ -305,6 +334,8 @@ function NormalTabContent({
   colorizeWords: boolean;
   colors: string[];
 }) {
+  const { t } = useTranslation();
+
   const fontStyle = {
     fontFamily: `${fontFamily}, "Traditional Arabic", serif`,
     fontSize: `calc(1.65rem * ${arabicFontSize})`,
@@ -332,14 +363,14 @@ function NormalTabContent({
           className="mt-2 font-sans text-[var(--theme-text-secondary)]"
           style={{ fontSize: `calc(15px * ${translationFontSize})`, lineHeight: 1.8 }}
         >
-          {SAMPLE_TRANSLATION}
+          {t.settings.sampleTranslation}
         </p>
       </div>
 
       {/* Arabic size slider */}
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[var(--theme-text)]">Arapça Boyutu</span>
+          <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.arabicSize}</span>
           <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(arabicFontSize * 100)}</span>
         </div>
         <div className="mt-2 flex items-center gap-3">
@@ -357,7 +388,7 @@ function NormalTabContent({
       {/* Translation size slider */}
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[var(--theme-text)]">Çeviri Boyutu</span>
+          <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.translationSize}</span>
           <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(translationFontSize * 100)}</span>
         </div>
         <div className="mt-2 flex items-center gap-3">
@@ -404,6 +435,8 @@ function WbwTabContent({
   onWordTranslationSizeChange: (v: number) => void;
   onWordTransliterationSizeChange: (v: number) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <>
       {/* Preview */}
@@ -448,7 +481,7 @@ function WbwTabContent({
       {/* Arabic size slider */}
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[var(--theme-text)]">Arapça Boyutu</span>
+          <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.arabicSize}</span>
           <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(arabicFontSize * 100)}</span>
         </div>
         <div className="mt-2 flex items-center gap-3">
@@ -466,12 +499,12 @@ function WbwTabContent({
       {/* Word Translation toggle + size */}
       <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
         <div className="flex items-center justify-between">
-          <SettingsLabel>Kelime Çevirisi</SettingsLabel>
+          <SettingsLabel>{t.settings.wordTranslation}</SettingsLabel>
           <ToggleSwitch checked={showWordTranslation} onChange={onShowWordTranslationChange} />
         </div>
         {showWordTranslation && (
           <div className="mt-3 flex items-center gap-3">
-            <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">Çeviri Boyutu</span>
+            <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
             <input
               type="range" min="0.6" max="2.0" step="0.05"
               value={wordTranslationSize}
@@ -488,12 +521,12 @@ function WbwTabContent({
       {/* Word Transliteration toggle + size */}
       <div className="mt-4 border-t border-[var(--theme-border)] pt-5">
         <div className="flex items-center justify-between">
-          <SettingsLabel>Okunuş (Transliterasyon)</SettingsLabel>
+          <SettingsLabel>{t.settings.transliteration}</SettingsLabel>
           <ToggleSwitch checked={showWordTransliteration} onChange={onShowWordTransliterationChange} />
         </div>
         {showWordTransliteration && (
           <div className="mt-3 flex items-center gap-3">
-            <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">Okunuş Boyutu</span>
+            <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.transliterationSize}</span>
             <input
               type="range" min="0.6" max="2.0" step="0.05"
               value={wordTransliterationSize}
@@ -523,6 +556,8 @@ function MushafTabContent({
   colorizeWords: boolean;
   colors: string[];
 }) {
+  const { t } = useTranslation();
+
   const fontStyle = {
     fontFamily: `${fontFamily}, "Traditional Arabic", serif`,
     fontSize: `calc(1.65rem * ${arabicFontSize})`,
@@ -560,7 +595,7 @@ function MushafTabContent({
       {/* Arabic size slider */}
       <div className="mt-5">
         <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[var(--theme-text)]">Arapça Boyutu</span>
+          <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.arabicSize}</span>
           <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(arabicFontSize * 100)}</span>
         </div>
         <div className="mt-2 flex items-center gap-3">
@@ -601,6 +636,7 @@ function FontPickerSection({
   colorizeWords: boolean;
   colors: string[];
 }) {
+  const { t } = useTranslation();
   const currentFont = getArabicFont(arabicFontId);
   const fontFamily = `${currentFont.family}, "Traditional Arabic", serif`;
   let colorIdx = 0;
@@ -608,7 +644,7 @@ function FontPickerSection({
   return (
     <section className="mb-10">
       <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-[var(--theme-text-tertiary)]">
-        Yazı Tipi
+        {t.fonts.title}
       </h2>
 
       {/* Live surah preview */}
@@ -619,7 +655,7 @@ function FontPickerSection({
             <span className="text-[13px] font-semibold text-[var(--theme-text)]">{currentFont.name}</span>
             {currentFont.source === "local" && (
               <span className="rounded-md bg-primary-600/10 px-1.5 py-0.5 text-[10px] font-medium text-primary-700">
-                Yerel
+                {t.common.local}
               </span>
             )}
           </div>
@@ -713,7 +749,25 @@ function SettingsSection({
   );
 }
 
-function SettingsLabel({ children }: { children: React.ReactNode }) {
+function SettingsLabel({
+  children,
+  label,
+  description,
+}: {
+  children?: React.ReactNode;
+  label?: string;
+  description?: string;
+}) {
+  if (label !== undefined) {
+    return (
+      <div>
+        <span className="text-[13px] font-semibold text-[var(--theme-text)]">{label}</span>
+        {description && (
+          <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">{description}</p>
+        )}
+      </div>
+    );
+  }
   return (
     <span className="text-[13px] font-semibold text-[var(--theme-text)]">
       {children}

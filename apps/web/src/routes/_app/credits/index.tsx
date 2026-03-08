@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute("/_app/credits/")({
   component: CreditsPage,
@@ -8,28 +9,28 @@ const TRANSLATION_CREDITS = [
   {
     name: "Diyanet İşleri Başkanlığı Meali",
     author: "Diyanet İşleri Başkanlığı",
-    description: "Türkiye Cumhuriyeti Diyanet İşleri Başkanlığı tarafından hazırlanan resmi Kur'an-ı Kerim meali.",
+    descKey: "diyanet" as const,
     source: "quran.com API",
     url: "https://quran.com",
   },
   {
     name: "Ömer Çelik Meali",
     author: "Prof. Dr. Ömer Çelik",
-    description: "Akademik titizlikle hazırlanmış, anlaşılır Türkçesiyle öne çıkan meal çalışması.",
+    descKey: "pirveysal" as const,
     source: "kuranvemeali.com",
     url: "https://www.kuranvemeali.com",
   },
   {
     name: "Ömer Nasuhi Bilmen Meali",
     author: "Ömer Nasuhi Bilmen",
-    description: "Cumhuriyet döneminin ilk Diyanet İşleri Başkanlarından Ömer Nasuhi Bilmen'in klasik meal çalışması.",
+    descKey: "bilmen" as const,
     source: "kuranayetleri.net",
     url: "https://kuranayetleri.net",
   },
   {
     name: "Ali Fikri Yavuz Meali",
     author: "Ali Fikri Yavuz",
-    description: "Sade ve akıcı Türkçesiyle bilinen, geniş okuyucu kitlesine ulaşmış meal çalışması.",
+    descKey: "yavuz" as const,
     source: "kuranayetleri.net",
     url: "https://kuranayetleri.net",
   },
@@ -38,12 +39,12 @@ const TRANSLATION_CREDITS = [
 const DATA_CREDITS = [
   {
     name: "Quran.com API",
-    description: "Ayet metinleri, kelime kelime veriler, transliterasyon ve Diyanet meali için kullanılan açık API.",
+    descKey: "quranApi" as const,
     url: "https://quran.com",
   },
   {
     name: "Kuran Meali Ebook Oluşturucu",
-    description: "Ali Fikri Yavuz ve Ömer Nasuhi Bilmen meallerinin JSON formatındaki kaynağı.",
+    descKey: "quranJsonRepo" as const,
     url: "https://github.com/alialparslan/Kuran-Meali-Ebook-Olusturucu",
     author: "alialparslan",
   },
@@ -52,74 +53,76 @@ const DATA_CREDITS = [
 const FONT_CREDITS = [
   {
     name: "KFGQPC Uthmani Hafs",
-    description: "King Fahd Glorious Quran Printing Complex tarafından geliştirilen Mushaf yazı tipi.",
+    descKey: "kfgqpc" as const,
     url: "https://fonts.qurancomplex.gov.sa",
   },
   {
     name: "Google Fonts",
-    description: "Scheherazade New, Amiri, Noto Naskh Arabic, Rubik, Zain, Reem Kufi ve Playpen Sans Arabic yazı tipleri.",
+    descKey: "googleFonts" as const,
     url: "https://fonts.google.com",
   },
 ] as const;
 
-const ISSUE_LINKS = [
-  { template: "feature-request.yml", label: "Geliştirme Talebi", sublabel: "Feature Request", iconBg: "bg-blue-500", iconPath: '<path d="M12 5v14M5 12h14" />' },
-  { template: "bug-report.yml", label: "Hata Bildirimi", sublabel: "Bug Report", iconBg: "bg-red-500", iconPath: '<circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />' },
-  { template: "copyright.yml", label: "Telif Hakkı Bildirimi", sublabel: "Copyright Notice", iconBg: "bg-amber-500", iconPath: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />' },
-  { template: "message.yml", label: "Mesaj", sublabel: "Message", iconBg: "bg-teal-500", iconPath: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />' },
-  { template: "contribute.yml", label: "Katkı Vermek İstiyorum", sublabel: "I Want to Contribute", iconBg: "bg-purple-500", iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />' },
+const ISSUE_LINK_DEFS = [
+  { key: "featureRequest" as const, templateTr: "feature-request.yml", templateEn: "feature-request-en.yml", iconBg: "bg-blue-500", iconPath: '<path d="M12 5v14M5 12h14" />' },
+  { key: "bugReport" as const, templateTr: "bug-report.yml", templateEn: "bug-report-en.yml", iconBg: "bg-red-500", iconPath: '<circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />' },
+  { key: "copyright" as const, templateTr: "copyright.yml", templateEn: "copyright-en.yml", iconBg: "bg-amber-500", iconPath: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" />' },
+  { key: "message" as const, templateTr: "message.yml", templateEn: "message-en.yml", iconBg: "bg-teal-500", iconPath: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />' },
+  { key: "contribute" as const, templateTr: "contribute.yml", templateEn: "contribute-en.yml", iconBg: "bg-purple-500", iconPath: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />' },
 ] as const;
 
 function CreditsPage() {
+  const { t, locale } = useTranslation();
+
   return (
     <div className="mx-auto max-w-2xl px-6 py-8">
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-[var(--theme-text)]">
-        Katkıda Bulunanlar
+        {t.credits.title}
       </h1>
       <p className="mb-10 text-sm text-[var(--theme-text-tertiary)]">
-        Bu uygulamayı mümkün kılan kişi ve kaynaklar
+        {t.credits.subtitle}
       </p>
 
       {/* Translations */}
-      <CreditsSection title="Meal Kaynakları">
+      <CreditsSection title={t.credits.translations}>
         <div className="space-y-4">
-          {TRANSLATION_CREDITS.map((t) => (
+          {TRANSLATION_CREDITS.map((item) => (
             <CreditCard
-              key={t.name}
-              name={t.name}
-              author={t.author}
-              description={t.description}
-              source={t.source}
-              url={t.url}
+              key={item.name}
+              name={item.name}
+              author={item.author}
+              description={t.credits.translationCredits[item.descKey]}
+              source={item.source}
+              url={item.url}
             />
           ))}
         </div>
       </CreditsSection>
 
       {/* Data sources */}
-      <CreditsSection title="Veri Kaynakları">
+      <CreditsSection title={t.credits.dataSources}>
         <div className="space-y-4">
-          {DATA_CREDITS.map((d) => (
+          {DATA_CREDITS.map((item) => (
             <CreditCard
-              key={d.name}
-              name={d.name}
-              author={"author" in d ? d.author : undefined}
-              description={d.description}
-              url={d.url}
+              key={item.name}
+              name={item.name}
+              author={"author" in item ? item.author : undefined}
+              description={t.credits.dataCredits[item.descKey]}
+              url={item.url}
             />
           ))}
         </div>
       </CreditsSection>
 
       {/* Fonts */}
-      <CreditsSection title="Yazı Tipleri">
+      <CreditsSection title={t.credits.fontsSection}>
         <div className="space-y-4">
-          {FONT_CREDITS.map((f) => (
+          {FONT_CREDITS.map((item) => (
             <CreditCard
-              key={f.name}
-              name={f.name}
-              description={f.description}
-              url={f.url}
+              key={item.name}
+              name={item.name}
+              description={t.credits.fontCredits[item.descKey]}
+              url={item.url}
             />
           ))}
         </div>
@@ -128,30 +131,32 @@ function CreditsPage() {
       {/* Disclaimer */}
       <div className="mb-10 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-5">
         <p className="text-[13px] leading-relaxed text-[var(--theme-text-tertiary)]">
-          Meal metinleri, ilgili yazarlarına ve yayıncılarına aittir. Bu uygulama, Kur'an-ı Kerim'e erişimi kolaylaştırmak amacıyla bu kaynakları bir araya getirmektedir.
+          {t.credits.disclaimer}
         </p>
       </div>
 
       {/* Contact & Contribute */}
-      <CreditsSection title="Bize Ulaşın">
+      <CreditsSection title={t.credits.contactUs}>
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {ISSUE_LINKS.map((link) => (
-            <a
-              key={link.template}
-              href={`https://github.com/theilgaz/mahfuz/issues/new?template=${link.template}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2.5 rounded-xl border border-[var(--theme-border)] px-3.5 py-3 transition-colors hover:bg-[var(--theme-hover-bg)]"
-            >
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white ${link.iconBg}`}>
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: link.iconPath }} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <span className="block text-[12px] font-semibold text-[var(--theme-text)]">{link.label}</span>
-                <span className="block text-[10px] text-[var(--theme-text-quaternary)]">{link.sublabel}</span>
-              </div>
-            </a>
-          ))}
+          {ISSUE_LINK_DEFS.map((link) => {
+            const template = locale === "tr" ? link.templateTr : link.templateEn;
+            return (
+              <a
+                key={link.key}
+                href={`https://github.com/theilgaz/mahfuz/issues/new?template=${template}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 rounded-xl border border-[var(--theme-border)] px-3.5 py-3 transition-colors hover:bg-[var(--theme-hover-bg)]"
+              >
+                <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white ${link.iconBg}`}>
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: link.iconPath }} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <span className="block text-[12px] font-semibold text-[var(--theme-text)]">{t.credits.issueLinks[link.key]}</span>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </CreditsSection>
     </div>

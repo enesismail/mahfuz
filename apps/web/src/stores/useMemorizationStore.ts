@@ -7,6 +7,7 @@ import type {
 } from "@mahfuz/shared/types";
 
 export type SessionPhase = "idle" | "selecting" | "reviewing" | "results";
+export type SessionType = "review" | "practice" | "verification";
 
 export interface SessionResult {
   cardId: string;
@@ -18,6 +19,7 @@ export interface SessionResult {
 interface MemorizationStoreState {
   // Session
   phase: SessionPhase;
+  sessionType: SessionType;
   sessionCards: MemorizationCard[];
   currentCardIndex: number;
   sessionResults: SessionResult[];
@@ -34,7 +36,7 @@ interface MemorizationStoreState {
   reviewCardsPerDay: number;
 
   // Actions
-  startSession: (cards: MemorizationCard[]) => void;
+  startSession: (cards: MemorizationCard[], type?: SessionType) => void;
   setRevealState: (revealed: number, total: number) => void;
   revealNextWord: () => void;
   revealAll: () => void;
@@ -51,6 +53,7 @@ export const useMemorizationStore = create<MemorizationStoreState>()(
     (set, get) => ({
       // Session state
       phase: "idle",
+      sessionType: "review",
       sessionCards: [],
       currentCardIndex: 0,
       sessionResults: [],
@@ -62,9 +65,10 @@ export const useMemorizationStore = create<MemorizationStoreState>()(
       newCardsPerDay: 5,
       reviewCardsPerDay: 20,
 
-      startSession: (cards) =>
+      startSession: (cards, type = "review") =>
         set({
           phase: "reviewing",
+          sessionType: type,
           sessionCards: cards,
           currentCardIndex: 0,
           sessionResults: [],
@@ -124,6 +128,7 @@ export const useMemorizationStore = create<MemorizationStoreState>()(
       resetSession: () =>
         set({
           phase: "idle",
+          sessionType: "review",
           sessionCards: [],
           currentCardIndex: 0,
           sessionResults: [],

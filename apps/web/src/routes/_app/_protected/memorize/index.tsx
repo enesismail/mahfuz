@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { useMemorizationDashboard } from "~/hooks/useMemorization";
 import { StatsOverview, SurahSelector, GoalsSettings } from "~/components/memorization";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute("/_app/_protected/memorize/")({
   component: MemorizePage,
@@ -12,21 +13,32 @@ function MemorizePage() {
   const userId = session!.user.id;
   const navigate = useNavigate();
   const { stats, isLoading } = useMemorizationDashboard(userId);
+  const { t } = useTranslation();
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-[var(--theme-text)]">
-          Ezberleme
+          {t.memorize.title}
         </h1>
-        {stats && stats.dueToday > 0 && (
-          <button
-            onClick={() => navigate({ to: "/memorize/review" })}
-            className="rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition-all hover:bg-primary-700 active:scale-[0.97]"
-          >
-            Tekrar Başlat ({stats.dueToday})
-          </button>
-        )}
+        <div className="flex gap-2">
+          {stats && stats.totalCards > 0 && (
+            <button
+              onClick={() => navigate({ to: "/memorize/practice" })}
+              className="rounded-xl bg-amber-50 px-4 py-2.5 text-[14px] font-semibold text-amber-700 shadow-sm transition-all hover:bg-amber-100 active:scale-[0.97]"
+            >
+              {t.memorize.practice.button}
+            </button>
+          )}
+          {stats && stats.dueToday > 0 && (
+            <button
+              onClick={() => navigate({ to: "/memorize/review" })}
+              className="rounded-xl bg-primary-600 px-5 py-2.5 text-[14px] font-semibold text-white shadow-sm transition-all hover:bg-primary-700 active:scale-[0.97]"
+            >
+              {t.memorize.startReview} ({stats.dueToday})
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-6 animate-fade-in">
@@ -38,10 +50,10 @@ function MemorizePage() {
         ) : stats && stats.totalCards === 0 ? (
           <div className="animate-fade-in rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-card)]">
             <p className="mb-2 text-lg font-semibold text-[var(--theme-text)]">
-              Ezberlemeye Başla
+              {t.memorize.emptyTitle}
             </p>
             <p className="text-[14px] text-[var(--theme-text-tertiary)]">
-              Bir sûre seçerek ilk ayetlerini ekle
+              {t.memorize.emptyDesc}
             </p>
           </div>
         ) : stats ? (
@@ -49,7 +61,7 @@ function MemorizePage() {
             <StatsOverview stats={stats} />
             <details className="group">
               <summary className="cursor-pointer list-none px-1 pb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                Hedefler
+                {t.memorize.goals}
                 <span className="ml-1 inline-block transition-transform group-open:rotate-90">›</span>
               </summary>
               <GoalsSettings userId={userId} />

@@ -15,6 +15,7 @@ import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import type { ViewMode } from "~/stores/usePreferencesStore";
 import { useReadingHistory } from "~/stores/useReadingHistory";
 import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export const Route = createFileRoute("/_app/juz/$juzId")({
   loader: ({ context, params }) => {
@@ -31,39 +32,27 @@ export const Route = createFileRoute("/_app/juz/$juzId")({
   component: JuzView,
 });
 
-const VIEW_MODE_OPTIONS: { value: ViewMode; label: string; icon: React.ReactNode }[] = [
-  {
-    value: "normal",
-    label: "Normal",
-    icon: (
-      <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <path d="M3 4h10M3 8h7M3 12h10" />
-      </svg>
-    ),
-  },
-  {
-    value: "wordByWord",
-    label: "Kelime",
-    icon: (
-      <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-        <rect x="1.5" y="3" width="4" height="4.5" rx="1" />
-        <rect x="7.5" y="3" width="4" height="4.5" rx="1" />
-        <rect x="1.5" y="9.5" width="4" height="4.5" rx="1" />
-        <rect x="7.5" y="9.5" width="4" height="4.5" rx="1" />
-      </svg>
-    ),
-  },
-  {
-    value: "mushaf",
-    label: "Mushaf",
-    icon: (
-      <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 2.5h4.5a1.5 1.5 0 0 1 1.5 1.5v10S6.5 13 4.25 13 2 14 2 14V2.5z" />
-        <path d="M14 2.5H9.5A1.5 1.5 0 0 0 8 4v10s1.5-1 3.75-1S14 14 14 14V2.5z" />
-      </svg>
-    ),
-  },
-];
+const VIEW_MODE_ICONS: Record<ViewMode, React.ReactNode> = {
+  normal: (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M3 4h10M3 8h7M3 12h10" />
+    </svg>
+  ),
+  wordByWord: (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+      <rect x="1.5" y="3" width="4" height="4.5" rx="1" />
+      <rect x="7.5" y="3" width="4" height="4.5" rx="1" />
+      <rect x="1.5" y="9.5" width="4" height="4.5" rx="1" />
+      <rect x="7.5" y="9.5" width="4" height="4.5" rx="1" />
+    </svg>
+  ),
+  mushaf: (
+    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 2.5h4.5a1.5 1.5 0 0 1 1.5 1.5v10S6.5 13 4.25 13 2 14 2 14V2.5z" />
+      <path d="M14 2.5H9.5A1.5 1.5 0 0 0 8 4v10s1.5-1 3.75-1S14 14 14 14V2.5z" />
+    </svg>
+  ),
+};
 
 function JuzView() {
   const { juzId } = Route.useParams();
@@ -73,6 +62,13 @@ function JuzView() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const viewMode = usePreferencesStore((s) => s.viewMode);
   const setViewMode = usePreferencesStore((s) => s.setViewMode);
+  const { t } = useTranslation();
+
+  const viewModeOptions = useMemo(() => ([
+    { value: "normal" as ViewMode, label: t.quranReader.viewModes.normal, icon: VIEW_MODE_ICONS.normal },
+    { value: "wordByWord" as ViewMode, label: t.quranReader.viewModes.wordByWord, icon: VIEW_MODE_ICONS.wordByWord },
+    { value: "mushaf" as ViewMode, label: t.quranReader.viewModes.mushaf, icon: VIEW_MODE_ICONS.mushaf },
+  ]), [t]);
   const queryClient = useQueryClient();
   const reciterId = useAudioStore((s) => s.reciterId);
   const playVerse = useAudioStore((s) => s.playVerse);
@@ -143,7 +139,7 @@ function JuzView() {
             <div className="flex items-center gap-2">
               <span className="text-[1.75rem] font-semibold tabular-nums leading-none text-[var(--theme-text)]">{juzNumber}</span>
               <div className="flex items-center gap-1">
-                <span className="text-[15px] font-semibold text-[var(--theme-text)]">Cüz {juzNumber}</span>
+                <span className="text-[15px] font-semibold text-[var(--theme-text)]">{t.common.juz} {juzNumber}</span>
                 <svg className="h-3 w-3 text-[var(--theme-text-tertiary)]" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 6l4 4 4-4" />
                 </svg>
@@ -157,7 +153,7 @@ function JuzView() {
                   {" · "}
                 </>
               )}
-              {data.pagination.total_records} ayet · s.{pageStart}–{pageEnd}
+              {data.pagination.total_records} {t.quranReader.versesUnit} · {t.quranReader.pageAbbr}{pageStart}–{pageEnd}
             </p>
           </button>
 
@@ -169,7 +165,7 @@ function JuzView() {
             <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
               {isPlayingThisJuz ? <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" /> : <path d="M8 5.14v14l11-7-11-7z" />}
             </svg>
-            {isPlayingThisJuz ? "Durakla" : "Dinle"}
+            {isPlayingThisJuz ? t.quranReader.pause : t.quranReader.listen}
           </button>
         </div>
       </div>
@@ -183,7 +179,7 @@ function JuzView() {
               to="/juz/$juzId"
               params={{ juzId: String(juzNumber - 1) }}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-              aria-label="Önceki cüz"
+              aria-label={t.quranReader.prevJuz}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
             </Link>
@@ -194,7 +190,7 @@ function JuzView() {
           {/* Center: unified toolbar (icon-only tabs + A ع) */}
           <div className="flex min-w-0 flex-1 items-center justify-center">
             <div className="flex items-center rounded-xl bg-[var(--theme-pill-bg)] p-1">
-              <SegmentedControl options={VIEW_MODE_OPTIONS} value={viewMode} onChange={setViewMode} iconOnlyMobile transparent />
+              <SegmentedControl options={viewModeOptions} value={viewMode} onChange={setViewMode} iconOnlyMobile transparent />
               <div className="mx-0.5 h-4 w-px bg-[var(--theme-border)]" />
               <ReadingToolbar segmentStyle />
             </div>
@@ -206,7 +202,7 @@ function JuzView() {
               to="/juz/$juzId"
               params={{ juzId: String(juzNumber + 1) }}
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-              aria-label="Sonraki cüz"
+              aria-label={t.quranReader.nextJuz}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
             </Link>
@@ -231,7 +227,7 @@ function JuzView() {
             className="text-[15px] font-medium text-primary-600 transition-colors hover:text-primary-700"
             onClick={() => setPage(1)}
           >
-            ← Önceki Cüz
+            ← {t.quranReader.prevJuz}
           </Link>
         ) : (
           <span />
@@ -243,7 +239,7 @@ function JuzView() {
             className="text-[15px] font-medium text-primary-600 transition-colors hover:text-primary-700"
             onClick={() => setPage(1)}
           >
-            Sonraki Cüz →
+            {t.quranReader.nextJuz} →
           </Link>
         ) : (
           <span />
@@ -254,6 +250,7 @@ function JuzView() {
       {pickerOpen && (
         <JuzPicker
           currentJuz={juzNumber}
+          t={t}
           onSelect={(juz) => {
             setPickerOpen(false);
             setPage(1);
@@ -272,10 +269,12 @@ function JuzPicker({
   currentJuz,
   onSelect,
   onClose,
+  t,
 }: {
   currentJuz: number;
   onSelect: (juz: number) => void;
   onClose: () => void;
+  t: ReturnType<typeof useTranslation>["t"];
 }) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -294,13 +293,13 @@ function JuzPicker({
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--theme-border)] px-4 py-3">
           <h2 className="text-[15px] font-semibold text-[var(--theme-text)]">
-            Cüze Git
+            {t.quranReader.goToJuz}
           </h2>
           <button
             onClick={onClose}
             className="text-[13px] font-medium text-primary-600"
           >
-            Kapat
+            {t.common.close}
           </button>
         </div>
 

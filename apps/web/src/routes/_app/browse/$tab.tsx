@@ -8,23 +8,10 @@ import { SurahListPanel } from "~/components/browse/SurahListPanel";
 import { JuzListPanel } from "~/components/browse/JuzListPanel";
 import { PageListPanel } from "~/components/browse/PageListPanel";
 import { FihristPanel } from "~/components/browse/FihristPanel";
+import { useTranslation } from "~/hooks/useTranslation";
 
 const VALID_TABS = ["surahs", "juzs", "pages", "index"] as const;
 type TabType = (typeof VALID_TABS)[number];
-
-const TAB_OPTIONS = [
-  { value: "surahs" as TabType, label: "Sureler" },
-  { value: "juzs" as TabType, label: "Cüzler" },
-  { value: "pages" as TabType, label: "Sayfalar" },
-  { value: "index" as TabType, label: "Fihrist" },
-];
-
-const TAB_TITLES: Record<TabType, string> = {
-  surahs: "Sureler",
-  juzs: "Cüzler",
-  pages: "Sayfalar",
-  index: "Fihrist",
-};
 
 export const Route = createFileRoute("/_app/browse/$tab")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -42,9 +29,6 @@ export const Route = createFileRoute("/_app/browse/$tab")({
     ]);
   },
   pendingComponent: () => <Loading text="Yükleniyor..." />,
-  head: ({ params }) => ({
-    meta: [{ title: `${TAB_TITLES[params.tab as TabType] ?? "Sureler"} | Mahfuz` }],
-  }),
   component: BrowsePage,
 });
 
@@ -52,8 +36,23 @@ function BrowsePage() {
   const { tab } = Route.useParams();
   const { topic } = Route.useSearch();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const currentTab = tab as TabType;
+
+  const TAB_OPTIONS = [
+    { value: "surahs" as TabType, label: t.browse.surahs },
+    { value: "juzs" as TabType, label: t.browse.juzs },
+    { value: "pages" as TabType, label: t.browse.pages },
+    { value: "index" as TabType, label: t.browse.index },
+  ];
+
+  const TAB_TITLES: Record<TabType, string> = {
+    surahs: t.browse.surahs,
+    juzs: t.browse.juzs,
+    pages: t.browse.pages,
+    index: t.browse.index,
+  };
 
   const setTab = (value: TabType) => {
     navigate({
@@ -80,7 +79,7 @@ function BrowsePage() {
       </div>
 
       {/* Tab content */}
-      <Suspense fallback={<Loading text="Yükleniyor..." />}>
+      <Suspense fallback={<Loading text={t.common.loading} />}>
         {currentTab === "surahs" && <SurahListPanel />}
         {currentTab === "juzs" && <JuzListPanel />}
         {currentTab === "pages" && <PageListPanel />}
