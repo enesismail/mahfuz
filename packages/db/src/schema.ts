@@ -64,6 +64,42 @@ export interface UserBadgeEntry {
   unlockedAt: number;
 }
 
+/** Lesson progress entry for Learn module */
+export interface LessonProgressEntry {
+  id: string;
+  userId: string;
+  stageId: number;
+  lessonId: string;
+  status: "not_started" | "in_progress" | "completed";
+  score: number;
+  sevapPointEarned: number;
+  completedAt: number;
+}
+
+/** Concept mastery entry for Learn module simplified SRS */
+export interface LearnConceptEntry {
+  id: string;
+  userId: string;
+  conceptId: string;
+  correctCount: number;
+  incorrectCount: number;
+  masteryLevel: 0 | 1 | 2 | 3;
+  nextReviewAt: number;
+}
+
+/** Quest progress entry for Side Quests */
+export interface QuestProgressEntry {
+  id: string;
+  userId: string;
+  questId: string;
+  wordsCorrect: string[];
+  totalAttempts: number;
+  totalCorrect: number;
+  sessionsCompleted: number;
+  bestSessionScore: number;
+  lastPlayedAt: number;
+}
+
 /** Dexie database for Mahfuz offline cache + memorization */
 export class MahfuzDB extends Dexie {
   cache!: EntityTable<CacheEntry, "key">;
@@ -72,6 +108,9 @@ export class MahfuzDB extends Dexie {
   memorization_goals!: EntityTable<MemorizationGoalsEntry, "userId">;
   sync_queue!: EntityTable<SyncQueueRecord, "id">;
   user_badges!: EntityTable<UserBadgeEntry, "id">;
+  lesson_progress!: EntityTable<LessonProgressEntry, "id">;
+  learn_concepts!: EntityTable<LearnConceptEntry, "id">;
+  quest_progress!: EntityTable<QuestProgressEntry, "id">;
 
   constructor() {
     super("mahfuz-cache");
@@ -96,6 +135,31 @@ export class MahfuzDB extends Dexie {
       memorization_goals: "userId",
       sync_queue: "id, [table+synced], createdAt",
       user_badges: "id, [userId+badgeId], userId",
+    });
+
+    this.version(4).stores({
+      cache: "key",
+      memorization_cards:
+        "id, [userId+verseKey], [userId+nextReviewDate], [userId+confidence]",
+      review_entries: "id, cardId, [userId+reviewedAt]",
+      memorization_goals: "userId",
+      sync_queue: "id, [table+synced], createdAt",
+      user_badges: "id, [userId+badgeId], userId",
+      lesson_progress: "id, [userId+stageId], [userId+status], lessonId",
+      learn_concepts: "id, [userId+conceptId], [userId+nextReviewAt], userId",
+    });
+
+    this.version(5).stores({
+      cache: "key",
+      memorization_cards:
+        "id, [userId+verseKey], [userId+nextReviewDate], [userId+confidence]",
+      review_entries: "id, cardId, [userId+reviewedAt]",
+      memorization_goals: "userId",
+      sync_queue: "id, [table+synced], createdAt",
+      user_badges: "id, [userId+badgeId], userId",
+      lesson_progress: "id, [userId+stageId], [userId+status], lessonId",
+      learn_concepts: "id, [userId+conceptId], [userId+nextReviewAt], userId",
+      quest_progress: "id, [userId+questId], userId",
     });
   }
 }

@@ -67,6 +67,19 @@ export class MemorizationRepository {
     });
   }
 
+  /** Delete all cards for a surah */
+  async deleteCardsBySurah(userId: string, surahId: number): Promise<void> {
+    const cards = await this.getCardsBySurah(userId, surahId);
+    if (cards.length === 0) return;
+    const ids = cards.map((c) => c.id);
+    await db.transaction("rw", db.memorization_cards, db.sync_queue, async () => {
+      await db.memorization_cards.bulkDelete(ids);
+      for (const card of cards) {
+        await this.enqueueSync("memorization_cards", card.id, "delete", card);
+      }
+    });
+  }
+
   /** Bulk create cards */
   async createCards(cards: MemorizationCardEntry[]): Promise<void> {
     await db.transaction("rw", db.memorization_cards, db.sync_queue, async () => {
@@ -77,7 +90,7 @@ export class MemorizationRepository {
     });
   }
 
-  /** Remove duplicate cards — keep the one with most reviews per verseKey */
+  /** Remove duplicate cards, keep the one with most reviews per verseKey */
   async deduplicateCards(userId: string): Promise<number> {
     const all = await this.getAllCards(userId);
     const byKey = new Map<string, MemorizationCardEntry[]>();
@@ -147,8 +160,7 @@ export class MemorizationRepository {
     });
   }
 
-  // ── Badge methods ──
-
+  // Badge methods
   /** Get all unlocked badges for a user */
   async getUnlockedBadges(userId: string): Promise<UserBadgeEntry[]> {
     return db.user_badges
@@ -174,8 +186,7 @@ export class MemorizationRepository {
     await db.user_badges.add(entry);
   }
 
-  // ── Sync queue helpers ──
-
+  // Sync queue helpers
   private async enqueueSync(
     table: SyncQueueRecord["table"],
     recordId: string,

@@ -97,7 +97,7 @@ function AddContent({
           &larr; {chapter.name_simple}
         </Link>
         <h1 className="text-2xl font-bold text-[var(--theme-text)]">
-          {t.memorize.addVersesTitle} — {chapter.name_simple}
+          {t.memorize.addVersesTitle} | {chapter.name_simple}
         </h1>
         <p className="mt-1 text-[14px] text-[var(--theme-text-tertiary)]">
           {availableVerses.length} {t.memorize.versesAvailable},{" "}

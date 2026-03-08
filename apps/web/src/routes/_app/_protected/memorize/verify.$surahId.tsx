@@ -1,14 +1,12 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { chapterQueryOptions } from "~/hooks/useChapters";
-import { useReviewSession, useMemorizationDashboard } from "~/hooks/useMemorization";
-import { FillBlankCard } from "~/components/memorization";
+import { useMemorizationDashboard } from "~/hooks/useMemorization";
+import { SurahVerifyQuiz } from "~/components/memorization/SurahVerifyQuiz";
 import { VerificationResults } from "~/components/memorization/VerificationResults";
 import { memorizationRepository } from "@mahfuz/db";
-import type { MemorizationCard, ConfidenceLevel, VerseKey } from "@mahfuz/shared/types";
-import { SM2_DEFAULTS } from "@mahfuz/shared/constants";
-import { useTranslation } from "~/hooks/useTranslation";
+import type { SessionResult } from "~/stores/useMemorizationStore";
 
 export const Route = createFileRoute(
   "/_app/_protected/memorize/verify/$surahId",
@@ -22,114 +20,77 @@ function VerifyPage() {
   const { surahId: surahIdStr } = Route.useParams();
   const surahId = Number(surahIdStr);
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const { data: chapter } = useSuspenseQuery(chapterQueryOptions(surahId));
   const { refreshStats } = useMemorizationDashboard(userId);
 
-  const {
-    phase,
-    sessionCards,
-    currentCardIndex,
-    sessionResults,
-    resetSession,
-  } = useReviewSession(userId);
-
-  const [verified, setVerified] = useState(false);
+  const [phase, setPhase] = useState<"quiz" | "results">("quiz");
   const [passed, setPassed] = useState(false);
+  const [sessionResults, setSessionResults] = useState<SessionResult[]>([]);
 
-  // Build verification cards: random subset of surah verses
-  const startVerification = useCallback(async () => {
-    if (!userId || !chapter) return;
-
-    const versesCount = chapter.verses_count;
-    const testCount = Math.min(10, Math.ceil(versesCount * 0.15));
-
-    // Generate random verse indices
-    const allIndices = Array.from({ length: versesCount }, (_, i) => i + 1);
-    // Shuffle and pick
-    for (let i = allIndices.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [allIndices[i], allIndices[j]] = [allIndices[j], allIndices[i]];
-    }
-    const selectedVerses = allIndices.slice(0, testCount).sort((a, b) => a - b);
-
-    const now = Date.now();
-    const cards: MemorizationCard[] = selectedVerses.map((num) => ({
-      id: crypto.randomUUID(),
-      userId,
-      verseKey: `${surahId}:${num}` as VerseKey,
-      easeFactor: SM2_DEFAULTS.INITIAL_EASE_FACTOR,
-      repetition: 0,
-      interval: 0,
-      nextReviewDate: new Date(now),
-      confidence: "learning" as ConfidenceLevel,
-      totalReviews: 0,
-      correctReviews: 0,
-      createdAt: new Date(now),
-      updatedAt: new Date(now),
-    }));
-
-    // Use store's startSession directly with verification type
-    const { useMemorizationStore } = await import(
-      "~/stores/useMemorizationStore"
-    );
-    useMemorizationStore.getState().startSession(cards, "verification");
-  }, [userId, chapter, surahId]);
-
-  // Reset any leftover session and start fresh on mount / surahId change
-  useEffect(() => {
-    resetSession();
-  }, [surahId, resetSession]);
-
-  // Start verification once session is idle
-  useEffect(() => {
-    if (phase === "idle") {
-      startVerification();
-    }
-  }, [phase, startVerification]);
-
-  const currentCard = sessionCards[currentCardIndex];
-
-  const handleGrade = async (grade: 0 | 1 | 2 | 3 | 4 | 5) => {
-    // In verification mode, we don't persist to DB (these are test cards)
-    // Just record the grade in session results
-    const { useMemorizationStore } = await import(
-      "~/stores/useMemorizationStore"
-    );
-    useMemorizationStore.getState().gradeCard(grade);
-    useMemorizationStore.getState().nextCard();
-  };
-
-  // Process results when phase becomes "results"
-  useEffect(() => {
-    if (phase === "results" && !verified && sessionResults.length > 0) {
-      const avgGrade =
-        sessionResults.reduce((sum, r) => sum + r.grade, 0) /
-        sessionResults.length;
-      const didPass = avgGrade >= 3;
+  const handleComplete = useCallback(
+    (results: {
+      total: number;
+      correct: number;
+      results: Array<{
+        verseKey: string;
+        wordPosition: number;
+        correctWord: string;
+        selectedWord: string;
+        isCorrect: boolean;
+      }>;
+    }) => {
+      const accuracy = results.total > 0 ? results.correct / results.total : 0;
+      const didPass = accuracy >= 0.6;
       setPassed(didPass);
-      setVerified(true);
+
+      // Map blank results to SessionResult format for VerificationResults
+      // Group by verseKey. A verse passes if majority of its blanks are correct
+      const byVerse = new Map<
+        string,
+        { correct: number; total: number }
+      >();
+      for (const r of results.results) {
+        const entry = byVerse.get(r.verseKey) || { correct: 0, total: 0 };
+        entry.total++;
+        if (r.isCorrect) entry.correct++;
+        byVerse.set(r.verseKey, entry);
+      }
+
+      const mapped: SessionResult[] = [...byVerse.entries()].map(
+        ([verseKey, counts]) => {
+          const ratio = counts.correct / counts.total;
+          const wasCorrect = ratio >= 0.5;
+          const grade = ratio >= 0.8 ? 5 : ratio >= 0.5 ? 3 : 1;
+          return {
+            cardId: verseKey,
+            verseKey,
+            grade: grade as 0 | 1 | 2 | 3 | 4 | 5,
+            wasCorrect,
+          };
+        },
+      );
+      setSessionResults(mapped);
 
       if (didPass && chapter) {
-        // Mark all surah verses as mastered
         memorizationRepository.bulkMasterSurah(
           userId,
           surahId,
           chapter.verses_count,
         );
       }
-    }
-  }, [phase, verified, sessionResults, userId, surahId, chapter]);
 
-  const handleContinue = () => {
-    resetSession();
+      setPhase("results");
+    },
+    [userId, surahId, chapter],
+  );
+
+  const handleContinue = useCallback(() => {
     refreshStats();
     navigate({ to: "/memorize" });
-  };
+  }, [refreshStats, navigate]);
 
-  // Verification results
-  if (phase === "results" && verified) {
+  if (phase === "results") {
     return (
       <div className="mx-auto max-w-2xl px-6 py-8 animate-fade-in">
         <VerificationResults
@@ -142,51 +103,13 @@ function VerifyPage() {
     );
   }
 
-  // Loading
-  if (phase === "idle" || !currentCard) {
-    return (
-      <div className="mx-auto max-w-2xl px-6 py-8">
-        <div className="flex h-64 items-center justify-center">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary-600 border-t-transparent" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="mx-auto max-w-2xl px-6 py-8 animate-fade-in">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="mb-2 flex items-center justify-between">
-          <button
-            onClick={handleContinue}
-            className="text-[13px] text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]"
-          >
-            {t.common.close}
-          </button>
-          <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-[12px] font-medium text-emerald-700">
-            {t.memorize.verification.label}
-          </span>
-          <span className="text-[13px] tabular-nums text-[var(--theme-text-tertiary)]">
-            {currentCardIndex + 1} / {sessionCards.length}
-          </span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-[var(--theme-hover-bg)]">
-          <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
-            style={{
-              width: `${((currentCardIndex + 1) / sessionCards.length) * 100}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      <div key={currentCard.id} className="animate-fade-in">
-        <FillBlankCard
-          card={currentCard}
-          onGrade={handleGrade}
-        />
-      </div>
+      <SurahVerifyQuiz
+        surahId={surahId}
+        onComplete={handleComplete}
+        onCancel={handleContinue}
+      />
     </div>
   );
 }

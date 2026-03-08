@@ -17,8 +17,7 @@ import {
 import { useMemorizationStore, type SessionType } from "~/stores/useMemorizationStore";
 import { verseByKeyQueryOptions } from "./useVerses";
 
-// ── Helpers ──
-
+// Helpers
 function entryToCard(e: MemorizationCardEntry): MemorizationCard {
   return {
     ...e,
@@ -42,8 +41,7 @@ function getTodayStart(): number {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 }
 
-// ── useMemorizationDashboard ──
-
+// useMemorizationDashboard
 export function useMemorizationDashboard(userId: string | undefined) {
   const [stats, setStats] = useState<MemorizationStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,8 +77,7 @@ export function useMemorizationDashboard(userId: string | undefined) {
   return { stats, isLoading, refreshStats };
 }
 
-// ── useReviewSession ──
-
+// useReviewSession
 export function useReviewSession(userId: string | undefined) {
   const store = useMemorizationStore();
   const queryClient = useQueryClient();
@@ -195,8 +192,7 @@ export function useReviewSession(userId: string | undefined) {
   };
 }
 
-// ── useAddVerses ──
-
+// useAddVerses
 export function useAddVerses(userId: string | undefined) {
   const [isAdding, setIsAdding] = useState(false);
 
@@ -239,8 +235,7 @@ export function useAddVerses(userId: string | undefined) {
   return { addVerses, isAdding };
 }
 
-// ── useSurahProgress ──
-
+// useSurahProgress
 export function useSurahProgress(
   userId: string | undefined,
   surahId: number,

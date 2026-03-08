@@ -64,8 +64,8 @@ export function ProgressHeatmap({
               onMouseLeave={() => setTooltip(null)}
               title={
                 data
-                  ? `${verseKey} — ${CONFIDENCE_LABELS[data.confidence]}`
-                  : `${verseKey} — Eklenmedi`
+                  ? `${verseKey} | ${CONFIDENCE_LABELS[data.confidence]}`
+                  : `${verseKey} | Eklenmedi`
               }
             />
           );
@@ -78,11 +78,11 @@ export function ProgressHeatmap({
           <span className="font-medium text-[var(--theme-text)]">
             {tooltip.verseKey}
           </span>
-          {" — "}
+          {" | "}
           <span className="text-[var(--theme-text-secondary)]">
             {CONFIDENCE_LABELS[tooltip.confidence]}
           </span>
-          {" — "}
+          {" | "}
           <span className="text-[var(--theme-text-tertiary)]">
             Sonraki:{" "}
             {tooltip.nextReview.toLocaleDateString("tr-TR")}

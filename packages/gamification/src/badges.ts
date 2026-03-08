@@ -1,4 +1,4 @@
-export type BadgeCategory = "verse" | "surah" | "streak" | "special";
+export type BadgeCategory = "verse" | "surah" | "streak" | "special" | "learn";
 
 export interface BadgeDefinition {
   id: string;
@@ -15,10 +15,13 @@ export interface BadgeCheckContext {
   totalReviewsToday: number;
   sessionAccuracy: number; // 0-1
   sessionCardCount: number;
+  // Learn module
+  learnLessonsCompleted?: number;
+  learnStagesCompleted?: number[];  // Array of completed stage IDs
 }
 
 export const BADGE_DEFINITIONS: BadgeDefinition[] = [
-  // ── Verse milestones ──
+  // Verse milestones
   {
     id: "first-verse",
     icon: "🌱",
@@ -56,7 +59,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     check: (ctx) => ctx.masteredVerses >= 1000,
   },
 
-  // ── Surah milestones ──
+  // Surah milestones
   {
     id: "first-surah",
     icon: "⭐",
@@ -76,7 +79,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     check: (ctx) => ctx.masteredSurahs >= 10,
   },
 
-  // ── Streak milestones ──
+  // Streak milestones
   {
     id: "streak-7",
     icon: "🔥",
@@ -96,7 +99,7 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     check: (ctx) => ctx.currentStreak >= 100,
   },
 
-  // ── Special ──
+  // Special
   {
     id: "hatim",
     icon: "🕌",
@@ -114,5 +117,52 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     icon: "⚡",
     category: "special",
     check: (ctx) => ctx.totalReviewsToday >= 50,
+  },
+
+  // Learn module
+  {
+    id: "learn-first-lesson",
+    icon: "📖",
+    category: "learn",
+    check: (ctx) => (ctx.learnLessonsCompleted ?? 0) >= 1,
+  },
+  {
+    id: "learn-alphabet-master",
+    icon: "🔤",
+    category: "learn",
+    check: (ctx) => (ctx.learnStagesCompleted ?? []).includes(1),
+  },
+  {
+    id: "learn-harakat-hero",
+    icon: "✨",
+    category: "learn",
+    check: (ctx) => {
+      const completed = ctx.learnStagesCompleted ?? [];
+      return completed.includes(3) && completed.includes(4) && completed.includes(5);
+    },
+  },
+  {
+    id: "learn-word-reader",
+    icon: "📝",
+    category: "learn",
+    check: (ctx) => (ctx.learnStagesCompleted ?? []).includes(10),
+  },
+  {
+    id: "learn-surah-reader",
+    icon: "📜",
+    category: "learn",
+    check: (ctx) => (ctx.learnStagesCompleted ?? []).includes(11),
+  },
+  {
+    id: "learn-tajweed-student",
+    icon: "🎓",
+    category: "learn",
+    check: (ctx) => (ctx.learnStagesCompleted ?? []).includes(12),
+  },
+  {
+    id: "learn-complete",
+    icon: "🏅",
+    category: "learn",
+    check: (ctx) => (ctx.learnStagesCompleted ?? []).length >= 14,
   },
 ];

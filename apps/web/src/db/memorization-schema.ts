@@ -77,6 +77,6 @@ export const userStats = sqliteTable("user_stats", {
   currentStreak: integer("current_streak").notNull().default(0),
   longestStreak: integer("longest_streak").notNull().default(0),
   lastReviewDate: integer("last_review_date"),
-  totalXp: integer("total_xp").notNull().default(0),
+  totalSevapPoint: integer("total_sevap_point").notNull().default(0),
   updatedAt: integer("updated_at").notNull(),
 });

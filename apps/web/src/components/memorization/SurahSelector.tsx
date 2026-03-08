@@ -60,6 +60,56 @@ function getQuickAddPresets(versesCount: number): number[] {
   return [5, 10, 20];
 }
 
+function Column({
+  title,
+  count,
+  colorDot,
+  tabIndex,
+  activeTab,
+  children,
+  headerExtra,
+  emptyMessage,
+}: {
+  title: string;
+  count: number;
+  colorDot: string;
+  tabIndex: 0 | 1 | 2;
+  activeTab: 0 | 1 | 2;
+  children: React.ReactNode;
+  headerExtra?: React.ReactNode;
+  emptyMessage: string;
+}) {
+  return (
+    <div
+      className={`rounded-2xl bg-[var(--theme-bg-primary)] shadow-[var(--shadow-card)] flex flex-col ${
+        activeTab !== tabIndex ? "hidden md:flex" : "flex"
+      }`}
+    >
+      <div className="flex items-center gap-2 border-b border-[var(--theme-divider)] px-4 py-3">
+        <span className={`h-3 w-1 rounded-full ${colorDot}`} />
+        <span className="text-[13px] font-semibold text-[var(--theme-text)]">
+          {title}
+        </span>
+        <span className="rounded-full bg-[var(--theme-hover-bg)] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--theme-text-secondary)]">
+          {count}
+        </span>
+      </div>
+      {headerExtra}
+      <div className="md:max-h-[600px] md:overflow-y-auto divide-y divide-[var(--theme-divider)]">
+        {count === 0 ? (
+          <div className="py-10 text-center">
+            <p className="text-[13px] text-[var(--theme-text-tertiary)]">
+              {emptyMessage}
+            </p>
+          </div>
+        ) : (
+          children
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function SurahSelector({ userId }: SurahSelectorProps) {
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
   const [search, setSearch] = useState("");
@@ -562,50 +612,6 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
     );
   };
 
-  const Column = ({
-    title,
-    count,
-    colorDot,
-    tabIndex,
-    children,
-    headerExtra,
-  }: {
-    title: string;
-    count: number;
-    colorDot: string;
-    tabIndex: 0 | 1 | 2;
-    children: React.ReactNode;
-    headerExtra?: React.ReactNode;
-  }) => (
-    <div
-      className={`rounded-2xl bg-[var(--theme-bg-primary)] shadow-[var(--shadow-card)] flex flex-col ${
-        activeTab !== tabIndex ? "hidden md:flex" : "flex"
-      }`}
-    >
-      <div className="flex items-center gap-2 border-b border-[var(--theme-divider)] px-4 py-3">
-        <span className={`h-3 w-1 rounded-full ${colorDot}`} />
-        <span className="text-[13px] font-semibold text-[var(--theme-text)]">
-          {title}
-        </span>
-        <span className="rounded-full bg-[var(--theme-hover-bg)] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[var(--theme-text-secondary)]">
-          {count}
-        </span>
-      </div>
-      {headerExtra}
-      <div className="md:max-h-[600px] md:overflow-y-auto divide-y divide-[var(--theme-divider)]">
-        {count === 0 ? (
-          <div className="py-10 text-center">
-            <p className="text-[13px] text-[var(--theme-text-tertiary)]">
-              {t.memorize.surahSelector.noSurahsInColumn}
-            </p>
-          </div>
-        ) : (
-          children
-        )}
-      </div>
-    </div>
-  );
-
   const tabs = [
     { label: t.memorize.surahSelector.toMemorize, count: notStartedChapters.length },
     { label: t.memorize.surahSelector.inProgressSurahs, count: inProgressChapters.length },
@@ -639,6 +645,8 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
           count={notStartedChapters.length}
           colorDot="bg-[var(--theme-text-quaternary)]"
           tabIndex={0}
+          activeTab={activeTab}
+          emptyMessage={t.memorize.surahSelector.noSurahsInColumn}
           headerExtra={
             <div className="px-4 py-2 border-b border-[var(--theme-divider)]">
               <div className="relative">
@@ -674,6 +682,8 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
           count={inProgressChapters.length}
           colorDot="bg-amber-500"
           tabIndex={1}
+          activeTab={activeTab}
+          emptyMessage={t.memorize.surahSelector.noSurahsInColumn}
         >
           {inProgressChapters.map((ch) => renderInProgressRow(ch))}
         </Column>
@@ -683,6 +693,8 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
           count={completedChapters.length}
           colorDot="bg-emerald-500"
           tabIndex={2}
+          activeTab={activeTab}
+          emptyMessage={t.memorize.surahSelector.noSurahsInColumn}
         >
           {completedChapters.map((ch) => renderCompletedRow(ch))}
         </Column>

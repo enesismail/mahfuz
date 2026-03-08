@@ -78,7 +78,7 @@ interface PullResponse {
     currentStreak: number;
     longestStreak: number;
     lastReviewDate: number | null;
-    totalXp: number;
+    totalSevapPoint: number;
     updatedAt: number;
   } | null;
 }
@@ -263,7 +263,7 @@ export const pullChanges = createServerFn({ method: "GET" })
             currentStreak: statsRow.currentStreak,
             longestStreak: statsRow.longestStreak,
             lastReviewDate: statsRow.lastReviewDate,
-            totalXp: statsRow.totalXp,
+            totalSevapPoint: statsRow.totalSevapPoint,
             updatedAt: statsRow.updatedAt,
           }
         : null,

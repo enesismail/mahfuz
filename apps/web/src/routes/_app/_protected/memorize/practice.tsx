@@ -75,7 +75,7 @@ function PracticePage() {
     );
   }
 
-  // Empty state — no cards for this surah
+  // Empty state, no cards for this surah
   if (phase === "reviewing" && !currentCard) {
     return (
       <div className="mx-auto max-w-2xl px-6 py-8">

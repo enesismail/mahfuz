@@ -16,7 +16,7 @@ export interface SM2Result {
 
 /**
  * SM-2 spaced repetition algorithm.
- * Pure function — no side effects.
+ * Pure function, no side effects.
  */
 export function calculateSM2(
   card: Pick<MemorizationCard, "easeFactor" | "repetition" | "interval">,
@@ -26,7 +26,7 @@ export function calculateSM2(
   let { easeFactor, repetition, interval } = card;
 
   if (grade < SM2_DEFAULTS.PASSING_GRADE) {
-    // Failed — reset repetition, start from 1 day
+    // Failed, reset repetition, start from 1 day
     repetition = 0;
     interval = SM2_DEFAULTS.INITIAL_INTERVAL;
   } else {

@@ -1,5 +1,5 @@
-/** XP event types and their values */
-export type XPEventType =
+/** Sevap Point event types and their values */
+export type SevapPointEventType =
   | "verse_read"
   | "page_read"
   | "surah_complete"
@@ -8,7 +8,7 @@ export type XPEventType =
   | "daily_login"
   | "review_session";
 
-export const XP_VALUES: Record<XPEventType, number> = {
+export const SEVAP_POINT_VALUES: Record<SevapPointEventType, number> = {
   verse_read: 1,
   page_read: 10,
   surah_complete: 50,
@@ -21,9 +21,9 @@ export const XP_VALUES: Record<XPEventType, number> = {
 /** User gamification state */
 export interface UserGamification {
   userId: string;
-  totalXP: number;
+  totalSevapPoint: number;
   level: number;
-  xpToNextLevel: number;
+  sevapPointToNextLevel: number;
   currentStreak: number;
   longestStreak: number;
   lastActivityDate: string; // ISO date
@@ -67,23 +67,23 @@ export interface UserAchievement {
 }
 
 /** Level calculation: 100 * 1.5^(level-1) */
-export function xpForLevel(level: number): number {
+export function sevapPointForLevel(level: number): number {
   return Math.floor(100 * Math.pow(1.5, level - 1));
 }
 
-/** Get level from total XP */
-export function levelFromXP(totalXP: number): { level: number; xpInLevel: number; xpToNext: number } {
+/** Get level from total Sevap Point */
+export function levelFromSevapPoint(totalSevapPoint: number): { level: number; sevapPointInLevel: number; sevapPointToNext: number } {
   let level = 1;
-  let remainingXP = totalXP;
+  let remainingSevapPoint = totalSevapPoint;
 
-  while (remainingXP >= xpForLevel(level)) {
-    remainingXP -= xpForLevel(level);
+  while (remainingSevapPoint >= sevapPointForLevel(level)) {
+    remainingSevapPoint -= sevapPointForLevel(level);
     level++;
   }
 
   return {
     level,
-    xpInLevel: remainingXP,
-    xpToNext: xpForLevel(level) - remainingXP,
+    sevapPointInLevel: remainingSevapPoint,
+    sevapPointToNext: sevapPointForLevel(level) - remainingSevapPoint,
   };
 }
