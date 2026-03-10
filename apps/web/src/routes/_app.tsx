@@ -81,9 +81,9 @@ function AppLayout() {
     ? Number((surahMatch!.params as { surahId: string }).surahId)
     : null;
   const chapter = surahId
-    ? queryClient.getQueryData<Chapter>(["chapter", surahId])
+    ? queryClient.getQueryData<Chapter>(["chapter-static", surahId])
     : null;
-  const allChapters = queryClient.getQueryData<Chapter[]>(["chapters"]);
+  const allChapters = queryClient.getQueryData<Chapter[]>(["chapters-static"]);
 
   // Detect page route
   const pageMatch = matches.find((m) => m.routeId === "/_app/page/$pageNumber");

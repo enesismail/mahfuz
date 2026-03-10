@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   usePreferencesStore,
   ARABIC_FONTS,
@@ -178,10 +178,11 @@ function SettingsAccordion({
 }
 
 // ─── SaveStatusBar ──────────────────────────────────────────────────
-function SaveStatusBar() {
+function SaveStatusBar({ visible }: { visible: boolean }) {
   const { t } = useTranslation();
+  if (!visible) return null;
   return (
-    <div className="sticky bottom-0 z-10 mt-6 flex items-center justify-center gap-2 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/80 px-4 py-3 backdrop-blur-xl">
+    <div className="sticky bottom-0 z-10 mt-6 flex items-center justify-center gap-2 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/80 px-4 py-3 backdrop-blur-xl animate-page-enter">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-emerald-500">
         <path d="M3.5 8.5l3 3 6-6" />
       </svg>
@@ -232,6 +233,19 @@ function SettingsPage() {
   const reciterId = useAudioStore((s) => s.reciterId);
   const [reciterModalOpen, setReciterModalOpen] = useState(false);
   const currentReciter = CURATED_RECITERS.find((r) => r.id === reciterId);
+
+  // Show "Saved" toast briefly when any preference changes
+  const [showSaved, setShowSaved] = useState(false);
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setShowSaved(true);
+    const timer = setTimeout(() => setShowSaved(false), 2000);
+    return () => clearTimeout(timer);
+  }, [arabicFontId, viewMode, colorizeWords, colorPaletteId, textType, theme, normalArabicFontSize, normalTranslationFontSize, wbwArabicFontSize, mushafArabicFontSize, showLearnTab, showMemorizeTab, wbwShowWordTranslation, wbwShowWordTransliteration, wordTranslationSize, wordTransliterationSize, reciterId, locale]);
 
   const activeColors = getActiveColors({ colorPaletteId });
   const [openSections, setOpenSections] = useState<Set<AccordionSection>>(new Set());
@@ -552,7 +566,7 @@ function SettingsPage() {
         </SettingsAccordion>
       </div>
 
-      <SaveStatusBar />
+      <SaveStatusBar visible={showSaved} />
 
       <ReciterModal open={reciterModalOpen} onClose={() => setReciterModalOpen(false)} />
     </div>

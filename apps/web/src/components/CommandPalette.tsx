@@ -228,7 +228,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
   const queryClient = useQueryClient();
 
   // Get chapters from cache (already loaded by layout)
-  const chapters = queryClient.getQueryData<Chapter[]>(["chapters"]) ?? [];
+  const chapters = queryClient.getQueryData<Chapter[]>(["chapters-static"]) ?? [];
 
   // Structural (instant) results
   const navResults = useMemo(

@@ -5,6 +5,7 @@ import {
   FEATURED_RECITERS,
 } from "@mahfuz/shared/constants";
 import type { CuratedReciter } from "@mahfuz/shared/constants";
+import { useTranslation } from "~/hooks/useTranslation";
 
 interface ReciterModalProps {
   open: boolean;
@@ -19,6 +20,7 @@ const STYLE_LABELS: Record<string, string> = {
 };
 
 export function ReciterModal({ open, onClose, onSelect }: ReciterModalProps) {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
   const reciterId = useAudioStore((s) => s.reciterId);
   const setReciter = useAudioStore((s) => s.setReciter);
@@ -54,12 +56,12 @@ export function ReciterModal({ open, onClose, onSelect }: ReciterModalProps) {
       <div className="relative z-10 w-full max-w-lg animate-slide-up rounded-t-2xl bg-[var(--theme-bg-primary)] p-5 shadow-modal sm:rounded-2xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-[17px] font-semibold text-[var(--theme-text)]">
-            Kârî Seçimi
+            {t.audio.reciterSelection}
           </h2>
           <button
             onClick={onClose}
             className="rounded-full p-1 text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-            aria-label="Kapat"
+            aria-label={t.common.close}
           >
             <svg
               className="h-5 w-5"
@@ -79,7 +81,7 @@ export function ReciterModal({ open, onClose, onSelect }: ReciterModalProps) {
 
         <input
           type="text"
-          placeholder="Kârî ara..."
+          placeholder={t.audio.searchReciter}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="mb-3 w-full rounded-xl border border-[var(--theme-border)] bg-[var(--theme-input-bg)] px-4 py-2.5 text-[14px] text-[var(--theme-text)] outline-none placeholder:text-[var(--theme-text-quaternary)] focus:border-primary-500/40 focus:ring-2 focus:ring-primary-500/20"
@@ -101,7 +103,7 @@ export function ReciterModal({ open, onClose, onSelect }: ReciterModalProps) {
               </div>
             ) : (
               <p className="py-8 text-center text-[13px] text-[var(--theme-text-tertiary)]">
-                Sonuç bulunamadı.
+                {t.common.noResults}
               </p>
             )
           ) : (
@@ -109,7 +111,7 @@ export function ReciterModal({ open, onClose, onSelect }: ReciterModalProps) {
             <>
               <div className="mb-3">
                 <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                  Öne Çıkanlar
+                  {t.audio.featured}
                 </p>
                 <div className="space-y-0.5">
                   {FEATURED_RECITERS.map((r) => (
@@ -125,7 +127,7 @@ export function ReciterModal({ open, onClose, onSelect }: ReciterModalProps) {
               </div>
               <div>
                 <p className="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                  Tüm Kârîler
+                  {t.audio.allReciters}
                 </p>
                 <div className="space-y-0.5">
                   {nonFeatured.map((r) => (

@@ -199,6 +199,19 @@ export const tr = {
     index: "Fihrist",
     searchSurah: "Sure ara...",
     versesCount: "ayet",
+    all: "Tümü",
+    makkah: "Mekkî",
+    madinah: "Medenî",
+    topics: "Konulara Göre",
+    exploreTopics: "Tüm Konuları Keşfet",
+    surahList: "Sure Listesi",
+    searchFull: "Sure adı, anlam veya numara ara...",
+    meaning: "Anlam",
+    place: "Yer",
+    sortOrder: "Tertip",
+    sortRevelation: "Nüzul",
+    reference: "referans",
+    noResultsHint: "Farklı bir filtre veya arama terimi deneyin",
   },
 
   // Continue Reading
@@ -527,6 +540,11 @@ export const tr = {
       } as Record<string, string>,
     },
 
+    // Heatmap
+    verseMap: "Ayet Haritası",
+    notAdded: "Eklenmedi",
+    nextReview: "Sonraki:",
+
     // Advanced Stats
     advancedStats: {
       quranProgress: "Kuran Ezberleme İlerlemesi",
@@ -585,6 +603,9 @@ export const tr = {
     // Units
     versesUnit: "ayet",
     pageAbbr: "s.",
+    // Revelation place
+    makkah: "Mekkî",
+    madinah: "Medenî",
   },
 
   // Learn (Öğren)
@@ -943,6 +964,29 @@ export const tr = {
     "s14.l7.tip": "ط zorunlu duruş, ج caiz duruş, لا geçilmesi gereken yer demektir.",
     "s14.l8.title": "Final Tekrarı",
     "s14.l8.intro": "Tüm tecvid kurallarını kapsayan son tekrar dersi. Öğrendiğiniz her kuralı karışık örneklerle pekiştirin ve sertifikanızı kazanın.",
+  },
+
+  // Audio
+  audio: {
+    speed: "Hız",
+    repeat: "Tekrar",
+    repeatNone: "Yok",
+    repeatVerse: "Ayet",
+    repeatSurah: "Sure",
+    stop: "Durdur",
+    reciterSelection: "Kârî Seçimi",
+    searchReciter: "Kârî ara...",
+    featured: "Öne Çıkanlar",
+    allReciters: "Tüm Kârîler",
+    prevVerse: "Önceki ayet",
+    nextVerse: "Sonraki ayet",
+    play: "Oynat",
+    mute: "Sessiz",
+    unmute: "Sesi aç",
+    expand: "Genişlet",
+    collapse: "Küçült",
+    changeReciter: "Kârî Değiştir",
+    listenSurah: "Sureyi Dinle",
   },
 
   // UI

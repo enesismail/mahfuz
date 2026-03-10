@@ -1,5 +1,7 @@
 import type { ConfidenceLevel } from "@mahfuz/shared/types";
 import { useState } from "react";
+import { useTranslation } from "~/hooks/useTranslation";
+import { useI18nStore } from "~/stores/useI18nStore";
 
 const CONFIDENCE_COLORS: Record<ConfidenceLevel | "none", string> = {
   none: "bg-[var(--theme-hover-bg)]",
@@ -10,13 +12,13 @@ const CONFIDENCE_COLORS: Record<ConfidenceLevel | "none", string> = {
   mastered: "bg-emerald-500",
 };
 
-const CONFIDENCE_LABELS: Record<ConfidenceLevel, string> = {
-  struggling: "Zor",
-  learning: "Öğreniyor",
-  familiar: "Tanıdık",
-  confident: "Emin",
-  mastered: "Ezber",
-};
+const CONFIDENCE_KEYS: ConfidenceLevel[] = [
+  "struggling",
+  "learning",
+  "familiar",
+  "confident",
+  "mastered",
+];
 
 interface ProgressHeatmapProps {
   surahId: number;
@@ -29,6 +31,8 @@ export function ProgressHeatmap({
   versesCount,
   progressMap,
 }: ProgressHeatmapProps) {
+  const { t } = useTranslation();
+  const locale = useI18nStore((s) => s.locale);
   const [tooltip, setTooltip] = useState<{
     verseKey: string;
     confidence: ConfidenceLevel;
@@ -38,7 +42,7 @@ export function ProgressHeatmap({
   return (
     <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)]">
       <h3 className="mb-4 text-[14px] font-semibold text-[var(--theme-text)]">
-        Ayet Haritası
+        {t.memorize.verseMap}
       </h3>
 
       <div className="flex flex-wrap gap-1">
@@ -64,8 +68,8 @@ export function ProgressHeatmap({
               onMouseLeave={() => setTooltip(null)}
               title={
                 data
-                  ? `${verseKey} | ${CONFIDENCE_LABELS[data.confidence]}`
-                  : `${verseKey} | Eklenmedi`
+                  ? `${verseKey} | ${t.memorize.confidence[data.confidence]}`
+                  : `${verseKey} | ${t.memorize.notAdded}`
               }
             />
           );
@@ -80,12 +84,12 @@ export function ProgressHeatmap({
           </span>
           {" | "}
           <span className="text-[var(--theme-text-secondary)]">
-            {CONFIDENCE_LABELS[tooltip.confidence]}
+            {t.memorize.confidence[tooltip.confidence]}
           </span>
           {" | "}
           <span className="text-[var(--theme-text-tertiary)]">
-            Sonraki:{" "}
-            {tooltip.nextReview.toLocaleDateString("tr-TR")}
+            {t.memorize.nextReview}{" "}
+            {tooltip.nextReview.toLocaleDateString(locale === "tr" ? "tr-TR" : "en-US")}
           </span>
         </div>
       )}
@@ -95,16 +99,16 @@ export function ProgressHeatmap({
         <div className="flex items-center gap-1.5">
           <span className="inline-block h-3 w-3 rounded-sm bg-[var(--theme-hover-bg)]" />
           <span className="text-[11px] text-[var(--theme-text-quaternary)]">
-            Eklenmedi
+            {t.memorize.notAdded}
           </span>
         </div>
-        {(Object.keys(CONFIDENCE_LABELS) as ConfidenceLevel[]).map((level) => (
+        {CONFIDENCE_KEYS.map((level) => (
           <div key={level} className="flex items-center gap-1.5">
             <span
               className={`inline-block h-3 w-3 rounded-sm ${CONFIDENCE_COLORS[level]}`}
             />
             <span className="text-[11px] text-[var(--theme-text-quaternary)]">
-              {CONFIDENCE_LABELS[level]}
+              {t.memorize.confidence[level]}
             </span>
           </div>
         ))}

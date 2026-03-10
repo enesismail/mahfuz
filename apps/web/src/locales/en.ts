@@ -201,6 +201,19 @@ export const en = {
     index: "Index",
     searchSurah: "Search surah...",
     versesCount: "verses",
+    all: "All",
+    makkah: "Makki",
+    madinah: "Madani",
+    topics: "By Topics",
+    exploreTopics: "Explore All Topics",
+    surahList: "Surah List",
+    searchFull: "Search by surah name, meaning or number...",
+    meaning: "Meaning",
+    place: "Place",
+    sortOrder: "Order",
+    sortRevelation: "Revelation",
+    reference: "references",
+    noResultsHint: "Try a different filter or search term",
   },
 
   // Continue Reading
@@ -529,6 +542,11 @@ export const en = {
       } as Record<string, string>,
     },
 
+    // Heatmap
+    verseMap: "Verse Map",
+    notAdded: "Not added",
+    nextReview: "Next:",
+
     // Advanced Stats
     advancedStats: {
       quranProgress: "Quran Memorization Progress",
@@ -587,6 +605,9 @@ export const en = {
     // Units
     versesUnit: "verses",
     pageAbbr: "p.",
+    // Revelation place
+    makkah: "Makki",
+    madinah: "Madani",
   },
 
   // Learn
@@ -945,6 +966,29 @@ export const en = {
     "s14.l7.tip": "ط means obligatory stop, ج means permissible stop, لا means you should continue.",
     "s14.l8.title": "Final Review",
     "s14.l8.intro": "A comprehensive final review covering all tajweed rules. Reinforce everything you have learned with mixed examples and earn your certificate.",
+  },
+
+  // Audio
+  audio: {
+    speed: "Speed",
+    repeat: "Repeat",
+    repeatNone: "None",
+    repeatVerse: "Verse",
+    repeatSurah: "Surah",
+    stop: "Stop",
+    reciterSelection: "Select Reciter",
+    searchReciter: "Search reciter...",
+    featured: "Featured",
+    allReciters: "All Reciters",
+    prevVerse: "Previous verse",
+    nextVerse: "Next verse",
+    play: "Play",
+    mute: "Mute",
+    unmute: "Unmute",
+    expand: "Expand",
+    collapse: "Collapse",
+    changeReciter: "Change Reciter",
+    listenSurah: "Listen to Surah",
   },
 
   // UI

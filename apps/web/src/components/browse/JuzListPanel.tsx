@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { juzListQueryOptions } from "~/hooks/useJuz";
+import { useTranslation } from "~/hooks/useTranslation";
 
 export function JuzListPanel() {
+  const { t } = useTranslation();
   const { data: juzs } = useSuspenseQuery(juzListQueryOptions());
 
   // Deduplicate by juz_number (API may return duplicates)
@@ -25,10 +27,10 @@ export function JuzListPanel() {
               {juz.juz_number}
             </span>
             <span className="text-[11px] text-[var(--theme-text-tertiary)]">
-              {juz.verses_count} ayet
+              {juz.verses_count} {t.browse.versesCount}
             </span>
             <span className="mt-0.5 text-[10px] text-[var(--theme-text-quaternary)]">
-              Sure {surahIds[0]}
+              {t.common.surah} {surahIds[0]}
               {surahIds.length > 1 && `–${surahIds[surahIds.length - 1]}`}
             </span>
           </Link>

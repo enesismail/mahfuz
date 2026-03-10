@@ -1,4 +1,5 @@
 import type { Chapter } from "@mahfuz/shared/types";
+import { useTranslation } from "~/hooks/useTranslation";
 
 interface SurahHeaderProps {
   chapter: Chapter;
@@ -7,6 +8,7 @@ interface SurahHeaderProps {
 }
 
 export function SurahHeader({ chapter, onPlay, isPlaying }: SurahHeaderProps) {
+  const { t } = useTranslation();
   const isMakkah = chapter.revelation_place === "makkah";
 
   return (
@@ -62,13 +64,13 @@ export function SurahHeader({ chapter, onPlay, isPlaying }: SurahHeaderProps) {
                 isMakkah ? "bg-amber-500" : "bg-emerald-600"
               }`}
             />
-            {isMakkah ? "Mekkî" : "Medenî"}
+            {isMakkah ? t.quranReader.makkah : t.quranReader.madinah}
           </span>
           <span>·</span>
-          <span>{chapter.verses_count} ayet</span>
+          <span>{chapter.verses_count} {t.quranReader.versesUnit}</span>
           <span>·</span>
           <span>
-            Sayfa {chapter.pages[0]}–{chapter.pages[1]}
+            {t.common.page} {chapter.pages[0]}–{chapter.pages[1]}
           </span>
         </div>
 
@@ -89,7 +91,7 @@ export function SurahHeader({ chapter, onPlay, isPlaying }: SurahHeaderProps) {
                 <path d="M8 5.14v14l11-7-11-7z" />
               )}
             </svg>
-            {isPlaying ? "Durakla" : "Sureyi Dinle"}
+            {isPlaying ? t.quranReader.pause : t.audio.listenSurah}
           </button>
         )}
       </div>

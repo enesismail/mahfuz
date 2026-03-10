@@ -3,6 +3,7 @@ import { useState, useMemo, useCallback } from "react";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { ChapterCard } from "~/components/quran";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
+import { useTranslation } from "~/hooks/useTranslation";
 
 type FilterType = "all" | "makkah" | "madinah";
 type SortType = "mushaf" | "revelation";
@@ -15,18 +16,20 @@ function PngIcon({ src }: { src: string }) {
   );
 }
 
-const FILTER_OPTIONS = [
-  { value: "all" as FilterType, label: "Tümü" },
-  { value: "makkah" as FilterType, label: "Mekkî", icon: <PngIcon src="/images/kaaba.png" /> },
-  { value: "madinah" as FilterType, label: "Medenî", icon: <PngIcon src="/images/nabawi.png" /> },
-];
-
-const SORT_OPTIONS = [
-  { value: "mushaf" as SortType, label: "Tertip" },
-  { value: "revelation" as SortType, label: "Nüzul" },
-];
-
 export function SurahListPanel() {
+  const { t } = useTranslation();
+
+  const FILTER_OPTIONS = [
+    { value: "all" as FilterType, label: t.browse.all },
+    { value: "makkah" as FilterType, label: t.browse.makkah, icon: <PngIcon src="/images/kaaba.png" /> },
+    { value: "madinah" as FilterType, label: t.browse.madinah, icon: <PngIcon src="/images/nabawi.png" /> },
+  ];
+
+  const SORT_OPTIONS = [
+    { value: "mushaf" as SortType, label: t.browse.sortOrder },
+    { value: "revelation" as SortType, label: t.browse.sortRevelation },
+  ];
+
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
@@ -86,7 +89,7 @@ export function SurahListPanel() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Sure ara..."
+          placeholder={t.browse.searchSurah}
           className="w-full rounded-xl bg-[var(--theme-input-bg)] py-2.5 pl-10 pr-4 text-[15px] text-[var(--theme-text)] placeholder-[var(--theme-text-tertiary)] outline-none transition-colors focus:bg-[var(--theme-bg-primary)] focus:shadow-[var(--shadow-elevated)]"
         />
       </div>
@@ -99,11 +102,11 @@ export function SurahListPanel() {
 
       {/* Stats */}
       <p className="mb-4 text-[13px] text-[var(--theme-text-tertiary)]">
-        {filtered.length} sure · {totalVerses.toLocaleString("tr-TR")} ayet
+        {filtered.length} {t.common.surah.toLowerCase()} · {totalVerses.toLocaleString("tr-TR")} {t.browse.versesCount}
         {filter !== "all" && (
           <span>
             {" "}
-            ({filter === "makkah" ? "Mekkî" : "Medenî"})
+            ({filter === "makkah" ? t.browse.makkah : t.browse.madinah})
           </span>
         )}
       </p>
@@ -118,10 +121,10 @@ export function SurahListPanel() {
       ) : (
         <div className="py-16 text-center">
           <p className="text-[15px] text-[var(--theme-text-secondary)]">
-            Sonuç bulunamadı
+            {t.common.noResults}
           </p>
           <p className="mt-1 text-[13px] text-[var(--theme-text-tertiary)]">
-            Farklı bir arama terimi deneyin
+            {t.browse.noResultsHint}
           </p>
         </div>
       )}

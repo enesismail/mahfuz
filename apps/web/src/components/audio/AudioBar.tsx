@@ -5,15 +5,11 @@ import { useAudioStore } from "~/stores/useAudioStore";
 import { ProgressLine } from "./ProgressLine";
 import { ReciterModal } from "./ReciterModal";
 import { chapterAudioQueryOptions } from "~/hooks/useAudio";
+import { useTranslation } from "~/hooks/useTranslation";
 import type { PlaybackSpeed, RepeatMode } from "@mahfuz/shared/types";
 import type { ChapterAudioData } from "@mahfuz/audio-engine";
 
 const SPEEDS: PlaybackSpeed[] = [0.5, 0.75, 1, 1.25, 1.5, 2];
-const REPEAT_OPTIONS: { value: RepeatMode; label: string }[] = [
-  { value: "none", label: "Yok" },
-  { value: "verse", label: "Ayet" },
-  { value: "surah", label: "Sure" },
-];
 
 function formatTime(ms: number): string {
   const totalSec = Math.floor(ms / 1000);
@@ -51,7 +47,14 @@ export function AudioBar() {
   const playVerse = useAudioStore((s) => s.playVerse);
 
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const [reciterModalOpen, setReciterModalOpen] = useState(false);
+
+  const REPEAT_OPTIONS: { value: RepeatMode; label: string }[] = [
+    { value: "none", label: t.audio.repeatNone },
+    { value: "verse", label: t.audio.repeatVerse },
+    { value: "surah", label: t.audio.repeatSurah },
+  ];
 
   const handleReciterSelect = useCallback(
     async (newReciterId: number) => {
@@ -93,7 +96,7 @@ export function AudioBar() {
   const verseLabel = currentVerseKey
     ? currentVerseKey === "bismillah"
       ? "Bismillahirrahmanirrahim"
-      : `Ayet ${currentVerseKey.split(":")[1]}`
+      : `${t.common.verse} ${currentVerseKey.split(":")[1]}`
     : "";
 
   return (
@@ -117,7 +120,7 @@ export function AudioBar() {
               <button
                 onClick={() => setExpanded(false)}
                 className="rounded-full p-1 text-[var(--theme-text-tertiary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-                aria-label="Küçült"
+                aria-label={t.audio.collapse}
               >
                 <ChevronDownIcon />
               </button>
@@ -139,21 +142,21 @@ export function AudioBar() {
               <button
                 onClick={prevVerse}
                 className="rounded-full p-2 text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-                aria-label="Önceki ayet"
+                aria-label={t.audio.prevVerse}
               >
                 <PrevIcon />
               </button>
               <button
                 onClick={togglePlayPause}
                 className="flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition-transform active:scale-95"
-                aria-label={isPlaying ? "Durakla" : "Oynat"}
+                aria-label={isPlaying ? t.quranReader.pause : t.audio.play}
               >
                 {isPlaying ? <PauseIcon size={24} /> : <PlayIcon size={24} />}
               </button>
               <button
                 onClick={nextVerse}
                 className="rounded-full p-2 text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-                aria-label="Sonraki ayet"
+                aria-label={t.audio.nextVerse}
               >
                 <NextIcon />
               </button>
@@ -162,7 +165,7 @@ export function AudioBar() {
             {/* Speed */}
             <div className="mt-6">
               <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                Hiz
+                {t.audio.speed}
               </p>
               <div className="flex gap-1.5">
                 {SPEEDS.map((s) => (
@@ -184,7 +187,7 @@ export function AudioBar() {
             {/* Repeat */}
             <div className="mt-4">
               <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-[var(--theme-text-tertiary)]">
-                Tekrar
+                {t.audio.repeat}
               </p>
               <div className="flex gap-1.5">
                 {REPEAT_OPTIONS.map((opt) => (
@@ -208,7 +211,7 @@ export function AudioBar() {
               <button
                 onClick={toggleMute}
                 className="text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text)]"
-                aria-label={isMuted ? "Sesi aç" : "Sessiz"}
+                aria-label={isMuted ? t.audio.unmute : t.audio.mute}
               >
                 {isMuted ? <MuteIcon /> : <VolumeIcon />}
               </button>
@@ -228,7 +231,7 @@ export function AudioBar() {
               onClick={() => setReciterModalOpen(true)}
               className="mt-4 w-full rounded-xl bg-[var(--theme-speed-inactive-bg)] px-4 py-2.5 text-left text-[13px] font-medium text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-speed-inactive-hover)]"
             >
-              Kârî Değiştir
+              {t.audio.changeReciter}
             </button>
 
             {/* Stop */}
@@ -236,7 +239,7 @@ export function AudioBar() {
               onClick={stop}
               className="mt-3 w-full rounded-xl px-4 py-2 text-center text-[13px] font-medium text-red-500 transition-colors hover:bg-red-50"
             >
-              Durdur
+              {t.audio.stop}
             </button>
           </div>
         </div>
@@ -273,14 +276,14 @@ export function AudioBar() {
               <button
                 onClick={prevVerse}
                 className="rounded-full p-1 text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-                aria-label="Önceki ayet"
+                aria-label={t.audio.prevVerse}
               >
                 <PrevIcon size={14} />
               </button>
               <button
                 onClick={togglePlayPause}
                 className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-600 text-white transition-transform active:scale-95"
-                aria-label={isPlaying ? "Durakla" : "Oynat"}
+                aria-label={isPlaying ? t.quranReader.pause : t.audio.play}
               >
                 {isPlaying ? (
                   <PauseIcon size={14} />
@@ -291,7 +294,7 @@ export function AudioBar() {
               <button
                 onClick={nextVerse}
                 className="rounded-full p-1 text-[var(--theme-text)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-                aria-label="Sonraki ayet"
+                aria-label={t.audio.nextVerse}
               >
                 <NextIcon size={14} />
               </button>
@@ -301,7 +304,7 @@ export function AudioBar() {
             <button
               onClick={() => setExpanded(true)}
               className="rounded-full p-1 text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-              aria-label="Genişlet"
+              aria-label={t.audio.expand}
             >
               <ChevronUpIcon />
             </button>

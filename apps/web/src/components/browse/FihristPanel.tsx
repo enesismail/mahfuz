@@ -5,6 +5,7 @@ import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
 import { TOPIC_INDEX } from "~/data/topic-index";
 import { ExpandedFihrist } from "./ExpandedFihrist";
+import { useTranslation } from "~/hooks/useTranslation";
 
 type PlaceFilter = "all" | "makkah" | "madinah";
 type JuzFilter = "all" | string;
@@ -17,13 +18,15 @@ function PngIcon({ src }: { src: string }) {
   );
 }
 
-const PLACE_OPTIONS = [
-  { value: "all" as PlaceFilter, label: "Tümü" },
-  { value: "makkah" as PlaceFilter, label: "Mekkî", icon: <PngIcon src="/images/kaaba.png" /> },
-  { value: "madinah" as PlaceFilter, label: "Medenî", icon: <PngIcon src="/images/nabawi.png" /> },
-];
-
 export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
+  const { t } = useTranslation();
+
+  const PLACE_OPTIONS = useMemo(() => [
+    { value: "all" as PlaceFilter, label: t.browse.all },
+    { value: "makkah" as PlaceFilter, label: t.browse.makkah, icon: <PngIcon src="/images/kaaba.png" /> },
+    { value: "madinah" as PlaceFilter, label: t.browse.madinah, icon: <PngIcon src="/images/nabawi.png" /> },
+  ], [t]);
+
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
   const [search, setSearch] = useState("");
   const [placeFilter, setPlaceFilter] = useState<PlaceFilter>("all");
@@ -56,7 +59,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
       {/* Konu Bazlı İndeks */}
       <section className="mb-8">
         <h2 className="mb-3 text-[15px] font-semibold text-[var(--theme-text)]">
-          Konulara Göre
+          {t.browse.topics}
         </h2>
         <TopicGrid
           openTopic={openTopic}
@@ -70,7 +73,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
           onClick={() => setShowExpanded(true)}
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--theme-bg-primary)] px-4 py-3 text-[13px] font-medium text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)] active:scale-[0.99]"
         >
-          <span>Tüm Konuları Keşfet</span>
+          <span>{t.browse.exploreTopics}</span>
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>
@@ -86,7 +89,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
       {/* Sure Listesi */}
       <section>
         <h2 className="mb-3 text-[15px] font-semibold text-[var(--theme-text)]">
-          Sure Listesi
+          {t.browse.surahList}
         </h2>
 
         {/* Search */}
@@ -104,7 +107,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Sure adı, anlam veya numara ara..."
+            placeholder={t.browse.searchFull}
             className="w-full rounded-xl bg-[var(--theme-input-bg)] py-2.5 pl-10 pr-4 text-[15px] text-[var(--theme-text)] placeholder-[var(--theme-text-tertiary)] outline-none transition-colors focus:bg-[var(--theme-bg-primary)] focus:shadow-[var(--shadow-elevated)]"
           />
         </div>
@@ -117,11 +120,11 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
 
         {/* Stats */}
         <p className="mb-3 text-[13px] text-[var(--theme-text-tertiary)]">
-          {filtered.length} sure
+          {filtered.length} {t.common.surah.toLowerCase()}
           {placeFilter !== "all" && (
-            <span> · {placeFilter === "makkah" ? "Mekkî" : "Medenî"}</span>
+            <span> · {placeFilter === "makkah" ? t.browse.makkah : t.browse.madinah}</span>
           )}
-          {juzFilter !== "all" && <span> · Cüz {juzFilter}</span>}
+          {juzFilter !== "all" && <span> · {t.common.juz} {juzFilter}</span>}
         </p>
 
         {/* Table */}
@@ -131,12 +134,12 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
               <thead>
                 <tr className="border-b border-[var(--theme-border)] text-[11px] font-medium uppercase tracking-wider text-[var(--theme-text-tertiary)]">
                   <th className="px-3 py-2.5">#</th>
-                  <th className="px-3 py-2.5">Sure</th>
-                  <th className="px-3 py-2.5">Anlam</th>
-                  <th className="px-3 py-2.5">Yer</th>
-                  <th className="px-3 py-2.5 text-right">Ayet</th>
-                  <th className="hidden px-3 py-2.5 text-right sm:table-cell">Cüz</th>
-                  <th className="hidden px-3 py-2.5 text-right sm:table-cell">Sayfa</th>
+                  <th className="px-3 py-2.5">{t.common.surah}</th>
+                  <th className="px-3 py-2.5">{t.browse.meaning}</th>
+                  <th className="px-3 py-2.5">{t.browse.place}</th>
+                  <th className="px-3 py-2.5 text-right">{t.common.verse}</th>
+                  <th className="hidden px-3 py-2.5 text-right sm:table-cell">{t.common.juz}</th>
+                  <th className="hidden px-3 py-2.5 text-right sm:table-cell">{t.common.page}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--theme-border)]">
@@ -158,7 +161,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
                     <td className="px-3 py-2 text-[var(--theme-text-secondary)]">{ch.translated_name.name}</td>
                     <td className="px-3 py-2">
                       <span className="inline-flex items-center gap-1.5 text-[var(--theme-text-tertiary)]">
-                        {ch.revelation_place === "makkah" ? "Mekkî" : "Medenî"}
+                        {ch.revelation_place === "makkah" ? t.browse.makkah : t.browse.madinah}
                         <img
                           src={ch.revelation_place === "makkah" ? "/images/kaaba.png" : "/images/nabawi.png"}
                           alt=""
@@ -182,8 +185,8 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
           </div>
         ) : (
           <div className="py-16 text-center">
-            <p className="text-[15px] text-[var(--theme-text-secondary)]">Sonuç bulunamadı</p>
-            <p className="mt-1 text-[13px] text-[var(--theme-text-tertiary)]">Farklı bir filtre veya arama terimi deneyin</p>
+            <p className="text-[15px] text-[var(--theme-text-secondary)]">{t.common.noResults}</p>
+            <p className="mt-1 text-[13px] text-[var(--theme-text-tertiary)]">{t.browse.noResultsHint}</p>
           </div>
         )}
       </section>
@@ -194,6 +197,7 @@ export function FihristPanel({ initialTopic }: { initialTopic?: number }) {
 /* Juz Picker */
 
 function JuzPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -217,7 +221,7 @@ function JuzPicker({ value, onChange }: { value: string; onChange: (v: string) =
             : "bg-[var(--theme-pill-bg)] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)]"
         }`}
       >
-        {value === "all" ? "Cüz" : `Cüz ${value}`}
+        {value === "all" ? t.common.juz : `${t.common.juz} ${value}`}
         <svg
           className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none"
@@ -240,7 +244,7 @@ function JuzPicker({ value, onChange }: { value: string; onChange: (v: string) =
                 : "text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
             }`}
           >
-            Tümü
+            {t.browse.all}
           </button>
           <div className="grid grid-cols-6 gap-1">
             {Array.from({ length: 30 }, (_, i) => {
@@ -281,6 +285,7 @@ function TopicGrid({
   onSelect: (i: number) => void;
   chapters: Chapter[];
 }) {
+  const { t } = useTranslation();
   const gridRef = useRef<HTMLDivElement>(null);
   const detailRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(3);
@@ -371,14 +376,14 @@ function TopicGrid({
                 {topic.topic}
               </h3>
               <span className="text-[11px] text-[var(--theme-text-quaternary)]">
-                {topic.refs.length} referans
+                {topic.refs.length} {t.browse.reference}
               </span>
             </div>
             <button
               type="button"
               onClick={() => onSelect(openTopic)}
               className="rounded-lg p-1.5 text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-              aria-label="Kapat"
+              aria-label={t.common.close}
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
