@@ -1,4 +1,5 @@
 import { useTranslation } from "~/hooks/useTranslation";
+import { interpolate } from "~/lib/i18n-utils";
 import type { SessionResult } from "~/stores/useMemorizationStore";
 
 interface VerificationResultsProps {
@@ -33,7 +34,7 @@ export function VerificationResults({
         </h2>
         <p className="text-[14px] text-[var(--theme-text-tertiary)]">
           {passed
-            ? t.memorize.verification.passDesc.replace("{surah}", surahName)
+            ? interpolate(t.memorize.verification.passDesc, { surah: surahName })
             : t.memorize.verification.failDesc}
         </p>
       </div>

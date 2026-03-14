@@ -32,6 +32,7 @@ interface PlaylistState {
   removeItem: (id: string) => void;
   updateItem: (id: string, patch: Partial<Pick<PlaylistItem, "fromVerse" | "toVerse" | "repeatCount">>) => void;
   moveItem: (fromIndex: number, toIndex: number) => void;
+  splitItem: (id: string, chunkSize: number) => void;
   clearPlaylist: () => void;
 
   // Playback actions
@@ -123,6 +124,30 @@ export const usePlaylistStore = create<PlaylistState>()(
         set({ items });
       },
 
+      splitItem: (id, chunkSize) => {
+        const items = [...get().items];
+        const idx = items.findIndex((i) => i.id === id);
+        if (idx === -1) return;
+
+        const item = items[idx];
+        const chunks: PlaylistItem[] = [];
+        for (let v = item.fromVerse; v <= item.toVerse; v += chunkSize) {
+          chunks.push({
+            id: crypto.randomUUID(),
+            surahId: item.surahId,
+            surahNameAr: item.surahNameAr,
+            surahNameTr: item.surahNameTr,
+            versesCount: item.versesCount,
+            fromVerse: v,
+            toVerse: Math.min(v + chunkSize - 1, item.toVerse),
+            repeatCount: item.repeatCount,
+          });
+        }
+
+        items.splice(idx, 1, ...chunks);
+        set({ items });
+      },
+
       clearPlaylist: () => {
         set({ items: [], isActive: false, currentItemIndex: 0, remainingRepeats: 1 });
       },
@@ -134,7 +159,7 @@ export const usePlaylistStore = create<PlaylistState>()(
         set({
           isActive: true,
           currentItemIndex: 0,
-          remainingRepeats: items[0].repeatCount,
+          remainingRepeats: items[0].repeatCount === 0 ? 1 : items[0].repeatCount,
           _fetchAudioRef: fetchAudio,
         });
 
@@ -177,6 +202,15 @@ export const usePlaylistStore = create<PlaylistState>()(
         // Stop the engine — MP3 keeps playing past verse range otherwise
         useAudioStore.getState().engine?.stop();
 
+        // repeatCount 0 = infinite: always replay, never advance
+        if (item.repeatCount === 0) {
+          set({ remainingRepeats: remainingRepeats + 1 });
+          if (_fetchAudioRef) {
+            playCurrentItem(get, set as (p: Partial<PlaylistState>) => void, _fetchAudioRef);
+          }
+          return;
+        }
+
         const newRepeats = remainingRepeats - 1;
 
         if (newRepeats > 0) {
@@ -189,7 +223,7 @@ export const usePlaylistStore = create<PlaylistState>()(
           if (nextIndex < items.length) {
             set({
               currentItemIndex: nextIndex,
-              remainingRepeats: items[nextIndex].repeatCount,
+              remainingRepeats: items[nextIndex].repeatCount === 0 ? 1 : items[nextIndex].repeatCount,
             });
             if (_fetchAudioRef) {
               playCurrentItem(get, set as (p: Partial<PlaylistState>) => void, _fetchAudioRef);
@@ -204,6 +238,17 @@ export const usePlaylistStore = create<PlaylistState>()(
         const { isActive, items, currentItemIndex, remainingRepeats, _fetchAudioRef } = get();
         if (!isActive || currentItemIndex >= items.length) return;
 
+        const item = items[currentItemIndex];
+
+        // repeatCount 0 = infinite: always replay
+        if (item.repeatCount === 0) {
+          set({ remainingRepeats: remainingRepeats + 1 });
+          if (_fetchAudioRef) {
+            playCurrentItem(get, set as (p: Partial<PlaylistState>) => void, _fetchAudioRef);
+          }
+          return;
+        }
+
         const newRepeats = remainingRepeats - 1;
         if (newRepeats > 0) {
           set({ remainingRepeats: newRepeats });
@@ -215,7 +260,7 @@ export const usePlaylistStore = create<PlaylistState>()(
           if (nextIndex < items.length) {
             set({
               currentItemIndex: nextIndex,
-              remainingRepeats: items[nextIndex].repeatCount,
+              remainingRepeats: items[nextIndex].repeatCount === 0 ? 1 : items[nextIndex].repeatCount,
             });
             if (_fetchAudioRef) {
               playCurrentItem(get, set as (p: Partial<PlaylistState>) => void, _fetchAudioRef);

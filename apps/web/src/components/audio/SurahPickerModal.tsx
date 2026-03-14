@@ -11,6 +11,14 @@ import {
   DialogClose,
 } from "~/components/ui/Dialog";
 
+/** Strip diacritics so "karia" matches "Kâria", "maide" matches "Mâide" etc. */
+function normalize(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 interface SurahPickerModalProps {
   open: boolean;
   onClose: () => void;
@@ -25,13 +33,13 @@ export function SurahPickerModal({ open, onClose, onSelect }: SurahPickerModalPr
 
   const filtered = useMemo(() => {
     if (!search.trim()) return chapters;
-    const q = search.toLowerCase();
+    const q = normalize(search);
     return chapters.filter(
       (c) =>
-        c.name_simple.toLowerCase().includes(q) ||
-        c.name_arabic.includes(q) ||
-        getSurahName(c.id, c.translated_name.name, locale).toLowerCase().includes(q) ||
-        String(c.id) === q.trim(),
+        normalize(c.name_simple).includes(q) ||
+        c.name_arabic.includes(search.trim()) ||
+        normalize(getSurahName(c.id, c.translated_name.name, locale)).includes(q) ||
+        String(c.id) === search.trim(),
     );
   }, [chapters, search, locale]);
 
@@ -89,7 +97,7 @@ export function SurahPickerModal({ open, onClose, onSelect }: SurahPickerModalPr
                         {getSurahName(ch.id, ch.translated_name.name, locale)}
                       </span>
                       <span className="block text-[12px] text-[var(--theme-text-tertiary)]">
-                        {ch.name_arabic} · {ch.verses_count} {t.common.verse.toLowerCase()}
+                        {ch.verses_count} {t.common.verse.toLowerCase()} · <span className="arabic-text text-[11px]">{ch.name_arabic}</span>
                       </span>
                     </span>
                   </button>

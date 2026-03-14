@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePlaylistStore } from "~/stores/usePlaylistStore";
 import { useTranslation } from "~/hooks/useTranslation";
+import { interpolate } from "~/lib/i18n-utils";
 import { chapterAudioQueryOptions } from "~/hooks/useAudio";
 
 export function PlaylistControls() {
@@ -95,9 +96,7 @@ export function PlaylistControls() {
           </span>
           {currentItem.repeatCount > 1 && (
             <span className="ml-auto text-[12px] text-primary-500">
-              {t.playlist.repeatProgress
-                .replace("{current}", String(currentItem.repeatCount - remainingRepeats + 1))
-                .replace("{total}", String(currentItem.repeatCount))}
+              {interpolate(t.playlist.repeatProgress, { current: currentItem.repeatCount - remainingRepeats + 1, total: currentItem.repeatCount })}
             </span>
           )}
         </div>

@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { memorizationRepository } from "@mahfuz/db";
 import type { ConfidenceLevel } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
+import { interpolate } from "~/lib/i18n-utils";
 import { useAddVerses } from "~/hooks/useMemorization";
 
 const CONFIDENCE_COLORS: Record<ConfidenceLevel, string> = {
@@ -274,8 +275,8 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
               const isAddingThis = quickAddingFor === key;
               const justAdded = quickAddedFor === key;
               const label = isAll
-                ? t.memorize.surahSelector.allVerses.replace("{n}", String(n))
-                : t.memorize.surahSelector.firstNVerses.replace("{n}", String(n));
+                ? interpolate(t.memorize.surahSelector.allVerses, { n })
+                : interpolate(t.memorize.surahSelector.firstNVerses, { n });
 
               if (justAdded) {
                 return (

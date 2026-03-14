@@ -5,6 +5,7 @@ import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { EXPANDED_TOPIC_INDEX } from "~/data/topic-index-expanded";
 import type { TopicEntry, TopicCategory } from "~/data/topic-index-expanded";
 import { useTranslation } from "~/hooks/useTranslation";
+import { interpolate } from "~/lib/i18n-utils";
 import type { Chapter } from "@mahfuz/shared/types";
 
 function getCategoryLabel(cat: TopicCategory, locale: string) {
@@ -87,13 +88,8 @@ export function FihristPanel({ initialTopic }: { initialTopic?: string }) {
       {/* Stats */}
       <p className="mb-4 text-[12px] text-[var(--theme-text-tertiary)]">
         {isSearching
-          ? t.browse.resultCount.replace(
-              "{count}",
-              String(filtered.reduce((s, c) => s + c.topics.length, 0)),
-            )
-          : t.browse.categoryStats
-              .replace("{categories}", String(EXPANDED_TOPIC_INDEX.length))
-              .replace("{topics}", String(totalTopics))}
+          ? interpolate(t.browse.resultCount, { count: filtered.reduce((s, c) => s + c.topics.length, 0) })
+          : interpolate(t.browse.categoryStats, { categories: EXPANDED_TOPIC_INDEX.length, topics: totalTopics })}
       </p>
 
       {/* Accordion */}

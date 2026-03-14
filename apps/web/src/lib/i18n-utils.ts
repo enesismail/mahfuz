@@ -1,3 +1,12 @@
+export function interpolate(
+  template: string,
+  params: Record<string, string | number>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) =>
+    String(params[key] ?? `{${key}}`),
+  );
+}
+
 /**
  * Resolve an i18n key from a locale object.
  * Tries flat key first (e.g. obj["s1.l1.title"]),

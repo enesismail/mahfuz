@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { CURRICULUM } from "@mahfuz/shared/data/learn/curriculum";
 import { useLearnDashboard } from "~/hooks/useLearn";
 import { useTranslation } from "~/hooks/useTranslation";
-import { resolveNestedKey } from "~/lib/i18n-utils";
+import { resolveNestedKey, interpolate } from "~/lib/i18n-utils";
 
 const PREVIEW_STAGES = CURRICULUM.slice(0, 3);
 
@@ -53,7 +53,7 @@ export function LearnPreview() {
                     />
                   </div>
                   <span className="shrink-0 text-[10px] tabular-nums text-[var(--theme-text-quaternary)]">
-                    {t.home.stageCount.replace("{completed}", String(completed)).replace("{total}", String(total))}
+                    {interpolate(t.home.stageCount, { completed, total })}
                   </span>
                 </div>
               </div>

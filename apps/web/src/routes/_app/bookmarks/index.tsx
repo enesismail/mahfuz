@@ -7,6 +7,7 @@ import { useVerseBookmarks } from "~/stores/useVerseBookmarks";
 import { useReadingList } from "~/stores/useReadingList";
 import type { ReadingListItem } from "~/stores/useReadingList";
 import { useTranslation } from "~/hooks/useTranslation";
+import { interpolate } from "~/lib/i18n-utils";
 import { getSurahName } from "~/lib/surah-name";
 import { formatRelativeTime } from "~/lib/format-relative-time";
 import { Skeleton } from "~/components/ui/Skeleton";
@@ -194,7 +195,7 @@ function BookmarksPage() {
           </div>
 
           <p className="mt-8 text-center text-[12px] text-[var(--theme-text-quaternary)]">
-            {t.bookmarksPage.verses.replace("{n}", String(bookmarks.length))}
+            {interpolate(t.bookmarksPage.verses, { n: bookmarks.length })}
           </p>
         </>
       )}

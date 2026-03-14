@@ -1,3 +1,5 @@
+import { interpolate } from "./i18n-utils";
+
 interface RelativeTimeStrings {
   justNow: string;
   minutesAgo: string;
@@ -16,8 +18,8 @@ export function formatRelativeTime(
   const days = Math.floor(diff / 86_400_000);
 
   if (minutes < 1) return strings.justNow;
-  if (minutes < 60) return strings.minutesAgo.replace("{n}", String(minutes));
-  if (hours < 24) return strings.hoursAgo.replace("{n}", String(hours));
+  if (minutes < 60) return interpolate(strings.minutesAgo, { n: minutes });
+  if (hours < 24) return interpolate(strings.hoursAgo, { n: hours });
   if (days === 1) return strings.yesterday;
-  return strings.daysAgo.replace("{n}", String(days));
+  return interpolate(strings.daysAgo, { n: days });
 }

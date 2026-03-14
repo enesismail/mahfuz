@@ -2,6 +2,60 @@ import { useState, useCallback } from "react";
 import type { ReactNode } from "react";
 import { useTranslation } from "~/hooks/useTranslation";
 
+/** Short success chime via Web Audio API — two ascending tones */
+function playSuccessSound() {
+  try {
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = "sine";
+    osc1.frequency.value = 523.25;
+    gain1.gain.setValueAtTime(0.18, now);
+    gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    osc1.connect(gain1).connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.15);
+
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = "sine";
+    osc2.frequency.value = 659.25;
+    gain2.gain.setValueAtTime(0.18, now + 0.12);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    osc2.connect(gain2).connect(ctx.destination);
+    osc2.start(now + 0.12);
+    osc2.stop(now + 0.3);
+
+    setTimeout(() => ctx.close(), 500);
+  } catch {
+    // silent fallback
+  }
+}
+
+/** Short error buzz — low tone */
+function playErrorSound() {
+  try {
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 220;
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.2);
+
+    setTimeout(() => ctx.close(), 400);
+  } catch {
+    // silent fallback
+  }
+}
+
 interface ExerciseOption {
   key: string;
   label: ReactNode;
@@ -38,7 +92,12 @@ export function ExerciseLayout({
   const handleCheck = useCallback(() => {
     if (selectedIndex === null) return;
     setPhase("checked");
-  }, [selectedIndex]);
+    if (options[selectedIndex].isCorrect) {
+      playSuccessSound();
+    } else {
+      playErrorSound();
+    }
+  }, [selectedIndex, options]);
 
   const handleNext = useCallback(() => {
     if (selectedIndex === null) return;
@@ -58,33 +117,46 @@ export function ExerciseLayout({
       {/* Prompt area */}
       {prompt}
 
-      {/* Options — vertical full-width list */}
-      <div className="flex flex-col gap-3">
+      {/* Options */}
+      <div className="flex flex-col gap-2.5">
         {options.map((option, index) => {
-          let bg: string;
-          let border: string;
+          const isSelected = index === selectedIndex;
+          const isCorrectOption = option.isCorrect;
+
+          // In checked phase, hide irrelevant options
+          if (phase === "checked" && !isSelected && !isCorrectOption) {
+            return (
+              <div
+                key={option.key}
+                className="w-full rounded-xl border-2 border-transparent bg-[var(--theme-bg)] px-4 py-3 text-center text-[14px] font-medium text-[var(--theme-text)] opacity-30 transition-all"
+              >
+                {option.label}
+              </div>
+            );
+          }
+
+          let className: string;
 
           if (phase === "checked") {
-            if (index === selectedIndex && option.isCorrect) {
-              bg = "bg-emerald-50 dark:bg-emerald-950/30";
-              border = "border-emerald-500";
-            } else if (index === selectedIndex && !option.isCorrect) {
-              bg = "bg-red-50 dark:bg-red-950/30";
-              border = "border-red-500";
-            } else if (option.isCorrect) {
-              bg = "bg-emerald-50 dark:bg-emerald-950/30";
-              border = "border-emerald-500";
+            if (isSelected && isCorrectOption) {
+              // User picked the correct answer
+              className =
+                "w-full rounded-xl border-2 border-emerald-500 bg-emerald-500/15 px-4 py-3 text-center text-[14px] font-semibold text-emerald-700 transition-all";
+            } else if (isSelected && !isCorrectOption) {
+              // User picked wrong
+              className =
+                "w-full rounded-xl border-2 border-red-400 bg-red-500/10 px-4 py-3 text-center text-[14px] font-medium text-red-600 line-through decoration-2 transition-all";
             } else {
-              bg = "bg-[var(--theme-bg)]";
-              border = "border-[var(--theme-border)] opacity-50";
+              // The correct option (not selected by user)
+              className =
+                "w-full rounded-xl border-2 border-emerald-500 bg-emerald-500/15 px-4 py-3 text-center text-[14px] font-semibold text-emerald-700 transition-all";
             }
-          } else if (index === selectedIndex) {
-            bg = "bg-amber-50 dark:bg-amber-950/20";
-            border = "border-amber-400";
+          } else if (isSelected) {
+            className =
+              "w-full rounded-xl border-2 border-primary-500 bg-primary-500/10 px-4 py-3 text-center text-[14px] font-medium text-[var(--theme-text)] shadow-sm transition-all active:scale-[0.98]";
           } else {
-            bg =
-              "bg-[var(--theme-bg)] hover:bg-[var(--theme-hover-bg)]";
-            border = "border-[var(--theme-border)]";
+            className =
+              "w-full rounded-xl border-2 border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-3 text-center text-[14px] font-medium text-[var(--theme-text)] transition-all hover:bg-[var(--theme-hover-bg)] active:scale-[0.98]";
           }
 
           return (
@@ -92,45 +164,84 @@ export function ExerciseLayout({
               key={option.key}
               onClick={() => handleSelect(index)}
               disabled={phase === "checked"}
-              className={`w-full rounded-xl border-2 ${border} ${bg} px-4 py-3 text-center text-[14px] font-medium text-[var(--theme-text)] transition-all ${phase === "selecting" ? "active:scale-[0.98]" : ""}`}
+              className={className}
             >
-              {option.label}
+              <span className="flex items-center justify-center gap-2">
+                {/* Icon for checked state */}
+                {phase === "checked" && isSelected && isCorrectOption && (
+                  <svg className="h-5 w-5 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+                {phase === "checked" && isSelected && !isCorrectOption && (
+                  <svg className="h-5 w-5 shrink-0 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+                {phase === "checked" && !isSelected && isCorrectOption && (
+                  <svg className="h-5 w-5 shrink-0 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+                {option.label}
+              </span>
             </button>
           );
         })}
       </div>
 
-      {/* Feedback panel — only after CHECK */}
+      {/* Feedback banner — only after CHECK */}
       {phase === "checked" && selectedIndex !== null && (
         <div
-          className={`rounded-xl px-4 py-3 ${
+          className={`flex items-center gap-3 rounded-2xl px-5 py-4 ${
             isCorrectAnswer
-              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400"
-              : "bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400"
+              ? "bg-emerald-500/15 text-emerald-700"
+              : "bg-red-500/10 text-red-700"
           }`}
         >
-          <p className="text-center text-[13px] font-semibold">
-            {isCorrectAnswer ? t.learn.excellent : t.learn.incorrect}
-          </p>
-          {/* Show correct answer when wrong, or correctAnswerDisplay when provided */}
-          {correctAnswerDisplay && (
-            <div className="mt-1 text-center text-[12px] opacity-80">
-              {!isCorrectAnswer && (
-                <span className="font-medium">
-                  {t.learn.correctAnswerLabel}{" "}
-                </span>
-              )}
-              {correctAnswerDisplay}
-            </div>
-          )}
-          {!correctAnswerDisplay && !isCorrectAnswer && correctIndex >= 0 && (
-            <p className="mt-1 text-center text-[12px] opacity-80">
-              <span className="font-medium">
-                {t.learn.correctAnswerLabel}{" "}
-              </span>
-              {options[correctIndex].label}
+          {/* Large icon */}
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+              isCorrectAnswer ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+            }`}
+          >
+            {isCorrectAnswer ? (
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-bold">
+              {isCorrectAnswer ? t.learn.excellent : t.learn.incorrect}
             </p>
-          )}
+            {/* Show correct answer when wrong */}
+            {!isCorrectAnswer && (
+              <p className="mt-0.5 text-[13px] opacity-80">
+                {correctAnswerDisplay ? (
+                  <>
+                    <span className="font-medium">{t.learn.correctAnswerLabel} </span>
+                    {correctAnswerDisplay}
+                  </>
+                ) : correctIndex >= 0 ? (
+                  <>
+                    <span className="font-medium">{t.learn.correctAnswerLabel} </span>
+                    {options[correctIndex].label}
+                  </>
+                ) : null}
+              </p>
+            )}
+            {isCorrectAnswer && (
+              <p className="mt-0.5 text-[13px] opacity-80">
+                <span className="font-medium">{t.learn.correctAnswerLabel} </span>
+                {correctAnswerDisplay ?? options[correctIndex]?.label}
+              </p>
+            )}
+          </div>
         </div>
       )}
 
@@ -139,22 +250,24 @@ export function ExerciseLayout({
         <button
           onClick={handleCheck}
           disabled={selectedIndex === null}
-          className={`w-full rounded-xl px-6 py-3 text-[14px] font-semibold transition-all active:scale-[0.98] ${
+          className="w-full rounded-2xl px-6 py-3.5 text-[15px] font-bold tracking-wide uppercase transition-all active:scale-[0.97]"
+          style={
             selectedIndex === null
-              ? "bg-gray-200 text-gray-400 dark:bg-gray-800 dark:text-gray-600"
-              : "bg-amber-500 text-white hover:bg-amber-600"
-          }`}
+              ? { background: "var(--theme-border)", color: "var(--theme-text-quaternary)" }
+              : { background: "#f59e0b", color: "#fff", boxShadow: "0 8px 24px rgba(245, 158, 11, 0.3)" }
+          }
         >
           {t.learn.check}
         </button>
       ) : (
         <button
           onClick={handleNext}
-          className={`w-full rounded-xl px-6 py-3 text-[14px] font-semibold text-white transition-all active:scale-[0.98] ${
+          className="w-full rounded-2xl px-6 py-3.5 text-[15px] font-bold tracking-wide uppercase transition-all active:scale-[0.97]"
+          style={
             isCorrectAnswer
-              ? "bg-emerald-600 hover:bg-emerald-700"
-              : "bg-red-600 hover:bg-red-700"
-          }`}
+              ? { background: "#059669", color: "#fff", boxShadow: "0 8px 24px rgba(5, 150, 105, 0.3)" }
+              : { background: "#dc2626", color: "#fff", boxShadow: "0 8px 24px rgba(220, 38, 38, 0.3)" }
+          }
         >
           {t.learn.nextButton}
         </button>
