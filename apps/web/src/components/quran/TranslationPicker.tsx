@@ -1,9 +1,35 @@
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
-import { LOCAL_TRANSLATIONS } from "@mahfuz/shared/constants";
+import { LOCAL_TRANSLATIONS, LANGUAGE_BADGE_LABELS, LANGUAGE_DISPLAY_NAMES } from "@mahfuz/shared/constants";
+import type { TranslationLanguage } from "@mahfuz/shared/constants";
 import { useTranslation } from "~/hooks/useTranslation";
 
 interface TranslationPickerProps {
   compact?: boolean;
+}
+
+function LanguageBadge({
+  language,
+  compact,
+  primary,
+}: {
+  language: TranslationLanguage;
+  compact?: boolean;
+  primary?: boolean;
+}) {
+  const label = LANGUAGE_BADGE_LABELS[language];
+  return (
+    <span
+      className={`inline-flex shrink-0 items-center justify-center rounded font-semibold uppercase leading-none ${
+        compact ? "px-1 py-0.5 text-[8px]" : "px-1.5 py-0.5 text-[9px]"
+      } ${
+        primary
+          ? "bg-primary-500/15 text-primary-700"
+          : "bg-[var(--theme-hover-bg)] text-[var(--theme-text-tertiary)]"
+      }`}
+    >
+      {label}
+    </span>
+  );
 }
 
 export function TranslationPicker({ compact }: TranslationPickerProps) {
@@ -18,6 +44,19 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
     .filter(Boolean) as typeof selected;
 
   const available = LOCAL_TRANSLATIONS.filter((tr) => !selectedTranslations.includes(tr.id));
+
+  // Group available translations by language
+  const availableByLanguage = available.reduce(
+    (acc, tr) => {
+      const lang = tr.language;
+      if (!acc[lang]) acc[lang] = [];
+      acc[lang].push(tr);
+      return acc;
+    },
+    {} as Record<TranslationLanguage, typeof available>,
+  );
+  const languageGroups = Object.keys(availableByLanguage) as TranslationLanguage[];
+  const hasMultipleGroups = languageGroups.length > 1;
 
   const moveUp = (index: number) => {
     if (index <= 0) return;
@@ -96,12 +135,15 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
                 )}
               </button>
 
-              {/* Name + author */}
+              {/* Name + badge + author */}
               <div className="min-w-0 flex-1">
-                <span className={`block font-medium leading-tight ${textSize} ${
-                  isPrimary ? "text-primary-700" : "text-[var(--theme-text)]"
-                }`}>
-                  {tr.name}
+                <span className={`flex items-center gap-1.5 leading-tight ${textSize}`}>
+                  <span className={`font-medium ${
+                    isPrimary ? "text-primary-700" : "text-[var(--theme-text)]"
+                  }`}>
+                    {tr.name}
+                  </span>
+                  <LanguageBadge language={tr.language} compact={compact} primary={isPrimary} />
                 </span>
                 {!compact && (
                   <span className="block text-[11px] leading-tight text-[var(--theme-text-tertiary)]">
@@ -159,36 +201,48 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
         })}
       </div>
 
-      {/* Available translations */}
+      {/* Available translations — grouped by language */}
       {available.length > 0 && (
         <>
           <span className={`mt-3 mb-1.5 block font-medium text-[var(--theme-text-tertiary)] ${compact ? "text-[11px]" : "text-[12px]"}`}>
             {t.common.add}
           </span>
           <div className="space-y-1">
-            {available.map((tr) => (
-              <button
-                key={tr.id}
-                type="button"
-                onClick={() => add(tr.id)}
-                className={`flex w-full items-center gap-1.5 rounded-xl border border-dashed border-[var(--theme-divider)] ${px} ${py} text-left transition-all hover:border-primary-400 hover:bg-primary-600/5`}
-              >
-                <span className={`flex shrink-0 items-center justify-center ${btnSize} rounded-md text-primary-600`}>
-                  <svg className={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                </span>
-                <div className="min-w-0 flex-1">
-                  <span className={`block font-medium leading-tight text-[var(--theme-text-secondary)] ${textSize}`}>
-                    {tr.name}
+            {languageGroups.map((lang) => (
+              <div key={lang}>
+                {hasMultipleGroups && (
+                  <span className={`mt-2 mb-1 block font-medium text-[var(--theme-text-quaternary)] first:mt-0 ${compact ? "text-[10px]" : "text-[11px]"}`}>
+                    {LANGUAGE_DISPLAY_NAMES[lang]}
                   </span>
-                  {!compact && (
-                    <span className="block text-[11px] leading-tight text-[var(--theme-text-tertiary)]">
-                      {tr.author}
+                )}
+                {availableByLanguage[lang].map((tr) => (
+                  <button
+                    key={tr.id}
+                    type="button"
+                    onClick={() => add(tr.id)}
+                    className={`flex w-full items-center gap-1.5 rounded-xl border border-dashed border-[var(--theme-divider)] ${px} ${py} text-left transition-all hover:border-primary-400 hover:bg-primary-600/5`}
+                  >
+                    <span className={`flex shrink-0 items-center justify-center ${btnSize} rounded-md text-primary-600`}>
+                      <svg className={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
                     </span>
-                  )}
-                </div>
-              </button>
+                    <div className="min-w-0 flex-1">
+                      <span className={`flex items-center gap-1.5 leading-tight ${textSize}`}>
+                        <span className="font-medium text-[var(--theme-text-secondary)]">
+                          {tr.name}
+                        </span>
+                        <LanguageBadge language={tr.language} compact={compact} />
+                      </span>
+                      {!compact && (
+                        <span className="block text-[11px] leading-tight text-[var(--theme-text-tertiary)]">
+                          {tr.author}
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
             ))}
           </div>
         </>

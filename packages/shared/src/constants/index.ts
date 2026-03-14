@@ -33,6 +33,19 @@ export const LOCAL_TRANSLATIONS = [
 ] as const;
 
 export type TranslationId = (typeof LOCAL_TRANSLATIONS)[number]["id"];
+export type TranslationLanguage = (typeof LOCAL_TRANSLATIONS)[number]["language"];
+
+/** Short badge labels for translation languages */
+export const LANGUAGE_BADGE_LABELS: Record<TranslationLanguage, string> = {
+  turkish: "TR",
+  english: "EN",
+} as const;
+
+/** Full display names for translation languages */
+export const LANGUAGE_DISPLAY_NAMES: Record<TranslationLanguage, string> = {
+  turkish: "Türkçe",
+  english: "English",
+} as const;
 
 /** Turkish tafsir resource IDs */
 export const TURKISH_TAFSIRS = {

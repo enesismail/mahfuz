@@ -1,5 +1,6 @@
 import { useState, memo } from "react";
 import type { Translation } from "@mahfuz/shared/types";
+import { LANGUAGE_BADGE_LABELS } from "@mahfuz/shared/constants";
 
 interface TranslationBlockProps {
   translations: Translation[];
@@ -70,8 +71,13 @@ export const TranslationBlock = memo(function TranslationBlock({
                     : undefined
                 }
               />
-              <span className="flex-1 text-[12px] font-semibold text-[var(--theme-text-tertiary)]">
+              <span className="flex flex-1 items-center gap-1.5 text-[12px] font-semibold text-[var(--theme-text-tertiary)]">
                 {t.resource_name}
+                {(t.language_name === "turkish" || t.language_name === "english") && (
+                  <span className="inline-flex items-center rounded bg-[var(--theme-hover-bg)] px-1 py-0.5 text-[8px] font-semibold uppercase leading-none text-[var(--theme-text-quaternary)]">
+                    {LANGUAGE_BADGE_LABELS[t.language_name]}
+                  </span>
+                )}
               </span>
               {isMultiple && (
                 <svg
