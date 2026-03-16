@@ -25,8 +25,9 @@ export const TURKISH_TRANSLATIONS = {
 
 /** Local translation registry */
 export const LOCAL_TRANSLATIONS = [
-  { id: "diyanet", name: "Diyanet İşleri", author: "Diyanet İşleri Başkanlığı", source: "local" as const, language: "turkish" as const },
+  { id: "elmali-yeni", name: "Elmalılı Yeni Meali", author: "Elmalılı Hamdi Yazır (Sadeleştirilmiş)", source: "local" as const, language: "turkish" as const },
   { id: "omer-celik", name: "Ömer Çelik", author: "Prof. Dr. Ömer Çelik", source: "local" as const, language: "turkish" as const },
+  { id: "diyanet", name: "Diyanet İşleri", author: "Diyanet İşleri Başkanlığı", source: "local" as const, language: "turkish" as const },
   { id: "omer-nasuhi-bilmen", name: "Ömer Nasuhi Bilmen", author: "Ömer Nasuhi Bilmen", source: "local" as const, language: "turkish" as const },
   { id: "ali-fikri-yavuz", name: "Ali Fikri Yavuz", author: "Ali Fikri Yavuz", source: "local" as const, language: "turkish" as const },
   { id: "sahih-international", name: "Sahih International", author: "Sahih International", source: "local" as const, language: "english" as const },

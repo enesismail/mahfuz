@@ -10,7 +10,8 @@ import {
 import { useTranslation } from "~/hooks/useTranslation";
 import { useI18nStore } from "~/stores/useI18nStore";
 import { useAudioStore } from "~/stores/useAudioStore";
-import { CURATED_RECITERS } from "@mahfuz/shared/constants";
+import { CURATED_RECITERS, LOCAL_TRANSLATIONS, LANGUAGE_BADGE_LABELS } from "@mahfuz/shared/constants";
+import type { TranslationLanguage } from "@mahfuz/shared/constants";
 import {
   IconFont,
   IconDroplet,
@@ -43,6 +44,28 @@ function SettingsPage() {
   const hydrated = useHydrated();
   const { t } = useTranslation();
   const { locale, setLocale } = useI18nStore();
+  const selectedTranslations = usePreferencesStore((s) => s.selectedTranslations);
+  const setSelectedTranslations = usePreferencesStore((s) => s.setSelectedTranslations);
+
+  // When locale changes, ensure a matching translation is primary
+  const handleLocaleChange = (newLocale: Parameters<typeof setLocale>[0]) => {
+    setLocale(newLocale);
+    const localeUpper = newLocale.toUpperCase();
+    // Find the TranslationLanguage matching this locale
+    const matchingLang = (Object.entries(LANGUAGE_BADGE_LABELS) as [TranslationLanguage, string][])
+      .find(([, badge]) => badge === localeUpper)?.[0];
+    if (!matchingLang) return;
+    // Check if any selected translation already matches this language
+    const alreadyHas = selectedTranslations.some((id) =>
+      LOCAL_TRANSLATIONS.find((tr) => tr.id === id && tr.language === matchingLang),
+    );
+    if (alreadyHas) return;
+    // Find the first available translation for this language
+    const match = LOCAL_TRANSLATIONS.find((tr) => tr.language === matchingLang);
+    if (!match) return;
+    // Prepend as primary
+    setSelectedTranslations([match.id, ...selectedTranslations]);
+  };
 
   const arabicFontId = usePreferencesStore((s) => s.arabicFontId);
   const viewMode = usePreferencesStore((s) => s.viewMode);
@@ -192,7 +215,7 @@ function SettingsPage() {
         return (
           <LanguageSection
             locale={locale}
-            onLocaleChange={setLocale}
+            onLocaleChange={handleLocaleChange}
           />
         );
     }

@@ -39,6 +39,7 @@ const GITHUB_BASE =
   "https://raw.githubusercontent.com/alialparslan/Kuran-Meali-Ebook-Olusturucu/master/JSON";
 
 const GITHUB_TRANSLATIONS: { filename: string; id: string; name: string }[] = [
+  { filename: "Elmalılı Hamdi Yazır.json", id: "elmali-yeni", name: "Elmalılı Hamdi Yazır" },
   { filename: "Ali Fikri Yavuz.json", id: "ali-fikri-yavuz", name: "Ali Fikri Yavuz" },
   { filename: "Ömer Nasuhi Bilmen.json", id: "omer-nasuhi-bilmen", name: "Ömer Nasuhi Bilmen" },
 ];
