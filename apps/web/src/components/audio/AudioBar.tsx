@@ -103,7 +103,7 @@ export function AudioBar() {
   const isPlaying = playbackState === "playing";
   const verseLabel = currentVerseKey
     ? currentVerseKey === "bismillah"
-      ? "Bismillahirrahmanirrahim"
+      ? t.audio.bismillah
       : `${t.common.verse} ${currentVerseKey.split(":")[1]}`
     : "";
 

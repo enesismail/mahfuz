@@ -95,6 +95,7 @@ export const pages = {
     results: "results",
     surahUnit: "surah",
     mushafPage: "Mushaf page",
+    examples: ["fatiha", "baqarah 255", "33:35", "5", "juz 29", "page 300"],
   },
 
   home: {

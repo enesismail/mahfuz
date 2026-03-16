@@ -589,7 +589,7 @@ function TopicNavBar({ topic, topicKey, currentSurahId, t, locale }: { topic: To
     if (el) el.scrollIntoView({ inline: "center", block: "nearest" });
   }, [currentSurahId]);
 
-  const topicName = locale === "en" ? topic.topicEn : topic.topic;
+  const topicName = locale === "en" ? topic.topicEn : locale === "es" ? topic.topicEs : topic.topic;
 
   return (
     <div className="mb-6 rounded-2xl bg-[var(--theme-bg-primary)] p-3">

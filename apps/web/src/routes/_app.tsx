@@ -177,7 +177,7 @@ function AppLayout() {
     <div className="flex h-screen flex-col bg-[var(--theme-bg)]">
       {/* Dev banner */}
       <div className="flex items-center justify-center bg-emerald-600 px-4 py-1.5 text-center text-[12px] font-medium text-white sm:text-[13px]">
-        ✨ Güzel bir Kur'an deneyimi için özenle çalışıyoruz. Eksikler ve değişiklikler olabilir, hoş görünüze sığınırız.
+        ✨ {t.nav.devBanner}
       </div>
       {/* Header */}
       <header className="glass sticky top-0 z-30 h-[56px] border-b border-[var(--theme-border)] px-3 sm:px-6 lg:h-[64px]">
@@ -566,7 +566,7 @@ function AppLayout() {
         <button
           onClick={() => setSidebarCollapsed(false)}
           className="hidden lg:flex items-center justify-center w-6 border-r border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/50 text-[var(--theme-text-quaternary)] hover:text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)] transition-colors"
-          aria-label="Open sidebar"
+          aria-label={t.nav.openSidebar}
         >
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M13 5l7 7-7 7" /></svg>
         </button>

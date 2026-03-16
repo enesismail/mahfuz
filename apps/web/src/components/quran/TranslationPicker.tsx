@@ -1,4 +1,5 @@
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
+import { useI18nStore } from "~/stores/useI18nStore";
 import { LOCAL_TRANSLATIONS, LANGUAGE_BADGE_LABELS, LANGUAGE_DISPLAY_NAMES } from "@mahfuz/shared/constants";
 import type { TranslationLanguage } from "@mahfuz/shared/constants";
 import { useTranslation } from "~/hooks/useTranslation";
@@ -55,7 +56,15 @@ export function TranslationPicker({ compact }: TranslationPickerProps) {
     },
     {} as Record<TranslationLanguage, typeof available>,
   );
-  const languageGroups = Object.keys(availableByLanguage) as TranslationLanguage[];
+  const locale = useI18nStore((s) => s.locale);
+  const localeUpper = locale.toUpperCase();
+  const languageGroups = (Object.keys(availableByLanguage) as TranslationLanguage[]).sort(
+    (a, b) => {
+      const aMatch = LANGUAGE_BADGE_LABELS[a] === localeUpper ? 0 : 1;
+      const bMatch = LANGUAGE_BADGE_LABELS[b] === localeUpper ? 0 : 1;
+      return aMatch - bMatch;
+    },
+  );
   const hasMultipleGroups = languageGroups.length > 1;
 
   const moveUp = (index: number) => {

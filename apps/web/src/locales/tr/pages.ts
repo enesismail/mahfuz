@@ -95,6 +95,7 @@ export const pages = {
     results: "sonuç",
     surahUnit: "sure",
     mushafPage: "Mushaf sayfa",
+    examples: ["fatiha", "bakara 255", "33:35", "5", "cüz 29", "sayfa 300"],
   },
 
   home: {

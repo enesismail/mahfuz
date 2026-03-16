@@ -390,7 +390,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
                 {t.commandPalette.emptyDesc}
               </p>
               <div className="mx-auto mt-3 flex max-w-[320px] flex-wrap justify-center gap-1.5">
-                {["fatiha", "bakara 255", "33:35", "5", "cüz 29", "sayfa 300"].map(
+                {(t.commandPalette.examples as readonly string[]).map(
                   (ex) => (
                     <button
                       key={ex}

@@ -21,6 +21,7 @@ export const media = {
     autoContinue: "Reproducir siguiente sura",
     listenSurah: "Escuchar la sura",
     goToVerse: "Ir a la aleya en reproducción",
+    bismillah: "Bismillahirrahmanirrahim",
   },
 
   playlist: {
