@@ -245,33 +245,35 @@ export function ExerciseLayout({
         </div>
       )}
 
-      {/* CHECK / NEXT button */}
-      {phase === "selecting" ? (
-        <button
-          onClick={handleCheck}
-          disabled={selectedIndex === null}
-          className="w-full rounded-2xl px-6 py-3.5 text-[15px] font-bold tracking-wide uppercase transition-all active:scale-[0.97]"
-          style={
-            selectedIndex === null
-              ? { background: "var(--theme-border)", color: "var(--theme-text-quaternary)" }
-              : { background: "#f59e0b", color: "#fff", boxShadow: "0 8px 24px rgba(245, 158, 11, 0.3)" }
-          }
-        >
-          {t.learn.check}
-        </button>
-      ) : (
-        <button
-          onClick={handleNext}
-          className="w-full rounded-2xl px-6 py-3.5 text-[15px] font-bold tracking-wide uppercase transition-all active:scale-[0.97]"
-          style={
-            isCorrectAnswer
-              ? { background: "#059669", color: "#fff", boxShadow: "0 8px 24px rgba(5, 150, 105, 0.3)" }
-              : { background: "#dc2626", color: "#fff", boxShadow: "0 8px 24px rgba(220, 38, 38, 0.3)" }
-          }
-        >
-          {t.learn.nextButton}
-        </button>
-      )}
+      {/* CHECK / NEXT button — sticky so it's always visible */}
+      <div className="sticky bottom-0 -mx-4 bg-gradient-to-t from-[var(--theme-bg)] from-60% to-transparent px-4 pt-4 pb-4 sm:-mx-6 sm:px-6">
+        {phase === "selecting" ? (
+          <button
+            onClick={handleCheck}
+            disabled={selectedIndex === null}
+            className="w-full rounded-2xl px-6 py-3.5 text-[15px] font-bold tracking-wide uppercase transition-all active:scale-[0.97]"
+            style={
+              selectedIndex === null
+                ? { background: "var(--theme-border)", color: "var(--theme-text-quaternary)" }
+                : { background: "#f59e0b", color: "#fff", boxShadow: "0 8px 24px rgba(245, 158, 11, 0.3)" }
+            }
+          >
+            {t.learn.check}
+          </button>
+        ) : (
+          <button
+            onClick={handleNext}
+            className="w-full rounded-2xl px-6 py-3.5 text-[15px] font-bold tracking-wide uppercase transition-all active:scale-[0.97]"
+            style={
+              isCorrectAnswer
+                ? { background: "#059669", color: "#fff", boxShadow: "0 8px 24px rgba(5, 150, 105, 0.3)" }
+                : { background: "#dc2626", color: "#fff", boxShadow: "0 8px 24px rgba(220, 38, 38, 0.3)" }
+            }
+          >
+            {t.learn.nextButton}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

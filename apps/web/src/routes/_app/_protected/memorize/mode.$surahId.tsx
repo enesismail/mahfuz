@@ -32,9 +32,8 @@ export const Route = createFileRoute("/_app/_protected/memorize/mode/$surahId")(
     await Promise.all([
       context.queryClient.ensureQueryData(versesByChapterQueryOptions(sid)),
       context.queryClient.ensureQueryData(chaptersQueryOptions()),
+      context.queryClient.ensureQueryData(memorizeWbwByChapterQueryOptions(sid)),
     ]);
-    // Prefetch WBW data (non-blocking)
-    context.queryClient.prefetchQuery(memorizeWbwByChapterQueryOptions(sid));
   },
   pendingComponent: () => <Loading text="Yükleniyor..." />,
   head: ({ params }) => ({

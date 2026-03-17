@@ -75,11 +75,18 @@ function deriveRole(word: WordMorph, prevWord?: WordMorph): string {
   // Negative, emphatic, etc. particles
   if (["NEG", "EMPH", "CERT", "RES", "FUT", "PREV", "PRO"].includes(pos)) return "harf";
 
-  // If preceded by preposition → jar-majrur
-  if (prevWord && prevWord.pos === "P" && f.cas === "GEN") return "jar-majrur";
+  // Word contains a preposition prefix in its morphemes (e.g. بِسْمِ, لِلَّهِ)
+  const hasPrefixP = word.morphemes.some((m) => m.prefix && m.pos === "P");
+  if (hasPrefixP) return "jar-majrur";
 
-  // Noun/Adjective with case info
-  if (pos === "N" || pos === "PN" || pos === "ADJ" || pos === "PRON" || pos === "DEM" || pos === "REL") {
+  // If preceded by preposition → jar-majrur
+  if (prevWord && prevWord.pos === "P") return "jar-majrur";
+
+  // Adjective → naat (must come BEFORE noun case logic)
+  if (pos === "ADJ") return "naat";
+
+  // Noun with case info
+  if (pos === "N" || pos === "PN" || pos === "PRON" || pos === "DEM" || pos === "REL") {
     if (f.cas === "NOM") {
       // After a verb → fail (subject)
       if (prevWord?.pos === "V") return "fail";
@@ -91,12 +98,8 @@ function deriveRole(word: WordMorph, prevWord?: WordMorph): string {
       return "khabar";
     }
     if (f.cas === "GEN") {
-      if (prevWord?.pos === "P") return "jar-majrur";
       return "mudaf-ilayh";
     }
-
-    // Adjective → naat
-    if (pos === "ADJ") return "naat";
 
     // Default for nouns
     return "mubtada";
@@ -181,21 +184,33 @@ function main() {
         const irabDesc = deriveIrabDesc(role, word);
         if (irabDesc) node.irabDesc = irabDesc;
 
-        // Simple dependency: nouns/adjectives depend on preceding verb or preposition
-        if (prevWord) {
-          if ((role === "fail" || role === "mafool") && prevWord.pos === "V") {
+        // Dependency relations
+        if (role === "fail" || role === "mafool") {
+          if (prevWord && prevWord.pos === "V") {
             node.parent = prevWord.p;
             node.depLabel = role === "fail" ? "nsubj" : "obj";
-          } else if (role === "jar-majrur" && prevWord.pos === "P") {
+          }
+        } else if (role === "jar-majrur") {
+          const hasPrefixP = word.morphemes.some((m) => m.prefix && m.pos === "P");
+          if (hasPrefixP) {
+            // Find nearest preceding verb for oblique relation
+            for (let j = i - 1; j >= 0; j--) {
+              if (words[j].pos === "V") {
+                node.parent = words[j].p;
+                node.depLabel = "obl";
+                break;
+              }
+            }
+          } else if (prevWord && prevWord.pos === "P") {
             node.parent = prevWord.p;
             node.depLabel = "case";
-          } else if (role === "naat") {
-            node.parent = prevWord.p;
-            node.depLabel = "amod";
-          } else if (role === "mudaf-ilayh") {
-            node.parent = prevWord.p;
-            node.depLabel = "nmod";
           }
+        } else if (role === "naat" && prevWord) {
+          node.parent = prevWord.p;
+          node.depLabel = "amod";
+        } else if (role === "mudaf-ilayh" && prevWord) {
+          node.parent = prevWord.p;
+          node.depLabel = "nmod";
         }
 
         nodes.push(node);

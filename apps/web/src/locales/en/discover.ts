@@ -106,6 +106,26 @@ export const discoverMessages = {
       VOC: "Vocative",
     },
 
+    // İ'rab examples
+    examples: {
+      title: "Starter Examples",
+      subtitle: "Learn basic grammar structures",
+      exMubteda: "Subject (Mubtada)",
+      exMubtedaDesc: "The subject of the sentence. Takes the nominative case (marfoo').",
+      exJarMajrur: "Prep. Phrase",
+      exJarMajrurDesc: "Preposition + noun combination. The noun takes the genitive case (majroor).",
+      exFiil: "Verb (Fi'l)",
+      exFiilDesc: "Imperative verb. The action that starts the sentence.",
+      exMafool: "Object (Maf'ool)",
+      exMafoolDesc: "The object of the verb. Takes the accusative case (mansoob).",
+      exNaat: "Adjective (Na't)",
+      exNaatDesc: "Adjective. Follows the grammatical case of the noun it describes.",
+      exIzafet: "Possession (Idafa)",
+      exIzafetDesc: "Possessive construction. The possessed noun takes the genitive case.",
+      exHaber: "Predicate (Khabar)",
+      exHaberDesc: "The predicate in a nominal sentence. Kana's predicate takes the accusative.",
+    },
+
     // Grammar in WBW mode
     grammar: "Grammar",
     showGrammar: "Show grammar info",

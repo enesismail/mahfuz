@@ -5,21 +5,33 @@ import { ROLE_COLORS } from "./SyntaxLegend";
 
 interface SyntaxTreeProps {
   nodes: SyntaxNode[];
+  highlightPosition?: number | null;
 }
 
-export const SyntaxTree = memo(function SyntaxTree({ nodes }: SyntaxTreeProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [arcs, setArcs] = useState<Array<{ x1: number; x2: number; color: string }>>([]);
+interface ArcData {
+  x1: number;
+  x2: number;
+  y1: number;
+  y2: number;
+  color: string;
+}
+
+export const SyntaxTree = memo(function SyntaxTree({ nodes, highlightPosition }: SyntaxTreeProps) {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const wordContainerRef = useRef<HTMLDivElement>(null);
+  const [arcs, setArcs] = useState<ArcData[]>([]);
 
   // Calculate arc positions after render
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const outer = outerRef.current;
+    const wordContainer = wordContainerRef.current;
+    if (!outer || !wordContainer) return;
 
     // Wait for layout
     requestAnimationFrame(() => {
-      const children = Array.from(container.children) as HTMLElement[];
-      const newArcs: typeof arcs = [];
+      const children = Array.from(wordContainer.children) as HTMLElement[];
+      const outerRect = outer.getBoundingClientRect();
+      const newArcs: ArcData[] = [];
 
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
@@ -34,11 +46,12 @@ export const SyntaxTree = memo(function SyntaxTree({ nodes }: SyntaxTreeProps) {
 
         const childRect = childEl.getBoundingClientRect();
         const parentRect = parentEl.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
 
         newArcs.push({
-          x1: parentRect.left + parentRect.width / 2 - containerRect.left,
-          x2: childRect.left + childRect.width / 2 - containerRect.left,
+          x1: parentRect.left + parentRect.width / 2 - outerRect.left,
+          x2: childRect.left + childRect.width / 2 - outerRect.left,
+          y1: parentRect.top - outerRect.top,
+          y2: childRect.top - outerRect.top,
           color: ROLE_COLORS[node.role] || "#6b7280",
         });
       }
@@ -48,17 +61,18 @@ export const SyntaxTree = memo(function SyntaxTree({ nodes }: SyntaxTreeProps) {
   }, [nodes]);
 
   return (
-    <div className="relative">
+    <div ref={outerRef} className="relative">
       {/* SVG arcs overlay */}
       {arcs.length > 0 && (
-        <svg className="pointer-events-none absolute left-0 top-0 h-8 w-full" style={{ overflow: "visible" }}>
+        <svg className="pointer-events-none absolute inset-0 h-full w-full" style={{ overflow: "visible" }}>
           {arcs.map((arc, i) => {
             const midX = (arc.x1 + arc.x2) / 2;
+            const baseY = Math.min(arc.y1, arc.y2);
             const height = Math.abs(arc.x2 - arc.x1) * 0.3 + 12;
             return (
               <path
                 key={i}
-                d={`M ${arc.x1} 0 Q ${midX} ${-height} ${arc.x2} 0`}
+                d={`M ${arc.x1} ${arc.y1} Q ${midX} ${baseY - height} ${arc.x2} ${arc.y2}`}
                 fill="none"
                 stroke={arc.color}
                 strokeWidth={1.5}
@@ -72,12 +86,12 @@ export const SyntaxTree = memo(function SyntaxTree({ nodes }: SyntaxTreeProps) {
 
       {/* Word nodes */}
       <div
-        ref={containerRef}
-        className="flex flex-wrap-reverse justify-end gap-1 overflow-x-auto pt-10 pb-2 scrollbar-none"
+        ref={wordContainerRef}
+        className="flex flex-wrap gap-2 pt-12 pb-2"
         dir="rtl"
       >
         {nodes.map((node) => (
-          <SyntaxNodeComponent key={node.p} node={node} />
+          <SyntaxNodeComponent key={node.p} node={node} isHighlighted={highlightPosition === node.p} />
         ))}
       </div>
     </div>

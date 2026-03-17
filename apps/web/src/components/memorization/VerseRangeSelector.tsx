@@ -73,7 +73,7 @@ export function VerseRangeSelector({
         </h1>
         <div className="mt-1 flex items-center justify-center gap-2">
           <span className={`rounded-full px-2.5 py-0.5 text-[12px] font-medium ${modeBadgeColors[mode]}`}>
-            {modeLabels[mode](t)}
+            {modeLabels[mode]?.(t) ?? mode}
           </span>
           <span className="text-[13px] text-[var(--theme-text-tertiary)]">
             · {rs.title}

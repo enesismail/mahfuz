@@ -455,7 +455,29 @@ function WbwTabContent({
           </div>
         )}
       </div>
+
+      {/* Verse-level translation (meal) toggle */}
+      <WbwMealToggle />
     </>
+  );
+}
+
+function WbwMealToggle() {
+  const { t } = useTranslation();
+  const wbwShowTranslation = usePreferencesStore((s) => s.wbwShowTranslation);
+  const setWbwShowTranslation = usePreferencesStore((s) => s.setWbwShowTranslation);
+  return (
+    <div className="mt-4 border-t border-[var(--theme-border)] pt-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <SettingsLabel>{t.settings.showTranslation}</SettingsLabel>
+          <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
+            {t.settings.showTranslationDesc}
+          </p>
+        </div>
+        <ToggleSwitch checked={wbwShowTranslation} onChange={setWbwShowTranslation} />
+      </div>
+    </div>
   );
 }
 
@@ -578,6 +600,28 @@ function MushafTabContent({
           <span className="text-lg text-[var(--theme-text-tertiary)]">A</span>
         </div>
       </div>
+
+      {/* Mushaf meal panel toggle */}
+      <MushafMealToggle />
     </>
+  );
+}
+
+function MushafMealToggle() {
+  const { t } = useTranslation();
+  const mushafShowTranslation = usePreferencesStore((s) => s.mushafShowTranslation);
+  const setMushafShowTranslation = usePreferencesStore((s) => s.setMushafShowTranslation);
+  return (
+    <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <SettingsLabel>{t.settings.showTranslation}</SettingsLabel>
+          <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
+            {t.settings.showTranslationDesc}
+          </p>
+        </div>
+        <ToggleSwitch checked={mushafShowTranslation} onChange={setMushafShowTranslation} />
+      </div>
+    </div>
   );
 }

@@ -55,16 +55,16 @@ function DiscoverPage() {
     <div className="mx-auto max-w-[960px] px-5 py-5 sm:px-6 sm:py-10 lg:max-w-[1200px]">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-[22px] font-bold text-[var(--theme-text)] sm:text-[26px]">
+        <h1 className="text-[24px] font-bold tracking-tight text-[var(--theme-text)] sm:text-[28px]">
           {t.discover.title}
         </h1>
-        <p className="mt-1 text-[14px] text-[var(--theme-text-secondary)]">
+        <p className="mt-1.5 text-[14px] text-[var(--theme-text-tertiary)]">
           {t.discover.subtitle}
         </p>
       </div>
 
       {/* Tabs — sticky underline style */}
-      <div className="sticky top-0 z-10 mb-5 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] sm:mb-6">
+      <div className="sticky top-0 z-10 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] sm:mb-8">
         <nav className="flex gap-0" role="tablist">
           {TAB_OPTIONS.map((opt) => {
             const active = currentTab === opt.value;
@@ -74,7 +74,7 @@ function DiscoverPage() {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setTab(opt.value)}
-                className={`relative px-4 py-3 text-[14px] font-medium transition-colors ${
+                className={`relative px-5 py-3.5 text-[14px] font-medium transition-colors ${
                   active
                     ? "text-[var(--theme-text)]"
                     : "text-[var(--theme-text-tertiary)] hover:text-[var(--theme-text-secondary)]"
@@ -82,7 +82,7 @@ function DiscoverPage() {
               >
                 {opt.label}
                 {active && (
-                  <span className="absolute inset-x-1 bottom-0 h-[2px] rounded-full bg-primary-600" />
+                  <span className="absolute inset-x-2 bottom-0 h-[2.5px] rounded-full bg-primary-600" />
                 )}
               </button>
             );

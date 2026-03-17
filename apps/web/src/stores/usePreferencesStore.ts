@@ -48,6 +48,7 @@ interface PreferencesState {
   wbwArabicFontSize: number;
   mushafArabicFontSize: number;
   mushafTranslationFontSize: number;
+  mushafShowTranslation: boolean;
   mushafTooltipTextSize: number;
   wbwPopupTextSize: number;
   globalFontScale: number;
@@ -79,6 +80,7 @@ interface PreferencesState {
   setNormalTranslationFontSize: (size: number) => void;
   setWbwArabicFontSize: (size: number) => void;
   setMushafArabicFontSize: (size: number) => void;
+  setMushafShowTranslation: (value: boolean) => void;
   setMushafTranslationFontSize: (size: number) => void;
   setMushafTooltipTextSize: (size: number) => void;
   setWbwPopupTextSize: (size: number) => void;
@@ -115,6 +117,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       normalTranslationFontSize: 1,
       wbwArabicFontSize: 1,
       mushafArabicFontSize: 1,
+      mushafShowTranslation: true,
       mushafTranslationFontSize: 1,
       mushafTooltipTextSize: 1,
       wbwPopupTextSize: 1,
@@ -155,6 +158,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       setNormalTranslationFontSize: (size) => set({ normalTranslationFontSize: size }),
       setWbwArabicFontSize: (size) => set({ wbwArabicFontSize: size }),
       setMushafArabicFontSize: (size) => set({ mushafArabicFontSize: size }),
+      setMushafShowTranslation: (value) => set({ mushafShowTranslation: value }),
       setMushafTranslationFontSize: (size) => set({ mushafTranslationFontSize: size }),
       setMushafTooltipTextSize: (size) => set({ mushafTooltipTextSize: size }),
       setWbwPopupTextSize: (size) => set({ wbwPopupTextSize: size }),

@@ -32,8 +32,8 @@ export const SyntaxLegend = memo(function SyntaxLegend() {
     }));
 
   return (
-    <div className="rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-3">
-      <h3 className="mb-2 text-[12px] font-semibold text-[var(--theme-text-tertiary)]">
+    <div className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-4 shadow-[var(--shadow-card)]">
+      <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
         {t.discover.syntaxLegend}
       </h3>
       <div className="flex flex-wrap gap-x-3 gap-y-1.5">

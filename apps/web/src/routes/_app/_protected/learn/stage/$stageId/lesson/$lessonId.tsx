@@ -173,8 +173,8 @@ function LessonPage() {
         ))}
       </div>
 
-      {/* Start exercises button */}
-      <div className="mt-8">
+      {/* Start exercises button — sticky so it's always visible */}
+      <div className="sticky bottom-0 -mx-4 mt-8 bg-gradient-to-t from-[var(--theme-bg)] from-60% to-transparent px-4 pt-4 pb-4 sm:-mx-6 sm:px-6">
         <button
           onClick={handleStartExercises}
           className="w-full rounded-xl bg-primary-600 px-6 py-3.5 text-[14px] font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"

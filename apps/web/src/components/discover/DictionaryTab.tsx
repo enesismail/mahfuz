@@ -42,10 +42,8 @@ export function DictionaryTab() {
     if (search) {
       const q = search.trim();
       roots = roots.filter((r) => {
-        // Match root letters
         if (r.root.includes(q)) return true;
         if (r.letters.includes(q)) return true;
-        // Match meaning
         const meaning = locale === "en" ? r.meaning.en : r.meaning.tr;
         if (meaning.toLowerCase().includes(q.toLowerCase())) return true;
         return false;
@@ -64,8 +62,10 @@ export function DictionaryTab() {
     [rootsIndex],
   );
 
+  const displayCount = Math.min(filteredRoots.length, 100);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Search */}
       <RootSearchBar value={search} onChange={setSearch} />
 
@@ -74,34 +74,56 @@ export function DictionaryTab() {
         <FrequencySetPicker activeSet={activeSet} onSetChange={setActiveSet} />
       )}
 
-      {/* Result count */}
-      <p className="text-[12px] text-[var(--theme-text-tertiary)]">
-        {filteredRoots.length} {t.discover.rootsFound}
-      </p>
+      {/* Result count + filter context */}
+      <div className="flex items-center justify-between">
+        <p
+          className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]"
+          style={{ fontFamily: "var(--font-sans)" }}
+        >
+          <span className="font-bold text-[var(--theme-text-secondary)]">
+            {filteredRoots.length}
+          </span>{" "}
+          {t.discover.rootsFound}
+        </p>
+        {filteredRoots.length > 100 && (
+          <span
+            className="text-[11px] tabular-nums text-[var(--theme-text-quaternary)]"
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {displayCount} / {filteredRoots.length}
+          </span>
+        )}
+      </div>
 
       {/* Root cards grid */}
       {filteredRoots.length > 0 ? (
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
           {filteredRoots.slice(0, 100).map((entry) => (
             <RootCard
               key={entry.root}
               entry={entry}
+              maxCount={filteredRoots[0]?.count || 1}
               onClick={() => setSelectedRoot(entry)}
             />
           ))}
         </div>
       ) : (
-        <div className="py-12 text-center">
-          <p className="text-[14px] text-[var(--theme-text-tertiary)]">
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--theme-bg-secondary)]">
+            <svg
+              className="h-6 w-6 text-[var(--theme-text-quaternary)]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+            </svg>
+          </div>
+          <p className="text-[14px] font-medium text-[var(--theme-text-tertiary)]">
             {t.common.noResults}
           </p>
         </div>
-      )}
-
-      {filteredRoots.length > 100 && (
-        <p className="text-center text-[12px] text-[var(--theme-text-quaternary)]">
-          +{filteredRoots.length - 100} {t.discover.rootsFound}
-        </p>
       )}
 
       {/* Root detail sheet */}

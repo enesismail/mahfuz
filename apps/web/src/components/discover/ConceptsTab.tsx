@@ -15,6 +15,11 @@ export function ConceptsTab() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedConcept, setSelectedConcept] = useState<Concept | null>(null);
 
+  const allConceptIds = useMemo(
+    () => new Set(conceptIndex.concepts.map((c) => c.id)),
+    [conceptIndex],
+  );
+
   const filteredConcepts = useMemo(() => {
     let concepts = conceptIndex.concepts;
 
@@ -60,7 +65,7 @@ export function ConceptsTab() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t.discover.searchConcepts}
-          className="w-full rounded-xl bg-[var(--theme-input-bg)] py-2.5 pl-10 pr-4 text-[14px] text-[var(--theme-text)] placeholder:text-[var(--theme-text-quaternary)] outline-none transition-colors focus:ring-2 focus:ring-primary-500/30"
+          className="w-full rounded-xl bg-[var(--theme-input-bg)] py-3 pl-10 pr-4 text-[14px] text-[var(--theme-text)] placeholder:text-[var(--theme-text-quaternary)] outline-none transition-colors focus:ring-2 focus:ring-primary-500/30"
         />
       </div>
 
@@ -72,13 +77,14 @@ export function ConceptsTab() {
       />
 
       {/* Count */}
-      <p className="text-[12px] text-[var(--theme-text-tertiary)]">
-        {filteredConcepts.length} {t.discover.conceptsFound}
+      <p className="text-[12px] text-[var(--theme-text-tertiary)]" style={{ fontFamily: "var(--font-sans)" }}>
+        <span className="font-semibold text-[var(--theme-text-secondary)]">{filteredConcepts.length}</span>{" "}
+        {t.discover.conceptsFound}
       </p>
 
       {/* Grid */}
       {filteredConcepts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
           {filteredConcepts.map((concept) => (
             <ConceptCard
               key={concept.id}
@@ -97,6 +103,7 @@ export function ConceptsTab() {
       {selectedConcept && (
         <ConceptDetailSheet
           concept={selectedConcept}
+          allConceptIds={allConceptIds}
           onClose={() => setSelectedConcept(null)}
           onConceptClick={handleConceptClick}
         />

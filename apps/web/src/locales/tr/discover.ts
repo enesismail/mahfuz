@@ -106,6 +106,26 @@ export const discoverMessages = {
       VOC: "Nidâ",
     },
 
+    // İ'rab examples
+    examples: {
+      title: "Başlangıç Örnekleri",
+      subtitle: "Temel gramer yapılarını tanıyın",
+      exMubteda: "Mübteda (Özne)",
+      exMubtedaDesc: "Cümlenin öznesi. Merfû (yalın hal) olur.",
+      exJarMajrur: "Câr-Mecrûr",
+      exJarMajrurDesc: "Harf-i cer + isim birleşimi. İsim mecrûr olur.",
+      exFiil: "Fiil (Eylem)",
+      exFiilDesc: "Emir fiili. Cümleyi başlatan eylem.",
+      exMafool: "Mef'ûl (Nesne)",
+      exMafoolDesc: "Fiilin nesnesi. Mansûb (belirtme hali) olur.",
+      exNaat: "Na't (Sıfat)",
+      exNaatDesc: "Sıfat. Nitelediği ismin i'rab halini takip eder.",
+      exIzafet: "İzafet (Tamlama)",
+      exIzafetDesc: "Muzâf-muzâfun ileyh. Tamlayan mecrûr olur.",
+      exHaber: "Haber (Yüklem)",
+      exHaberDesc: "İsim cümlesinde yüklem. Kâne haberi mansûb olur.",
+    },
+
     // Grammar in WBW mode
     grammar: "Gramer",
     showGrammar: "Gramer bilgisi göster",

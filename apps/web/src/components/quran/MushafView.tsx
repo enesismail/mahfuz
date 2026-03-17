@@ -26,13 +26,14 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
   const mushafArabicFontSize = usePreferencesStore((s) => s.mushafArabicFontSize);
   const mushafTranslationFontSize = usePreferencesStore((s) => s.mushafTranslationFontSize);
   const mushafTooltipTextSize = usePreferencesStore((s) => s.mushafTooltipTextSize);
+  const mushafShowTranslation = usePreferencesStore((s) => s.mushafShowTranslation);
   const selectedTranslations = usePreferencesStore((s) => s.selectedTranslations);
   const { t } = useTranslation();
 
   const [selectedWord, setSelectedWord] = useState<SelectedWord | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const hasTranslations = verses.some((v) => v.translations && v.translations.length > 0);
+  const hasTranslations = mushafShowTranslation && verses.some((v) => v.translations && v.translations.length > 0);
 
   // Clear selection when clicking outside a word
   const handleContainerClick = useCallback((e: React.MouseEvent) => {
@@ -58,27 +59,29 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
         />
       </div>
 
-      {/* Spine divider — desktop only */}
-      <div className="mushaf-spread-spine" />
-
-      {/* Translation page — left on desktop, swipe-to on mobile */}
-      <div className="mushaf-spread-page mushaf-spread-meal">
-        {hasTranslations ? (
-          <MealPage
-            verses={verses}
-            fontSize={mushafTranslationFontSize}
-            selectedWord={selectedWord}
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center px-6">
-            <p className="text-center text-[13px] text-[var(--theme-text-quaternary)]">
-              {selectedTranslations.length === 0
-                ? t.toolbar.mushafNoTranslation
-                : t.toolbar.mushafNote}
-            </p>
+      {/* Spine divider + Translation page — hidden when mushafShowTranslation is off */}
+      {mushafShowTranslation && (
+        <>
+          <div className="mushaf-spread-spine" />
+          <div className="mushaf-spread-page mushaf-spread-meal">
+            {hasTranslations ? (
+              <MealPage
+                verses={verses}
+                fontSize={mushafTranslationFontSize}
+                selectedWord={selectedWord}
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center px-6">
+                <p className="text-center text-[13px] text-[var(--theme-text-quaternary)]">
+                  {selectedTranslations.length === 0
+                    ? t.toolbar.mushafNoTranslation
+                    : t.toolbar.mushafNote}
+                </p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 }

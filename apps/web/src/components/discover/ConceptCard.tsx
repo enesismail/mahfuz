@@ -16,16 +16,16 @@ export const ConceptCard = memo(function ConceptCard({ concept, onClick }: Conce
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-start gap-1.5 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-3 text-left transition-all hover:border-primary-300 hover:shadow-[var(--shadow-elevated)] active:scale-[0.98]"
+      className="flex flex-col items-start gap-2 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-4 text-left shadow-[var(--shadow-card)] transition-all hover:border-primary-300 hover:shadow-[var(--shadow-elevated)] active:scale-[0.98]"
     >
       <div className="flex items-center gap-2">
-        {concept.icon && <span className="text-[18px]">{concept.icon}</span>}
-        <span className="text-[14px] font-semibold text-[var(--theme-text)]">{name}</span>
+        {concept.icon && <span className="text-[20px]">{concept.icon}</span>}
+        <span className="text-[14px] font-bold text-[var(--theme-text)]">{name}</span>
       </div>
-      <p className="line-clamp-2 text-[12px] leading-snug text-[var(--theme-text-secondary)]">
+      <p className="line-clamp-2 text-[12px] leading-relaxed text-[var(--theme-text-secondary)]">
         {desc}
       </p>
-      <span className="text-[10px] tabular-nums text-[var(--theme-text-quaternary)]">
+      <span className="mt-1 text-[10px] tabular-nums text-[var(--theme-text-quaternary)]">
         {concept.refs.length} {t.discover.verseCount}
       </span>
     </button>

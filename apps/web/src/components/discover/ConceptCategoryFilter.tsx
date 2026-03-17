@@ -16,13 +16,13 @@ export const ConceptCategoryFilter = memo(function ConceptCategoryFilter({
   const { t, locale } = useTranslation();
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
       <button
         type="button"
         onClick={() => onCategoryChange(null)}
-        className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+        className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
           activeCategory === null
-            ? "bg-primary-600 text-white"
+            ? "bg-primary-600 text-white shadow-sm"
             : "bg-[var(--theme-pill-bg)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)]"
         }`}
       >
@@ -36,9 +36,9 @@ export const ConceptCategoryFilter = memo(function ConceptCategoryFilter({
             key={cat.id}
             type="button"
             onClick={() => onCategoryChange(active ? null : cat.id)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+            className={`shrink-0 rounded-full px-4 py-2 text-[13px] font-medium transition-colors ${
               active
-                ? "bg-primary-600 text-white"
+                ? "bg-primary-600 text-white shadow-sm"
                 : "bg-[var(--theme-pill-bg)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)]"
             }`}
           >

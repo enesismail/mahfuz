@@ -29,6 +29,10 @@ export class QuranApi {
   setLanguage(language: string): void {
     this.client.setLanguage(language);
   }
+
+  getLanguage(): string {
+    return this.client.getLanguage();
+  }
 }
 
 // Re-export client and types

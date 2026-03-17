@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Only scan src/ for Tailwind classes — skip public/ (24MB JSON data) */
+@source "../../src/**/*.{tsx,ts,jsx,js}";
+@source not "../../public/**";
+
 /* FOUC guard: splash overlay covers unstyled content;
    hide it once Tailwind CSS has loaded */
 .mahfuz-splash { display: none !important; }
@@ -679,6 +683,72 @@ body {
 }
 @media (min-width: 640px) {
   .mushaf-content { padding: 2rem 2.5rem; }
+}
+
+/* ═══ QCF V2: Per-page font Mushaf rendering ═══ */
+
+.mushaf-qcf-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem 0.75rem;
+  min-height: 380px;
+}
+@media (min-width: 640px) {
+  .mushaf-qcf-content { padding: 1.5rem 1.5rem; }
+}
+
+.mushaf-qcf-line {
+  text-align: center;
+  direction: rtl;
+  font-size: clamp(1.4rem, 4.5vw, 2rem);
+  line-height: 2.4;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  color: var(--mushaf-ink);
+}
+
+.mushaf-qcf-word {
+  cursor: pointer;
+  padding: 2px 1px;
+  border-radius: 4px;
+  transition: background 150ms ease, color 150ms ease;
+}
+.mushaf-qcf-word:hover {
+  background: color-mix(in srgb, var(--mushaf-gold) 18%, transparent);
+}
+
+.mushaf-qcf-word-active {
+  background: color-mix(in srgb, var(--mushaf-gold) 30%, transparent);
+  border-radius: 4px;
+}
+
+.mushaf-qcf-line-skeleton {
+  height: 1.8rem;
+  margin: 0.5rem 1.5rem;
+}
+
+/* Desktop two-page QCF spread */
+.mushaf-qcf-spread {
+  display: flex;
+  gap: 1rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+.mushaf-qcf-spread > * {
+  flex: 1 1 50%;
+  min-width: 0;
+}
+@media (max-width: 1023px) {
+  .mushaf-qcf-spread {
+    flex-direction: column;
+  }
+  .mushaf-qcf-spread > * {
+    flex: 1 1 100%;
+  }
 }
 
 /* ═══ Mushaf Spread: Two-page layout (Arabic + Meal) ═══ */

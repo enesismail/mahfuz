@@ -189,9 +189,18 @@ export function TypeMode({ surahId, verses, onVerseChange, onComplete }: TypeMod
       {/* Current word display */}
       <div className="mb-6 rounded-2xl bg-[var(--theme-bg-primary)] p-6 text-center shadow-[var(--shadow-card)]">
         {/* Arabic */}
-        <p className="arabic-text mb-3 text-[36px] font-semibold leading-relaxed text-[var(--theme-text)]" dir="rtl">
+        <p className="arabic-text mb-1 text-[36px] font-semibold leading-relaxed text-[var(--theme-text)]" dir="rtl">
           {currentWord.text_uthmani || currentWord.text}
         </p>
+
+        {/* Faint transliteration hint */}
+        {expectedTranslit ? (
+          <p className="mb-3 text-[14px] italic text-[var(--theme-text-tertiary)] opacity-50" style={{ fontFamily: "var(--font-sans)" }}>
+            {expectedTranslit}
+          </p>
+        ) : (
+          <div className="mb-3" />
+        )}
 
         {/* Meaning */}
         {currentWord.translation?.text && (

@@ -113,15 +113,38 @@ export function ModePicker({ surahId, surahName, versesCount, userId }: ModePick
       {/* Mode cards */}
       <div className="flex flex-col gap-3">
         {modes.map(({ mode, icon, bgClass }) => {
-          const linkTo =
-            mode === "immersive"
-              ? `/memorize-immersive/${surahId}`
-              : `/memorize/mode/${surahId}?mode=${mode}`;
+          if (mode === "immersive") {
+            return (
+              <Link
+                key={mode}
+                to="/memorize-immersive/$surahId"
+                params={{ surahId: String(surahId) }}
+                className="flex items-center gap-4 rounded-2xl bg-[var(--theme-bg-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:shadow-md active:scale-[0.98]"
+              >
+                <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${bgClass}`}>
+                  {icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[15px] font-semibold text-[var(--theme-text)]">
+                    {modeLabels[mode]}
+                  </h3>
+                  <p className="text-[12px] text-[var(--theme-text-tertiary)]">
+                    {modeDescs[mode]}
+                  </p>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-[var(--theme-text-quaternary)]">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </Link>
+            );
+          }
 
           return (
             <Link
               key={mode}
-              to={linkTo}
+              to="/memorize/mode/$surahId"
+              params={{ surahId: String(surahId) }}
+              search={{ mode }}
               className="flex items-center gap-4 rounded-2xl bg-[var(--theme-bg-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:shadow-md active:scale-[0.98]"
             >
               <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${bgClass}`}>

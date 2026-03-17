@@ -38,7 +38,7 @@ export function ModeLayout({
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-[var(--theme-bg)]">
+    <div className="flex h-[100dvh] flex-col bg-[var(--theme-bg)]">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-[var(--theme-bg-primary)] px-4 pb-3 pt-4 shadow-sm">
         <div className="mb-2 flex items-center justify-between">

@@ -5,12 +5,14 @@ import { useTranslation } from "~/hooks/useTranslation";
 
 interface ConceptDetailSheetProps {
   concept: Concept;
+  allConceptIds: Set<string>;
   onClose: () => void;
   onConceptClick?: (conceptId: string) => void;
 }
 
 export const ConceptDetailSheet = memo(function ConceptDetailSheet({
   concept,
+  allConceptIds,
   onClose,
   onConceptClick,
 }: ConceptDetailSheetProps) {
@@ -24,7 +26,7 @@ export const ConceptDetailSheet = memo(function ConceptDetailSheet({
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="relative z-10 w-full max-w-lg rounded-t-2xl bg-[var(--theme-bg)] p-5 shadow-[var(--shadow-modal)] sm:rounded-2xl sm:p-6" style={{ maxHeight: "85vh", overflow: "auto" }}>
+      <div className="relative z-10 w-full max-w-lg rounded-t-3xl bg-[var(--theme-bg)] p-6 shadow-[var(--shadow-modal)] sm:rounded-2xl sm:p-8" style={{ maxHeight: "85vh", overflow: "auto" }}>
         {/* Close */}
         <button
           type="button"
@@ -40,21 +42,21 @@ export const ConceptDetailSheet = memo(function ConceptDetailSheet({
         <div className="mb-4">
           <div className="flex items-center gap-2">
             {concept.icon && <span className="text-[24px]">{concept.icon}</span>}
-            <h2 className="text-[20px] font-bold text-[var(--theme-text)]">{name}</h2>
+            <h2 className="text-[22px] font-bold text-[var(--theme-text)]">{name}</h2>
           </div>
           <p className="mt-2 text-[14px] leading-relaxed text-[var(--theme-text-secondary)]">
             {desc}
           </p>
         </div>
 
-        {/* Related concepts */}
-        {concept.relatedConcepts && concept.relatedConcepts.length > 0 && (
+        {/* Related concepts — only show those that actually exist */}
+        {concept.relatedConcepts && concept.relatedConcepts.filter((cid) => allConceptIds.has(cid)).length > 0 && (
           <div className="mb-4">
-            <h3 className="mb-2 text-[13px] font-semibold text-[var(--theme-text)]">
+            <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
               {t.discover.relatedConcepts}
             </h3>
             <div className="flex flex-wrap gap-1.5">
-              {concept.relatedConcepts.map((cid) => (
+              {concept.relatedConcepts.filter((cid) => allConceptIds.has(cid)).map((cid) => (
                 <button
                   key={cid}
                   type="button"
@@ -71,7 +73,7 @@ export const ConceptDetailSheet = memo(function ConceptDetailSheet({
         {/* Related roots */}
         {concept.relatedRoots && concept.relatedRoots.length > 0 && (
           <div className="mb-4">
-            <h3 className="mb-2 text-[13px] font-semibold text-[var(--theme-text)]">
+            <h3 className="mb-2.5 text-[11px] font-semibold uppercase tracking-wider text-[var(--theme-text-tertiary)]">
               {t.discover.relatedRoots}
             </h3>
             <div className="flex flex-wrap gap-1.5">

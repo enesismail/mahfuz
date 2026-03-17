@@ -24,7 +24,7 @@ export const FrequencySetPicker = memo(function FrequencySetPicker({
   };
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none sm:gap-2">
       {SET_IDS.map((id) => {
         const active = activeSet === id;
         return (
@@ -32,10 +32,10 @@ export const FrequencySetPicker = memo(function FrequencySetPicker({
             key={id}
             type="button"
             onClick={() => onSetChange(id)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors ${
+            className={`shrink-0 rounded-lg px-3.5 py-2 text-[12px] font-semibold tracking-wide transition-all duration-150 sm:px-4 sm:text-[13px] ${
               active
-                ? "bg-primary-600 text-white"
-                : "bg-[var(--theme-pill-bg)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)]"
+                ? "bg-primary-600 text-white shadow-[0_2px_8px_-2px_rgba(var(--color-primary-500-rgb,99,102,241),0.4)]"
+                : "bg-[var(--theme-bg-secondary)] text-[var(--theme-text-tertiary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text-secondary)]"
             }`}
           >
             {labels[id] || id}
