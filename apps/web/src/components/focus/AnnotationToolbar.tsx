@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import type { Chapter } from "@mahfuz/shared/types";
-import { TOTAL_PAGES } from "@mahfuz/shared/constants";
+import { usePageLayout, getTotalPages } from "~/lib/page-layout";
 import { useFocusStore } from "~/stores/useFocusStore";
 import {
   ANNOTATION_COLORS,
@@ -47,6 +47,9 @@ export function AnnotationToolbar({
   const setViewMode = useFocusStore((s) => s.setFocusViewMode);
   const setFontSize = useFocusStore((s) => s.setFocusFontSize);
   const popUndo = useFocusStore((s) => s.popUndo);
+
+  const layout = usePageLayout();
+  const totalPages = getTotalPages(layout);
 
   const [showPageJump, setShowPageJump] = useState(false);
   const [showFontSlider, setShowFontSlider] = useState(false);
@@ -184,7 +187,7 @@ export function AnnotationToolbar({
               className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-[12px] font-semibold tabular-nums text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
             >
               <PageJumpIcon width={14} height={14} />
-              {pageNumber}/{TOTAL_PAGES}
+              {pageNumber}/{totalPages}
             </button>
 
             {/* Exit */}

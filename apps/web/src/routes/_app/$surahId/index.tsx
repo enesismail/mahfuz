@@ -11,8 +11,10 @@ import { chapterAudioQueryOptions } from "~/hooks/useAudio";
 import { VerseList } from "~/components/quran";
 import { Loading } from "~/components/ui/Loading";
 import { Skeleton } from "~/components/ui/Skeleton";
-import { TOTAL_CHAPTERS, TOTAL_PAGES } from "@mahfuz/shared/constants";
+import { TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
 import { getJuzForPage } from "@mahfuz/shared";
+import { usePageLayout } from "~/lib/page-layout";
+import { useBerkenarPageForVerse } from "~/hooks/useBerkenarPage";
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import type { ViewMode } from "~/stores/usePreferencesStore";
 import { useAudioStore } from "~/stores/useAudioStore";
@@ -126,6 +128,7 @@ function SurahView() {
   const { data: versesData } = useSuspenseQuery(
     versesByChapterQueryOptions(chapterId)
   );
+  const focusStartPage = useBerkenarPageForVerse(`${chapterId}:1`, chapter.pages[0]);
   // Lazy-load WBW word data (translation, transliteration, positions) for tooltips + audio word sync
   const { data: wbwData } = useQuery(wbwByChapterQueryOptions(chapterId));
   const versesWithWords = useMemo(
@@ -303,7 +306,7 @@ function SurahView() {
 
             <Link
               to="/focus/$pageNumber"
-              params={{ pageNumber: String(chapter.pages[0]) }}
+              params={{ pageNumber: String(focusStartPage) }}
               className="inline-flex items-center gap-1 rounded-full bg-[var(--theme-hover-bg)] px-3 py-1.5 text-[11px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-pill-bg)] active:scale-[0.97]"
             >
               <FocusModeIcon width={14} height={14} />

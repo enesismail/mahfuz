@@ -9,8 +9,8 @@ import { useAudioStore } from "~/stores/useAudioStore";
 import type { ChapterAudioData } from "@mahfuz/audio-engine";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
 import { Loading } from "~/components/ui/Loading";
-import { TOTAL_JUZ, TOTAL_PAGES } from "@mahfuz/shared/constants";
-import { getPagesForJuz } from "@mahfuz/shared";
+import { TOTAL_JUZ } from "@mahfuz/shared/constants";
+import { usePageLayout, getPagesForJuzByLayout } from "~/lib/page-layout";
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import type { ViewMode } from "~/stores/usePreferencesStore";
 import { useReadingHistory } from "~/stores/useReadingHistory";
@@ -61,6 +61,7 @@ function JuzView() {
   const { juzId } = Route.useParams();
   const juzNumber = Number(juzId);
   const navigate = useNavigate();
+  const layout = usePageLayout();
   const [pickerOpen, setPickerOpen] = useState(false);
   const viewMode = usePreferencesStore((s) => s.viewMode);
   const setViewMode = usePreferencesStore((s) => s.setViewMode);
@@ -88,7 +89,7 @@ function JuzView() {
   const { data } = useSuspenseQuery(versesByJuzQueryOptions(juzNumber));
   const translatedVerses = useTranslatedVerses(data.verses);
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
-  const [pageStart, pageEnd] = getPagesForJuz(juzNumber);
+  const [pageStart, pageEnd] = getPagesForJuzByLayout(juzNumber, layout);
 
   // Surah range for this juz
   const surahIds = useMemo(() => {
@@ -280,6 +281,7 @@ function JuzPicker({
   onClose: () => void;
   t: ReturnType<typeof useTranslation>["t"];
 }) {
+  const layout = usePageLayout();
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -312,7 +314,7 @@ function JuzPicker({
           {Array.from({ length: 30 }, (_, i) => {
             const juz = i + 1;
             const isCurrent = juz === currentJuz;
-            const [start, end] = getPagesForJuz(juz);
+            const [start, end] = getPagesForJuzByLayout(juz, layout);
             return (
               <button
                 key={juz}

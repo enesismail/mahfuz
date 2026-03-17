@@ -1,6 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import type { Chapter } from "@mahfuz/shared/types";
-import { getAllJuzRanges, getJuzForPage } from "@mahfuz/shared";
+import {
+  usePageLayout,
+  getAllJuzRangesByLayout,
+  getJuzForPageByLayout,
+} from "~/lib/page-layout";
 
 interface PageJumpDialogProps {
   currentPage: number;
@@ -23,8 +27,9 @@ export function PageJumpDialog({
   const [search, setSearch] = useState("");
   const currentJuzRef = useRef<HTMLDivElement>(null);
 
-  const juzRanges = useMemo(() => getAllJuzRanges(), []);
-  const currentJuz = getJuzForPage(currentPage);
+  const layout = usePageLayout();
+  const juzRanges = useMemo(() => getAllJuzRangesByLayout(layout), [layout]);
+  const currentJuz = getJuzForPageByLayout(currentPage, layout);
 
   // Auto-scroll to current juz
   useEffect(() => {

@@ -25,13 +25,15 @@ import { WordColorSection } from "~/components/settings/WordColorSection";
 import { ReciterSection } from "~/components/settings/ReciterSection";
 import { ReadingModeSection } from "~/components/settings/ReadingModeSection";
 import { LanguageSection } from "~/components/settings/LanguageSection";
+import { PageLayoutSection } from "~/components/settings/PageLayoutSection";
 import { getLocaleConfig } from "~/locales/registry";
+import { useReadingPrefs } from "~/stores/useReadingPrefs";
 
 export const Route = createFileRoute("/_app/settings/")({
   component: SettingsPage,
 });
 
-type AccordionSection = "font" | "wordColor" | "reciter" | "readingMode" | "langNav";
+type AccordionSection = "font" | "wordColor" | "reciter" | "readingMode" | "pageLayout" | "langNav";
 type ReadingModeTab = "normal" | "wordByWord" | "mushaf";
 
 function useHydrated() {
@@ -112,7 +114,7 @@ function SettingsPage() {
     setShowSaved(true);
     const timer = setTimeout(() => setShowSaved(false), 2000);
     return () => clearTimeout(timer);
-  }, [arabicFontId, viewMode, colorizeWords, colorPaletteId, textType, normalArabicFontSize, normalTranslationFontSize, wbwArabicFontSize, mushafArabicFontSize, mushafTranslationFontSize, wbwShowWordTranslation, wbwShowWordTransliteration, wordTranslationSize, wordTransliterationSize, reciterId, locale]);
+  }, [arabicFontId, viewMode, colorizeWords, colorPaletteId, textType, normalArabicFontSize, normalTranslationFontSize, wbwArabicFontSize, mushafArabicFontSize, mushafTranslationFontSize, wbwShowWordTranslation, wbwShowWordTransliteration, wordTranslationSize, wordTransliterationSize, reciterId, locale, pageLayout]);
 
   const activeColors = getActiveColors({ colorPaletteId });
   const [activeSection, setActiveSection] = useState<AccordionSection | null>(null);
@@ -134,6 +136,9 @@ function SettingsPage() {
     }
   }, []);
 
+  // Page layout
+  const pageLayout = useReadingPrefs((s) => s.pageLayout);
+
   // ── Summaries ──
   const fontSummary = currentFont.name;
   const wordColorSummary = colorizeWords
@@ -141,11 +146,20 @@ function SettingsPage() {
     : t.settings.colorOff;
   const reciterSummary = currentReciter?.name ?? "—";
   const readingModeSummary = t.settings.viewModes[viewMode];
+  const pageLayoutSummary = pageLayout === "berkenar" ? t.settings.pageLayoutBerkenar : t.settings.pageLayoutMedine;
   const langSummary = getLocaleConfig(locale).displayName;
+
+  const PageLayoutIcon = () => (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="7" height="18" rx="1.5" />
+      <rect x="14" y="3" width="7" height="18" rx="1.5" />
+    </svg>
+  );
 
   const sections: { id: AccordionSection; title: string; summary: string; icon: React.ReactNode }[] = [
     { id: "font", title: t.settings.sectionFont, summary: fontSummary, icon: <IconFont /> },
     { id: "readingMode", title: t.settings.sectionReadingMode, summary: readingModeSummary, icon: <IconBook /> },
+    { id: "pageLayout", title: t.settings.sectionPageLayout, summary: pageLayoutSummary, icon: <PageLayoutIcon /> },
     { id: "wordColor", title: t.settings.sectionWordColor, summary: wordColorSummary, icon: <IconDroplet /> },
     { id: "reciter", title: t.settings.sectionReciter, summary: reciterSummary, icon: <IconMicrophone /> },
     { id: "langNav", title: t.settings.sectionLangNav, summary: langSummary, icon: <IconGlobe /> },
@@ -178,6 +192,8 @@ function SettingsPage() {
             textType={textType}
           />
         );
+      case "pageLayout":
+        return <PageLayoutSection />;
       case "reciter":
         return <ReciterSection />;
       case "readingMode":
@@ -246,7 +262,7 @@ function SettingsPage() {
       </p>
 
       {/* Ribbon bar */}
-      <div className="scrollbar-none grid grid-cols-5 gap-1.5">
+      <div className="scrollbar-none grid grid-cols-3 gap-1.5 sm:grid-cols-6">
         {sections.map((s) => {
           const active = activeSection === s.id;
           return (

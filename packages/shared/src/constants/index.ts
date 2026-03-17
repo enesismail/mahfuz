@@ -13,6 +13,13 @@ export const TOTAL_JUZ = 30;
 /** Total number of pages in the Uthmani mushaf */
 export const TOTAL_PAGES = 604;
 
+/** Berkenar (Ottoman/Turkish) layout: each juz = 20 pages */
+export const BERKENAR_TOTAL_PAGES = 600;
+export const BERKENAR_PAGES_PER_JUZ = 20;
+
+/** Page layout type */
+export type PageLayout = "medine" | "berkenar";
+
 /** Default reciter ID (Mishary Rashid Alafasy) */
 export const DEFAULT_RECITER_ID = 7;
 

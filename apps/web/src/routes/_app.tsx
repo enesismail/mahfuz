@@ -17,7 +17,7 @@ import { useTranslation } from "~/hooks/useTranslation";
 import { signOut } from "~/lib/auth-client";
 import { SyncIndicator } from "~/components/ui/SyncIndicator";
 import type { Chapter } from "@mahfuz/shared/types";
-import { TOTAL_PAGES } from "@mahfuz/shared/constants";
+import { usePageLayout, getTotalPages } from "~/lib/page-layout";
 import { QUERY_KEYS } from "~/lib/query-keys";
 import { getSurahName } from "~/lib/surah-name";
 import { useVerseBookmarks } from "~/stores/useVerseBookmarks";
@@ -99,6 +99,8 @@ function AppLayout() {
   const queryClient = useQueryClient();
   const { t, locale } = useTranslation();
   const location = useLocation();
+  const layout = usePageLayout();
+  const totalPages = getTotalPages(layout);
   const sidebarCollapsedRaw = usePreferencesStore((s) => s.sidebarCollapsed);
   const setSidebarCollapsed = usePreferencesStore((s) => s.setSidebarCollapsed);
   const hasSeenOnboarding = usePreferencesStore((s) => s.hasSeenOnboarding);
@@ -314,7 +316,7 @@ function AppLayout() {
                 <span className="text-[13px] font-medium text-[var(--theme-text-secondary)]">
                   {t.common.page} {currentPage}
                 </span>
-                {currentPage < TOTAL_PAGES && (
+                {currentPage < totalPages && (
                   <Link
                     to="/page/$pageNumber"
                     params={{ pageNumber: String(currentPage + 1) }}

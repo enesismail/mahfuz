@@ -3,7 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { searchQueryOptions } from "~/hooks/useSearch";
-import { TOTAL_PAGES, TOTAL_JUZ, TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
+import { TOTAL_JUZ, TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
+import { getTotalPages, getActiveLayout } from "~/lib/page-layout";
 import type { Chapter } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
 import { QUERY_KEYS } from "~/lib/query-keys";
@@ -37,6 +38,7 @@ function parseStructuralResults(
   chapters: Chapter[],
   t: ReturnType<typeof useTranslation>["t"],
   locale: "tr" | "en",
+  totalPages: number,
 ): NavResult[] {
   const q = query.trim();
   if (!q) return [];
@@ -86,7 +88,7 @@ function parseStructuralResults(
   const pageMatch = qLower.match(/^(?:sayfa|page)\s+(\d+)$/i);
   if (pageMatch) {
     const n = Number(pageMatch[1]);
-    if (n >= 1 && n <= TOTAL_PAGES) {
+    if (n >= 1 && n <= totalPages) {
       results.push({
         type: "page",
         label: `${t.common.page} ${n}`,
@@ -147,7 +149,7 @@ function parseStructuralResults(
         });
       }
     }
-    if (n >= 1 && n <= TOTAL_PAGES) {
+    if (n >= 1 && n <= totalPages) {
       results.push({
         type: "page",
         label: `${t.common.page} ${n}`,
@@ -237,7 +239,7 @@ export function CommandPalette({ onClose }: { onClose: () => void }) {
 
   // Structural (instant) results
   const navResults = useMemo(
-    () => parseStructuralResults(query, chapters, t, locale),
+    () => parseStructuralResults(query, chapters, t, locale, getTotalPages(getActiveLayout())),
     [query, chapters, t, locale],
   );
 

@@ -1,10 +1,10 @@
 import { useRef, useCallback, useEffect, type ReactNode } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { TOTAL_PAGES } from "@mahfuz/shared/constants";
 import { useDisplayPrefs } from "~/stores/useDisplayPrefs";
 import { useFocusStore } from "~/stores/useFocusStore";
 import { useWakeLock } from "~/hooks/useWakeLock";
 import { useFocusGestures } from "~/hooks/useFocusGestures";
+import { usePageLayout, getTotalPages } from "~/lib/page-layout";
 
 interface FocusLayoutProps {
   pageNumber: number;
@@ -29,6 +29,8 @@ export function FocusLayout({
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const setLastFocusPage = useFocusStore((s) => s.setLastFocusPage);
+  const layout = usePageLayout();
+  const totalPages = getTotalPages(layout);
 
   // Keep screen awake
   useWakeLock(true);
@@ -54,13 +56,13 @@ export function FocusLayout({
 
   // Navigation callbacks
   const goNext = useCallback(() => {
-    if (pageNumber < TOTAL_PAGES) {
+    if (pageNumber < totalPages) {
       navigate({
         to: "/focus/$pageNumber",
         params: { pageNumber: String(pageNumber + 1) },
       });
     }
-  }, [pageNumber, navigate]);
+  }, [pageNumber, totalPages, navigate]);
 
   const goPrev = useCallback(() => {
     if (pageNumber > 1) {

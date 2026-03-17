@@ -46,6 +46,17 @@ export async function loadQuranMeta(): Promise<QuranMeta> {
   return quranMetaJson as unknown as QuranMeta;
 }
 
+export interface BerkenarPagesData {
+  totalPages: number;
+  pages: Record<string, string[]>;
+  pageToSurahs: Record<string, number[]>;
+  verseToPage: Record<string, number>;
+}
+
+export async function loadBerkenarPages(): Promise<BerkenarPagesData> {
+  return loadJsonFile("/berkenar/pages.json");
+}
+
 export async function loadSurahText(
   surahId: number,
   textType: TextType,

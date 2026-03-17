@@ -83,6 +83,16 @@ export const QUERY_KEYS = {
     all: (userId: string) => ["badges", userId] as const,
   },
 
+  // QCF (Quran Complex Font) per-page data
+  qcfPage: (pageNumber: number) => ["qcf-page", pageNumber] as const,
+
+  // Berkenar page layout
+  berkenar: {
+    pages: () => ["berkenar", "pages"] as const,
+    versesPage: (pageNumber: number, textType: TextType) =>
+      ["berkenar-verses", "page", pageNumber, textType] as const,
+  },
+
   // Discover (static JSON)
   discover: {
     rootsIndex: () => ["discover", "roots-index"] as const,
