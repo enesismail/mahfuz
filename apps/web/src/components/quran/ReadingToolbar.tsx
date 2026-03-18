@@ -342,8 +342,8 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
   const adjustGlobalFontScale = usePreferencesStore((s) => s.adjustGlobalFontScale);
   const setGlobalFontScale = usePreferencesStore((s) => s.setGlobalFontScale);
 
-  const arabicSize = viewMode === "wordByWord" ? wbwArabicFontSize : viewMode === "mushafFlow" ? mushafArabicFontSize : normalArabicFontSize;
-  const setArabicSize = viewMode === "wordByWord" ? setWbwArabicFontSize : viewMode === "mushafFlow" ? setMushafArabicFontSize : setNormalArabicFontSize;
+  const arabicSize = viewMode === "wordByWord" ? wbwArabicFontSize : viewMode === "mushaf" ? mushafArabicFontSize : normalArabicFontSize;
+  const setArabicSize = viewMode === "wordByWord" ? setWbwArabicFontSize : viewMode === "mushaf" ? setMushafArabicFontSize : setNormalArabicFontSize;
 
   const modeOptions = getModeOptions(t);
 
@@ -443,23 +443,13 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
               <span className="-translate-y-[5px] text-[24px] leading-none text-[var(--theme-text-tertiary)]" style={{ fontFamily: 'var(--font-arabic)' }}>ع</span>
             </div>
           </div>
-          {viewMode === "mushafFlow" ? (
-            <div>
-              <div className="mb-1 flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
-                <span className="text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">%{Math.round(mushafTranslationFontSize * 100)}</span>
-              </div>
-              <CompactSlider value={mushafTranslationFontSize} onChange={setMushafTranslationFontSize} />
+          <div>
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-[12px] font-medium text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
+              <span className="text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">%{Math.round((viewMode === "mushaf" ? mushafTranslationFontSize : normalTranslationFontSize) * 100)}</span>
             </div>
-          ) : (
-            <div>
-              <div className="mb-1 flex items-center justify-between">
-                <span className="text-[12px] font-medium text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
-                <span className="text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">%{Math.round(normalTranslationFontSize * 100)}</span>
-              </div>
-              <CompactSlider value={normalTranslationFontSize} onChange={setNormalTranslationFontSize} />
-            </div>
-          )}
+            <CompactSlider value={viewMode === "mushaf" ? mushafTranslationFontSize : normalTranslationFontSize} onChange={viewMode === "mushaf" ? setMushafTranslationFontSize : setNormalTranslationFontSize} />
+          </div>
         </CategorySection>
 
         {/* Text/Translation Category */}
@@ -531,7 +521,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
               </button>
             </>
           )}
-          {viewMode === "mushafFlow" && (
+          {viewMode === "mushaf" && (
             <>
               <div className="flex items-center justify-between">
                 <span className="text-[12px] font-medium text-[var(--theme-text-secondary)]">
@@ -539,7 +529,6 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
                 </span>
                 <ToggleSwitch checked={mushafShowTranslation} onChange={setMushafShowTranslation} />
               </div>
-              <p className="text-[12px] text-[var(--theme-text-quaternary)]">{t.toolbar.mushafNote}</p>
               <div className="mt-3">
                 <div className="mb-1 flex items-center justify-between">
                   <span className="text-[12px] text-[var(--theme-text-tertiary)]">{t.toolbar.mushafTooltipSize}</span>

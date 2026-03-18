@@ -402,8 +402,8 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
         {isExpanded && (
           <div className="flex flex-wrap gap-2 px-4 pb-3 pt-0 animate-fade-in">
             <Link
-              to="/memorize/session/$surahId"
-              params={{ surahId: String(ch.id) }}
+              to="/memorize/session/$sourceType/$sourceId"
+              params={{ sourceType: "surah", sourceId: String(ch.id) }}
               className="flex items-center gap-1.5 rounded-xl bg-primary-500/10 px-3 py-1.5 text-[12px] font-medium text-primary-600 transition-colors hover:bg-primary-500/20"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -469,8 +469,8 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
         {isExpanded && (
           <div className="flex flex-wrap gap-2 px-4 pb-3 pt-0 animate-fade-in">
             <Link
-              to="/memorize/session/$surahId"
-              params={{ surahId: String(ch.id) }}
+              to="/memorize/session/$sourceType/$sourceId"
+              params={{ sourceType: "surah", sourceId: String(ch.id) }}
               className="flex items-center gap-1.5 rounded-xl bg-primary-500/10 px-3 py-1.5 text-[12px] font-medium text-primary-600 transition-colors hover:bg-primary-500/20"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

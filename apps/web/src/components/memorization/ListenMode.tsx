@@ -4,10 +4,10 @@ import type { ChapterAudioData } from "@mahfuz/audio-engine";
 import { useAudioStore } from "~/stores/useAudioStore";
 import { MemorizeWordCard } from "./MemorizeWordCard";
 import { useTranslation } from "~/hooks/useTranslation";
-import type { ModeResult, VerseResult } from "~/stores/useMemorizationStore";
+import type { MemorizeSource, ModeResult, VerseResult } from "~/stores/useMemorizationStore";
 
 interface ListenModeProps {
-  surahId: number;
+  source: MemorizeSource;
   surahName: string;
   verses: Verse[];
   audioData: ChapterAudioData;
@@ -18,7 +18,7 @@ interface ListenModeProps {
 const SPEED_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5] as const;
 
 export function ListenMode({
-  surahId,
+  source,
   surahName,
   verses,
   audioData,
@@ -48,7 +48,7 @@ export function ListenMode({
 
   // Start playing on mount
   useEffect(() => {
-    playSurah(surahId, surahName, audioData);
+    playSurah(source.id, surahName, audioData);
     return () => { stop(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -97,7 +97,7 @@ export function ListenMode({
       const totalWords = verseResults.current.reduce((s, v) => s + v.wordsTotal, 0);
       onComplete({
         mode: "listen",
-        surahId,
+        source,
         verseResults: verseResults.current,
         totalCorrect: totalWords,
         totalWords,
@@ -129,13 +129,13 @@ export function ListenMode({
     const totalWords = verseResults.current.reduce((s, v) => s + v.wordsTotal, 0);
     onComplete({
       mode: "listen",
-      surahId,
+      source,
       verseResults: verseResults.current,
       totalCorrect: totalWords,
       totalWords,
       completedAt: Date.now(),
     });
-  }, [stop, verses, surahId, onComplete]);
+  }, [stop, verses, source, onComplete]);
 
   // End-of-range detection: stop audio when sliced verseTimings range ends
   const lastTimingEndMs = audioData.verseTimings[audioData.verseTimings.length - 1]?.to ?? Infinity;

@@ -6,7 +6,7 @@ import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { chapterAudioQueryOptions } from "~/hooks/useAudio";
 import { wbwByChapterQueryOptions } from "~/hooks/useWbwData";
 import { mergeWbwIntoVerses } from "~/lib/quran-data";
-import { Bismillah, VerseList, ReadingToolbar, MushafPageImage } from "~/components/quran";
+import { Bismillah, VerseList, ReadingToolbar, MushafPageImage, QcfMealPanel } from "~/components/quran";
 import { Loading } from "~/components/ui/Loading";
 import { SegmentedControl } from "~/components/ui/SegmentedControl";
 import { usePreferencesStore } from "~/stores/usePreferencesStore";
@@ -132,6 +132,8 @@ function MushafPageView() {
   const queryClient = useQueryClient();
   const viewMode = usePreferencesStore((s) => s.viewMode);
   const setViewMode = usePreferencesStore((s) => s.setViewMode);
+  const mushafShowTranslation = usePreferencesStore((s) => s.mushafShowTranslation);
+  const setMushafShowTranslation = usePreferencesStore((s) => s.setMushafShowTranslation);
   const { t, locale } = useTranslation();
 
   const layout = usePageLayout();
@@ -162,7 +164,7 @@ function MushafPageView() {
     return Array.from(ids);
   }, [versesData.verses]);
 
-  const isMushaf = viewMode === "mushafFlow" || viewMode === "wordByWord";
+  const isMushaf = viewMode === "wordByWord";
   const wbwQueries = useQueries({
     queries: surahIdsOnPage.map((chId) => ({
       ...wbwByChapterQueryOptions(chId),
@@ -475,22 +477,68 @@ function MushafPageView() {
           </button>
         )}
 
-        {/* QCF mushaf mode (matbu eşleşen) */}
-        {viewMode === "mushaf" ? (
+        {/* QCF mushaf mode (matbu eşleşen) — Berkenar layout falls back to flowing text */}
+        {viewMode === "mushaf" && layout === "berkenar" ? (
           <>
-            {/* Desktop: show two pages side by side (odd/even spread) */}
-            {pageNum > 2 && pageNum % 2 === 1 ? (
-              <div className="mushaf-qcf-spread">
-                <MushafPageImage pageNumber={pageNum - 1} onVerseTap={handlePlayFromVerse} />
+            <div className="mb-4 rounded-xl bg-amber-500/10 px-4 py-2.5 text-[12px] text-amber-700">
+              {t.settings?.berkenarNoMushaf ?? "Berkenar düzeninde matbu mushaf görünümü desteklenmiyor. Akan metin gösteriliyor."}
+            </div>
+            {verseGroups.map((group) => (
+              <VerseList key={group.chapterId} verses={group.verses} onPlayFromVerse={handlePlayFromVerse} />
+            ))}
+          </>
+        ) : viewMode === "mushaf" ? (
+          <>
+            {/* Meal toggle button */}
+            <div className="mb-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setMushafShowTranslation(!mushafShowTranslation)}
+                title={mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
+                className="flex h-8 items-center gap-1.5 rounded-full bg-[var(--theme-pill-bg)] px-3 text-[11px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {mushafShowTranslation ? (
+                    <>
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                      <line x1="2" x2="22" y1="2" y2="22" />
+                    </>
+                  )}
+                </svg>
+                {mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
+              </button>
+            </div>
+
+            {mushafShowTranslation ? (
+              /* QCF page + meal panel side by side */
+              <div className="mushaf-qcf-spread-with-meal">
                 <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-              </div>
-            ) : pageNum > 2 && pageNum % 2 === 0 ? (
-              <div className="mushaf-qcf-spread">
-                <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-                <MushafPageImage pageNumber={pageNum + 1 <= totalPages ? pageNum + 1 : pageNum} onVerseTap={handlePlayFromVerse} />
+                <QcfMealPanel verses={translatedVerses} pageNumber={pageNum} currentVerseKey={currentVerseKey ?? undefined} />
               </div>
             ) : (
-              <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
+              /* QCF-only: two-page spread (odd/even) */
+              <>
+                {pageNum > 2 && pageNum % 2 === 1 ? (
+                  <div className="mushaf-qcf-spread">
+                    <MushafPageImage pageNumber={pageNum - 1} onVerseTap={handlePlayFromVerse} />
+                    <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
+                  </div>
+                ) : pageNum > 2 && pageNum % 2 === 0 ? (
+                  <div className="mushaf-qcf-spread">
+                    <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
+                    <MushafPageImage pageNumber={pageNum + 1 <= totalPages ? pageNum + 1 : pageNum} onVerseTap={handlePlayFromVerse} />
+                  </div>
+                ) : (
+                  <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
+                )}
+              </>
             )}
           </>
         ) : (

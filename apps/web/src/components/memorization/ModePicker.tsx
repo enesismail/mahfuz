@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "~/hooks/useTranslation";
 import { useSurahProgress } from "~/hooks/useMemorization";
-import type { MemorizeMode } from "~/stores/useMemorizationStore";
+import type { MemorizeMode, MemorizeSource } from "~/stores/useMemorizationStore";
 
 interface ModePickerProps {
-  surahId: number;
+  source: MemorizeSource;
   surahName: string;
   versesCount: number;
   userId: string;
@@ -17,9 +17,9 @@ interface ModeCard {
   bgClass: string;
 }
 
-export function ModePicker({ surahId, surahName, versesCount, userId }: ModePickerProps) {
+export function ModePicker({ source, surahName, versesCount, userId }: ModePickerProps) {
   const { t } = useTranslation();
-  const { progressMap } = useSurahProgress(userId, surahId);
+  const { progressMap } = useSurahProgress(userId, source.id);
 
   const totalCards = progressMap.size;
   const masteredCards = [...progressMap.values()].filter((p) => p.confidence === "mastered").length;
@@ -117,8 +117,8 @@ export function ModePicker({ surahId, surahName, versesCount, userId }: ModePick
             return (
               <Link
                 key={mode}
-                to="/memorize-immersive/$surahId"
-                params={{ surahId: String(surahId) }}
+                to="/memorize-immersive/$sourceType/$sourceId"
+                params={{ sourceType: source.type, sourceId: String(source.id) }}
                 className="flex items-center gap-4 rounded-2xl bg-[var(--theme-bg-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:shadow-md active:scale-[0.98]"
               >
                 <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${bgClass}`}>
@@ -142,8 +142,8 @@ export function ModePicker({ surahId, surahName, versesCount, userId }: ModePick
           return (
             <Link
               key={mode}
-              to="/memorize/mode/$surahId"
-              params={{ surahId: String(surahId) }}
+              to="/memorize/mode/$sourceType/$sourceId"
+              params={{ sourceType: source.type, sourceId: String(source.id) }}
               search={{ mode }}
               className="flex items-center gap-4 rounded-2xl bg-[var(--theme-bg-primary)] p-4 shadow-[var(--shadow-card)] transition-all hover:shadow-md active:scale-[0.98]"
             >

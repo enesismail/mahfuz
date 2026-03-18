@@ -1,16 +1,16 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import type { Verse } from "@mahfuz/shared/types";
 import { useMemorizeGestures } from "~/hooks/useMemorizeGestures";
-import type { ModeResult, VerseResult } from "~/stores/useMemorizationStore";
+import type { MemorizeSource, ModeResult, VerseResult } from "~/stores/useMemorizationStore";
 
 interface ImmersiveContentProps {
-  surahId: number;
+  source: MemorizeSource;
   verses: Verse[];
   onVerseChange: (index: number) => void;
   onComplete: (result: ModeResult) => void;
 }
 
-export function ImmersiveContent({ surahId, verses, onVerseChange, onComplete }: ImmersiveContentProps) {
+export function ImmersiveContent({ source, verses, onVerseChange, onComplete }: ImmersiveContentProps) {
   const [verseIdx, setVerseIdx] = useState(0);
   const [showMeaning, setShowMeaning] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -43,14 +43,14 @@ export function ImmersiveContent({ surahId, verses, onVerseChange, onComplete }:
       const totalWords = verseResults.current.reduce((s, v) => s + v.wordsTotal, 0);
       onComplete({
         mode: "immersive",
-        surahId,
+        source,
         verseResults: verseResults.current,
         totalCorrect: totalWords,
         totalWords,
         completedAt: Date.now(),
       });
     }
-  }, [verseIdx, verses.length, surahId, onComplete, onVerseChange, recordVerse]);
+  }, [verseIdx, verses.length, source, onComplete, onVerseChange, recordVerse]);
 
   const goPrev = useCallback(() => {
     if (verseIdx > 0) {

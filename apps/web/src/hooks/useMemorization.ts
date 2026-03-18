@@ -178,10 +178,11 @@ export function useGradeFromMode(userId: string | undefined) {
           const accuracy = vr.wordsTotal > 0 ? vr.wordsCorrect / vr.wordsTotal : 0;
           const grade = gradeFromAccuracy(accuracy, result.mode);
 
-          // Get or create card
+          // Get or create card — extract surahId from verseKey for lookup
+          const surahIdFromKey = Number(vr.verseKey.split(":")[0]);
           let entries = await memorizationRepository.getCardsBySurah(
             userId,
-            result.surahId,
+            surahIdFromKey,
           );
           let entry = entries.find((e) => e.verseKey === vr.verseKey);
 

@@ -1,5 +1,5 @@
 import { queryOptions, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { QUERY_KEYS } from "~/lib/query-keys";
 
 // --- Types ---
@@ -12,6 +12,8 @@ export interface QcfWord {
   line_number: number;
   verse_key: string;
   char_type_name: "word" | "end" | "pause";
+  translation?: { text: string; language_name: string };
+  transliteration?: { text: string; language_name: string };
 }
 
 export interface QcfVerse {
@@ -53,7 +55,7 @@ export function getQcfFontFamily(pageNumber: number): string {
 
 async function fetchQcfPage(pageNumber: number): Promise<QcfPageData> {
   const res = await fetch(
-    `https://api.quran.com/api/v4/verses/by_page/${pageNumber}?words=true&word_fields=code_v2,line_number&per_page=50&mushaf=1`,
+    `https://api.quran.com/api/v4/verses/by_page/${pageNumber}?words=true&word_fields=code_v2,line_number,translation,transliteration&per_page=50&mushaf=1`,
   );
   if (!res.ok) throw new Error(`QCF API error: ${res.status}`);
   const json = await res.json();
@@ -70,6 +72,8 @@ async function fetchQcfPage(pageNumber: number): Promise<QcfPageData> {
       line_number: w.line_number ?? 1,
       verse_key: v.verse_key,
       char_type_name: w.char_type_name ?? "word",
+      translation: w.translation ?? undefined,
+      transliteration: w.transliteration ?? undefined,
     })),
   }));
 
@@ -111,4 +115,58 @@ export function useQcfPreload(pageNumber: number) {
       loadQcfFont(p).catch(() => {});
     }
   }, [pageNumber, queryClient]);
+}
+
+// --- Batch preload for surah pages ---
+
+/**
+ * Preload multiple QCF pages (font + data) with throttling.
+ * First page is assumed already loaded; remaining are batched
+ * via requestIdleCallback with max 2 concurrent.
+ */
+export function useQcfBatchPreload(pages: number[]) {
+  const queryClient = useQueryClient();
+  const preloadedRef = useRef(new Set<number>());
+
+  useEffect(() => {
+    if (pages.length <= 1) return;
+    const remaining = pages.slice(1).filter(
+      (p) => p >= 1 && p <= 604 && !preloadedRef.current.has(p),
+    );
+    if (remaining.length === 0) return;
+
+    let cancelled = false;
+    let active = 0;
+    let idx = 0;
+
+    function preloadNext() {
+      if (cancelled || idx >= remaining.length) return;
+      while (active < 2 && idx < remaining.length) {
+        const p = remaining[idx++];
+        active++;
+        preloadedRef.current.add(p);
+        Promise.all([
+          queryClient.prefetchQuery(qcfPageQueryOptions(p)),
+          loadQcfFont(p).catch(() => {}),
+        ]).finally(() => {
+          active--;
+          if (!cancelled) {
+            if (typeof requestIdleCallback !== "undefined") {
+              requestIdleCallback(() => preloadNext());
+            } else {
+              setTimeout(preloadNext, 100);
+            }
+          }
+        });
+      }
+    }
+
+    if (typeof requestIdleCallback !== "undefined") {
+      requestIdleCallback(() => preloadNext());
+    } else {
+      setTimeout(preloadNext, 200);
+    }
+
+    return () => { cancelled = true; };
+  }, [pages.join(","), queryClient]); // eslint-disable-line react-hooks/exhaustive-deps
 }

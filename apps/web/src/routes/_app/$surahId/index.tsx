@@ -8,7 +8,8 @@ import { versesByChapterQueryOptions } from "~/hooks/useVerses";
 import { wbwByChapterQueryOptions } from "~/hooks/useWbwData";
 import { mergeWbwIntoVerses } from "~/lib/quran-data";
 import { chapterAudioQueryOptions } from "~/hooks/useAudio";
-import { VerseList, MushafPageImage } from "~/components/quran";
+import { useQcfBatchPreload } from "~/hooks/useQcfPage";
+import { VerseList, MushafPageImage, QcfMealPanel } from "~/components/quran";
 import { Loading } from "~/components/ui/Loading";
 import { Skeleton } from "~/components/ui/Skeleton";
 import { TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
@@ -110,6 +111,8 @@ function SurahView() {
   const [modeOpen, setModeOpen] = useState(false);
   const viewMode = usePreferencesStore((s) => s.viewMode);
   const setViewMode = usePreferencesStore((s) => s.setViewMode);
+  const mushafShowTranslation = usePreferencesStore((s) => s.mushafShowTranslation);
+  const setMushafShowTranslation = usePreferencesStore((s) => s.setMushafShowTranslation);
   const { t, locale } = useTranslation();
 
   const viewModeOptions = useMemo(() => ([
@@ -123,6 +126,7 @@ function SurahView() {
   const playbackState = useAudioStore((s) => s.playbackState);
   const audioChapterId = useAudioStore((s) => s.chapterId);
   const togglePlayPause = useAudioStore((s) => s.togglePlayPause);
+  const currentVerseKey = useAudioStore((s) => s.currentVerseKey);
 
   const { data: chapter } = useSuspenseQuery(chapterQueryOptions(chapterId));
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
@@ -137,6 +141,13 @@ function SurahView() {
     [versesData.verses, wbwData],
   );
   const translatedVerses = useTranslatedVerses(versesWithWords);
+
+  // Batch preload QCF pages for mushaf mode
+  const surahPages = useMemo(
+    () => Array.from({ length: chapter.pages[1] - chapter.pages[0] + 1 }, (_, i) => chapter.pages[0] + i),
+    [chapter.pages],
+  );
+  useQcfBatchPreload(viewMode === "mushaf" ? surahPages : []);
 
   // Scroll to verse from ?verse= search param is handled by VerseList's scrollToVerse prop
   // Audio auto-scroll is handled inside VirtualizedVerseList (uses virtualizer.scrollToIndex)
@@ -434,12 +445,45 @@ function SurahView() {
         {/* Content: QCF pages for mushaf mode, flowing text otherwise */}
         {viewMode === "mushaf" ? (
           <div className="space-y-4">
+            {/* Meal toggle */}
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setMushafShowTranslation(!mushafShowTranslation)}
+                title={mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
+                className="flex h-8 items-center gap-1.5 rounded-full bg-[var(--theme-pill-bg)] px-3 text-[11px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {mushafShowTranslation ? (
+                    <>
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </>
+                  ) : (
+                    <>
+                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
+                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
+                      <line x1="2" x2="22" y1="2" y2="22" />
+                    </>
+                  )}
+                </svg>
+                {mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
+              </button>
+            </div>
             {Array.from(
               { length: chapter.pages[1] - chapter.pages[0] + 1 },
               (_, i) => chapter.pages[0] + i,
-            ).map((pageNum) => (
-              <MushafPageImage key={pageNum} pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-            ))}
+            ).map((pageNum) =>
+              mushafShowTranslation ? (
+                <div key={pageNum} className="mushaf-qcf-spread-with-meal">
+                  <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
+                  <QcfMealPanel verses={translatedVerses} pageNumber={pageNum} currentVerseKey={currentVerseKey ?? undefined} />
+                </div>
+              ) : (
+                <MushafPageImage key={pageNum} pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
+              )
+            )}
           </div>
         ) : (
           <VerseList

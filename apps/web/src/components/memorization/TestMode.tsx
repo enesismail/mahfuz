@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import type { Verse } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
-import type { ModeResult, VerseResult, WordResult } from "~/stores/useMemorizationStore";
+import type { MemorizeSource, ModeResult, VerseResult, WordResult } from "~/stores/useMemorizationStore";
 
 // Fallback Arabic words for distractor generation
 const FALLBACK_WORDS = [
@@ -66,13 +66,13 @@ interface WordMeta {
 }
 
 interface TestModeProps {
-  surahId: number;
+  source: MemorizeSource;
   verses: Verse[];
   onVerseChange: (index: number) => void;
   onComplete: (result: ModeResult) => void;
 }
 
-export function TestMode({ surahId, verses, onVerseChange, onComplete }: TestModeProps) {
+export function TestMode({ source, verses, onVerseChange, onComplete }: TestModeProps) {
   const { t } = useTranslation();
 
   // Stable verse keys — only recompute blanks when verse_keys actually change (not WBW enrichment)
@@ -110,7 +110,7 @@ export function TestMode({ surahId, verses, onVerseChange, onComplete }: TestMod
   const blanks: BlankSlot[] = useMemo(() => {
     if (allWords.length === 0) return [];
 
-    const rand = mulberry32(surahId * 31337 + allWords.length);
+    const rand = mulberry32(source.id * 31337 + allWords.length);
     const totalWords = allWords.length;
     const blankRatio = totalWords <= 20 ? 0.4 : 0.25;
     let blankCount = Math.max(1, Math.round(totalWords * blankRatio));
@@ -182,7 +182,7 @@ export function TestMode({ surahId, verses, onVerseChange, onComplete }: TestMod
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [verseKeysStr, surahId]); // stable key — won't recompute on WBW enrichment
+  }, [verseKeysStr, source.id]); // stable key — won't recompute on WBW enrichment
 
   const [currentBlankIdx, setCurrentBlankIdx] = useState(0);
   const [answers, setAnswers] = useState<Map<number, { selected: string; correct: boolean }>>(new Map());
@@ -275,7 +275,7 @@ export function TestMode({ surahId, verses, onVerseChange, onComplete }: TestMod
 
             onComplete({
               mode: "test",
-              surahId,
+              source,
               verseResults,
               totalCorrect,
               totalWords,
@@ -287,7 +287,7 @@ export function TestMode({ surahId, verses, onVerseChange, onComplete }: TestMod
         }
       }, delay);
     },
-    [blanks, surahId, onComplete],
+    [blanks, source, onComplete],
   );
 
   if (blanks.length === 0) {

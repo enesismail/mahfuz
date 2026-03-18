@@ -8,6 +8,8 @@ import type {
 // --- New mode-aware types ---
 export type MemorizeMode = "learn" | "listen" | "test" | "type" | "immersive";
 export type SessionPhase = "idle" | "selecting" | "active" | "results";
+export type MemorizeSourceType = "surah" | "page" | "juz";
+export interface MemorizeSource { type: MemorizeSourceType; id: number }
 
 export interface WordResult {
   wordPosition: number;
@@ -27,7 +29,7 @@ export interface VerseResult {
 
 export interface ModeResult {
   mode: MemorizeMode;
-  surahId: number;
+  source: MemorizeSource;
   verseResults: VerseResult[];
   totalCorrect: number;
   totalWords: number;
@@ -38,7 +40,7 @@ interface MemorizationStoreState {
   // Mode session
   phase: SessionPhase;
   activeMode: MemorizeMode | null;
-  activeSurahId: number | null;
+  activeSource: MemorizeSource | null;
   currentVerseIndex: number;
   totalVerses: number;
   wordResults: WordResult[];
@@ -53,7 +55,7 @@ interface MemorizationStoreState {
   reviewCardsPerDay: number;
 
   // Actions
-  startMode: (mode: MemorizeMode, surahId: number, totalVerses: number) => void;
+  startMode: (mode: MemorizeMode, source: MemorizeSource, totalVerses: number) => void;
   advanceVerse: () => void;
   setCurrentVerse: (index: number) => void;
   recordWordResult: (result: WordResult) => void;
@@ -70,7 +72,7 @@ export const useMemorizationStore = create<MemorizationStoreState>()(
       // Session state
       phase: "idle",
       activeMode: null,
-      activeSurahId: null,
+      activeSource: null,
       currentVerseIndex: 0,
       totalVerses: 0,
       wordResults: [],
@@ -82,11 +84,11 @@ export const useMemorizationStore = create<MemorizationStoreState>()(
       newCardsPerDay: 5,
       reviewCardsPerDay: 20,
 
-      startMode: (mode, surahId, totalVerses) =>
+      startMode: (mode, source, totalVerses) =>
         set({
           phase: "active",
           activeMode: mode,
-          activeSurahId: surahId,
+          activeSource: source,
           currentVerseIndex: 0,
           totalVerses,
           wordResults: [],
@@ -124,7 +126,7 @@ export const useMemorizationStore = create<MemorizationStoreState>()(
         set({
           phase: "idle",
           activeMode: null,
-          activeSurahId: null,
+          activeSource: null,
           currentVerseIndex: 0,
           totalVerses: 0,
           wordResults: [],

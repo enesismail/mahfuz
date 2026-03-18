@@ -781,6 +781,42 @@ body {
   }
 }
 
+/* Desktop QCF spread with meal panel */
+.mushaf-qcf-spread-with-meal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: start;
+}
+.mushaf-qcf-spread-with-meal .mushaf-qcf-line {
+  font-size: clamp(0.85rem, 2.2vw, 1.35rem);
+  line-height: 2.2;
+}
+.mushaf-qcf-spread-with-meal .mushaf-qcf-content {
+  padding: 0.75rem 0.5rem;
+}
+@media (max-width: 1023px) {
+  .mushaf-qcf-spread-with-meal {
+    grid-template-columns: 1fr;
+  }
+  .mushaf-qcf-spread-with-meal .mushaf-qcf-line {
+    font-size: clamp(1.4rem, 4.5vw, 2rem);
+    line-height: 2.4;
+  }
+  .mushaf-qcf-spread-with-meal .mushaf-qcf-content {
+    padding: 1rem 0.75rem;
+  }
+}
+/* Meal panel within QCF spread */
+.mushaf-qcf-meal-panel {
+  padding: 1rem;
+  max-height: 85vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* ═══ Mushaf Spread: Two-page layout (Arabic + Meal) ═══ */
 
 .mushaf-spread {

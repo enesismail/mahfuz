@@ -1,10 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Verse, Word } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
-import type { ModeResult, VerseResult } from "~/stores/useMemorizationStore";
+import type { MemorizeSource, ModeResult, VerseResult } from "~/stores/useMemorizationStore";
 
 interface TypeModeProps {
-  surahId: number;
+  source: MemorizeSource;
   verses: Verse[];
   onVerseChange: (index: number) => void;
   onComplete: (result: ModeResult) => void;
@@ -24,7 +24,7 @@ function getVerseWords(verse: Verse): Word[] {
   return verse.words?.filter((w) => w.char_type_name === "word") || [];
 }
 
-export function TypeMode({ surahId, verses, onVerseChange, onComplete }: TypeModeProps) {
+export function TypeMode({ source, verses, onVerseChange, onComplete }: TypeModeProps) {
   const { t } = useTranslation();
   const [verseIdx, setVerseIdx] = useState(0);
   const [input, setInput] = useState("");
@@ -111,7 +111,7 @@ export function TypeMode({ surahId, verses, onVerseChange, onComplete }: TypeMod
         const totalWords = verseResults.current.reduce((s, v) => s + v.wordsTotal, 0);
         onComplete({
           mode: "type",
-          surahId,
+          source,
           verseResults: verseResults.current,
           totalCorrect,
           totalWords,
@@ -119,7 +119,7 @@ export function TypeMode({ surahId, verses, onVerseChange, onComplete }: TypeMod
         });
       }
     },
-    [verse, words, input, verseIdx, verses.length, surahId, onComplete, onVerseChange],
+    [verse, words, input, verseIdx, verses.length, source, onComplete, onVerseChange],
   );
 
   const handleSubmit = useCallback(() => {

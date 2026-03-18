@@ -2,16 +2,16 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import type { Verse } from "@mahfuz/shared/types";
 import { MemorizeWordCard } from "./MemorizeWordCard";
 import { useTranslation } from "~/hooks/useTranslation";
-import type { ModeResult, VerseResult } from "~/stores/useMemorizationStore";
+import type { MemorizeSource, ModeResult, VerseResult } from "~/stores/useMemorizationStore";
 
 interface LearnModeProps {
-  surahId: number;
+  source: MemorizeSource;
   verses: Verse[];
   onVerseChange: (index: number) => void;
   onComplete: (result: ModeResult) => void;
 }
 
-export function LearnMode({ surahId, verses, onVerseChange, onComplete }: LearnModeProps) {
+export function LearnMode({ source, verses, onVerseChange, onComplete }: LearnModeProps) {
   const { t } = useTranslation();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [startTime] = useState(Date.now());
@@ -51,14 +51,14 @@ export function LearnMode({ surahId, verses, onVerseChange, onComplete }: LearnM
       const totalWords = verseResults.current.reduce((s, v) => s + v.wordsTotal, 0);
       onComplete({
         mode: "learn",
-        surahId,
+        source,
         verseResults: verseResults.current,
         totalCorrect: totalWords,
         totalWords,
         completedAt: Date.now(),
       });
     }
-  }, [currentIdx, verses.length, surahId, onComplete, onVerseChange, completeCurrentVerse, scrollToVerse]);
+  }, [currentIdx, verses.length, source, onComplete, onVerseChange, completeCurrentVerse, scrollToVerse]);
 
   const goPrev = useCallback(() => {
     if (currentIdx > 0) {

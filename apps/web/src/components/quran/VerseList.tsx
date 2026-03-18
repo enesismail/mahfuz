@@ -3,8 +3,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import type { Verse } from "@mahfuz/shared/types";
 import { AyahText } from "./AyahText";
 import { Bismillah } from "./Bismillah";
-import { MushafView } from "./MushafView";
-import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import { useAudioStore } from "~/stores/useAudioStore";
 
 /** Surahs that do NOT get a Bismillah prefix (Al-Fatiha has it as verse 1, At-Tawbah has none) */
@@ -25,12 +23,6 @@ export function VerseList({
   onTogglePlayPause,
   scrollToVerse,
 }: VerseListProps) {
-  const viewMode = usePreferencesStore((s) => s.viewMode);
-
-  if (viewMode === "mushafFlow") {
-    return <MushafView verses={verses} showBismillah={showBismillah} />;
-  }
-
   return (
     <VirtualizedVerseList
       verses={verses}
