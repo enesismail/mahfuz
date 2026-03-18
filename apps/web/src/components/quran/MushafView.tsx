@@ -8,6 +8,22 @@ import { useTranslation } from "~/hooks/useTranslation";
 /** Surahs that do NOT get a Bismillah prefix */
 const NO_BISMILLAH_SURAHS = new Set([1, 9]);
 
+/** Reusable tezhip frame wrapper — same ornate structure as MushafPageImage */
+function TezhipFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mushaf-page mushaf-page--spread">
+      <div className="mushaf-cetvel-outer">
+        <div className="mushaf-tezhip-band">
+          <div className="mushaf-hatayi-pattern" />
+          <div className="mushaf-cetvel-inner">
+            <div className="mushaf-content">{children}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 interface SelectedWord {
   wordId: number;
   verseKey: string;
@@ -72,13 +88,14 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
 
   return (
     <div className="relative">
-      {/* Meal toggle button */}
+      {/* Meal toggle button — icon only */}
       <button
         type="button"
         onClick={toggleTranslation}
-        className="absolute right-2 top-2 z-10 flex items-center gap-1.5 rounded-lg border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--theme-text-secondary)] shadow-sm transition-colors hover:bg-[var(--theme-hover-bg)]"
+        title={mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
+        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full text-[var(--theme-text-quaternary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text-secondary)]"
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           {mushafShowTranslation ? (
             <>
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
@@ -93,22 +110,23 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
             </>
           )}
         </svg>
-        {mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
       </button>
 
       <div className="mushaf-spread" ref={containerRef} onClick={handleContainerClick}>
         {/* Arabic page — right on desktop, first on mobile */}
         <div className="mushaf-spread-page mushaf-spread-arabic">
-          <ArabicPage
-            verses={verses}
-            showBismillah={showBismillah}
-            colorizeWords={colorizeWords}
-            colors={colors}
-            fontSize={mushafArabicFontSize}
-            selectedWord={selectedWord}
-            onSelectWord={handleWordSelect}
-            onHoverWord={handleWordHover}
-          />
+          <TezhipFrame>
+            <ArabicPage
+              verses={verses}
+              showBismillah={showBismillah}
+              colorizeWords={colorizeWords}
+              colors={colors}
+              fontSize={mushafArabicFontSize}
+              selectedWord={selectedWord}
+              onSelectWord={handleWordSelect}
+              onHoverWord={handleWordHover}
+            />
+          </TezhipFrame>
         </div>
 
         {/* Spine divider + Translation page — hidden when mushafShowTranslation is off */}
@@ -116,21 +134,23 @@ export function MushafView({ verses, showBismillah = true }: MushafViewProps) {
           <>
             <div className="mushaf-spread-spine" />
             <div className="mushaf-spread-page mushaf-spread-meal">
-              {hasTranslations ? (
-                <MealPage
-                  verses={verses}
-                  fontSize={mushafTranslationFontSize}
-                  selectedWord={selectedWord}
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center px-6">
-                  <p className="text-center text-[13px] text-[var(--theme-text-quaternary)]">
-                    {selectedTranslations.length === 0
-                      ? t.toolbar.mushafNoTranslation
-                      : t.toolbar.mushafNote}
-                  </p>
-                </div>
-              )}
+              <TezhipFrame>
+                {hasTranslations ? (
+                  <MealPage
+                    verses={verses}
+                    fontSize={mushafTranslationFontSize}
+                    selectedWord={selectedWord}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center px-6">
+                    <p className="text-center text-[13px] text-[var(--theme-text-quaternary)]">
+                      {selectedTranslations.length === 0
+                        ? t.toolbar.mushafNoTranslation
+                        : t.toolbar.mushafNote}
+                    </p>
+                  </div>
+                )}
+              </TezhipFrame>
             </div>
           </>
         )}

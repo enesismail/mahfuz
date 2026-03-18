@@ -758,17 +758,19 @@ body {
   display: flex;
   max-width: 1200px;
   margin: 0 auto;
-  background: var(--mushaf-paper);
-  border-radius: 6px;
-  box-shadow: var(--mushaf-shadow);
   min-height: 400px;
-  overflow: hidden;
+  gap: 0;
 }
 
 .mushaf-spread-page {
   flex: 1 1 50%;
-  padding: 2rem 2.5rem;
   min-width: 0;
+}
+
+/* Inside spread, mushaf-page fills its column instead of being 640px centered */
+.mushaf-page--spread {
+  max-width: none;
+  margin: 0;
 }
 
 /* Desktop (≥768px): Arabic right (order:1), Meal left (order:0) */
@@ -783,14 +785,11 @@ body {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    border-radius: 0;
-    box-shadow: none;
     max-width: none;
   }
   .mushaf-spread-page {
     flex: 0 0 100%;
     scroll-snap-align: start;
-    padding: 1.25rem 1.25rem;
   }
   /* Arabic first, Meal second on mobile */
   .mushaf-spread-arabic { order: 0; }

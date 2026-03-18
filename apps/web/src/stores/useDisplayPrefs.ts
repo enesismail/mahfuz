@@ -7,5 +7,5 @@ export const useDisplayPrefs = createPreferenceStore("mahfuz-display-prefs", {
   arabicFontId: "scheherazade-new",
   colorizeWords: false,
   colorPaletteId: "pastel" as ColorPaletteId,
-  textType: "uthmani" as "uthmani" | "simple",
+  textType: "simple" as "uthmani" | "simple",
 });

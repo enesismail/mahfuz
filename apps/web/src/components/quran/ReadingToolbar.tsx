@@ -335,6 +335,9 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
   const wbwTransliterationFirst = usePreferencesStore((s) => s.wbwTransliterationFirst);
   const setWbwTransliterationFirst = usePreferencesStore((s) => s.setWbwTransliterationFirst);
 
+  const mushafShowTranslation = usePreferencesStore((s) => s.mushafShowTranslation);
+  const setMushafShowTranslation = usePreferencesStore((s) => s.setMushafShowTranslation);
+
   const globalFontScale = usePreferencesStore((s) => s.globalFontScale);
   const adjustGlobalFontScale = usePreferencesStore((s) => s.adjustGlobalFontScale);
   const setGlobalFontScale = usePreferencesStore((s) => s.setGlobalFontScale);
@@ -530,6 +533,12 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
           )}
           {viewMode === "mushaf" && (
             <>
+              <div className="flex items-center justify-between">
+                <span className="text-[12px] font-medium text-[var(--theme-text-secondary)]">
+                  {mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
+                </span>
+                <ToggleSwitch checked={mushafShowTranslation} onChange={setMushafShowTranslation} />
+              </div>
               <p className="text-[12px] text-[var(--theme-text-quaternary)]">{t.toolbar.mushafNote}</p>
               <div className="mt-3">
                 <div className="mb-1 flex items-center justify-between">

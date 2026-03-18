@@ -122,7 +122,7 @@ export const usePreferencesStore = create<PreferencesState>()(
       mushafTooltipTextSize: 1,
       wbwPopupTextSize: 1,
       globalFontScale: 1,
-      textType: "uthmani",
+      textType: "simple",
       showLearnTab: true,
       showMemorizeTab: true,
       sidebarCollapsed: false,

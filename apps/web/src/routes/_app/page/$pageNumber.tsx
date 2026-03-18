@@ -509,7 +509,7 @@ function MushafPageView() {
                 <div key={group.chapterId}>
                   {/* Surah divider for multi-surah pages */}
                   {(groupIndex > 0 || isNewSurah) && group.chapter && (
-                    <div className="mb-4 mt-8 text-center first:mt-0">
+                    <div className={`mb-6 text-center ${groupIndex > 0 ? "mt-14" : "mt-0"}`}>
                       <Link
                         to="/$surahId"
                         params={{ surahId: String(group.chapterId) }}
