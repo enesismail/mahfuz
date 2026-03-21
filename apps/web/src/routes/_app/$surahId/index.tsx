@@ -36,6 +36,7 @@ export const Route = createFileRoute("/_app/$surahId/")({
   validateSearch: (search: Record<string, unknown>) => ({
     verse: search.verse ? Number(search.verse) : undefined,
     topic: typeof search.topic === "string" ? search.topic : undefined,
+    lock: search.lock === true || search.lock === "true" || search.lock === "1" ? true : undefined,
   }),
   loader: ({ context, params }) => {
     const chapterId = Number(params.surahId);
@@ -106,7 +107,7 @@ const VIEW_MODE_ICONS: Record<string, React.ReactNode> = {
 
 function SurahView() {
   const { surahId } = Route.useParams();
-  const { verse: verseParam, topic: topicParam } = Route.useSearch();
+  const { verse: verseParam, topic: topicParam, lock: lockParam } = Route.useSearch();
   const chapterId = Number(surahId);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -114,27 +115,30 @@ function SurahView() {
   const [modeOpen, setModeOpen] = useState(false);
 
   // Lock mode — prevents scroll & accidental navigation (for child Quran lessons)
-  const [lockMode, setLockMode] = useState(false);
+  const [lockMode, setLockMode] = useState(!!lockParam);
   const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lockProgress, setLockProgress] = useState(false); // visual feedback during long-press
+  const [lockPickerOpen, setLockPickerOpen] = useState(false);
+  const [lockVerseNum, setLockVerseNum] = useState<number | null>(null);
 
-  // Disable scroll on parent <main> when locked
+  // Scroll to verse when changed via lock mode controls
   useEffect(() => {
-    if (!lockMode) return;
-    // Find the scrollable main ancestor
-    const main = document.querySelector("main");
-    if (!main) return;
-    main.style.overflow = "hidden";
-    return () => { main.style.overflow = ""; };
-  }, [lockMode]);
+    if (!lockMode || lockVerseNum === null) return;
+    const el = document.querySelector(`[data-verse-key="${chapterId}:${lockVerseNum}"]`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [lockMode, lockVerseNum, chapterId]);
 
   const handleLockUnlockStart = useCallback(() => {
     setLockProgress(true);
     lockTimerRef.current = setTimeout(() => {
       setLockMode(false);
       setLockProgress(false);
+      setLockVerseNum(null);
+      navigate({ search: (prev: Record<string, unknown>) => { const { lock: _, ...rest } = prev; return rest; }, replace: true });
     }, 1500);
-  }, []);
+  }, [navigate]);
 
   const handleLockUnlockEnd = useCallback(() => {
     if (lockTimerRef.current) {
@@ -451,7 +455,11 @@ function SurahView() {
 
             {/* Lock mode toggle */}
             <button
-              onClick={() => setLockMode(true)}
+              onClick={() => {
+                setLockMode(true);
+                setLockVerseNum(null);
+                navigate({ search: (prev: Record<string, unknown>) => ({ ...prev, lock: true }), replace: true });
+              }}
               className="inline-flex items-center gap-1 rounded-full bg-[var(--theme-hover-bg)] px-3 py-1.5 text-[11px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-pill-bg)] active:scale-[0.97]"
             >
               <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
@@ -600,14 +608,57 @@ function SurahView() {
       {/* Lock mode overlay */}
       {lockMode && (
         <>
-          {/* Top banner */}
-          <div className="fixed inset-x-0 top-0 z-50 flex items-center justify-center gap-2 bg-amber-500/95 px-4 py-2 text-[12px] font-medium text-white backdrop-blur-sm">
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0110 0v4" />
-            </svg>
-            {t.quranReader.lockModeActive}
-            <span className="ml-1 opacity-70">— {t.quranReader.lockModeHint}</span>
+          {/* Top banner with navigation controls */}
+          <div className="fixed inset-x-0 top-0 z-50 bg-amber-500/95 backdrop-blur-sm">
+            {/* Status row */}
+            <div className="flex items-center justify-center gap-2 px-4 py-2 text-[12px] font-medium text-white">
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+              {t.quranReader.lockModeActive}
+              <span className="ml-1 opacity-70">— {t.quranReader.lockModeHint}</span>
+            </div>
+            {/* Navigation row */}
+            <div className="flex items-center justify-between border-t border-white/20 px-4 py-2">
+              {/* Surah picker */}
+              <button
+                type="button"
+                onClick={() => setLockPickerOpen(true)}
+                className="flex items-center gap-1.5 rounded-lg bg-white/20 px-3 py-1.5 text-[12px] font-semibold text-white transition-colors hover:bg-white/30 active:scale-[0.97]"
+              >
+                <span className="arabic-text text-[14px]">{chapter.name_arabic}</span>
+                <svg className="h-3 w-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 6l4 4 4-4" />
+                </svg>
+              </button>
+              {/* Verse navigation */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setLockVerseNum((v) => Math.max(1, (v ?? 1) - 1))}
+                  disabled={lockVerseNum !== null && lockVerseNum <= 1}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30 disabled:opacity-40"
+                >
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+                <span className="min-w-[4.5rem] text-center text-[12px] font-semibold tabular-nums text-white">
+                  {t.quranReader.verseLabel} {lockVerseNum ?? 1} / {chapter.verses_count}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setLockVerseNum((v) => Math.min(chapter.verses_count, (v ?? 1) + 1))}
+                  disabled={lockVerseNum !== null && lockVerseNum >= chapter.verses_count}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white transition-colors hover:bg-white/30 disabled:opacity-40"
+                >
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18l6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Touch shield — blocks scroll and navigation but allows word taps through */}
@@ -634,20 +685,17 @@ function SurahView() {
           >
             <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
               {lockProgress ? (
-                // Unlocking animation icon
                 <>
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 019.9-1" />
                 </>
               ) : (
-                // Locked icon
                 <>
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0110 0v4" />
                 </>
               )}
             </svg>
-            {/* Progress ring */}
             {lockProgress && (
               <svg className="absolute inset-0 h-full w-full -rotate-90" viewBox="0 0 56 56">
                 <circle
@@ -659,6 +707,24 @@ function SurahView() {
               </svg>
             )}
           </button>
+
+          {/* Surah picker dialog in lock mode */}
+          <Dialog open={lockPickerOpen} onOpenChange={setLockPickerOpen}>
+            <DialogContent>
+              <SurahPicker
+                currentChapterId={chapterId}
+                chapters={chapters}
+                t={t}
+                locale={locale}
+                onSelect={(id) => {
+                  setLockPickerOpen(false);
+                  setLockVerseNum(null);
+                  navigate({ to: "/$surahId", params: { surahId: String(id) }, search: { lock: true } });
+                }}
+                onClose={() => setLockPickerOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </>
       )}
     </div>

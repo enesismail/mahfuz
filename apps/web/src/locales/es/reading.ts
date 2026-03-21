@@ -46,6 +46,8 @@ export const readingMessages = {
     lockModeActive: "Pantalla bloqueada",
     lockModeHint: "Mantén pulsado para desbloquear",
     lockModeUnlock: "Desbloquear",
+    lockSelectSurah: "Seleccionar sura",
+    lockGoToVerse: "Ir a la aleya",
     makkah: "Mequí",
     madinah: "Medinense",
   },

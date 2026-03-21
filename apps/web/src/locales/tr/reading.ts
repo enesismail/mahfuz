@@ -48,6 +48,8 @@ export const readingMessages = {
     lockModeActive: "Ekran kilitli",
     lockModeHint: "Açmak için kilide uzun basın",
     lockModeUnlock: "Kilidi Aç",
+    lockSelectSurah: "Sure Seç",
+    lockGoToVerse: "Ayete Git",
   },
 
   reading: {
