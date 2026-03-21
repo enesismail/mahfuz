@@ -28,6 +28,7 @@ import type { TopicEntry } from "~/data/topic-index-expanded";
 import { EXPANDED_TOPIC_INDEX } from "~/data/topic-index-expanded";
 import { useTranslation } from "~/hooks/useTranslation";
 import { getSurahName } from "~/lib/surah-name";
+import { useI18nStore } from "~/stores/useI18nStore";
 import { FocusModeIcon } from "~/components/focus/FocusIcons";
 import { AddToReadingListButton } from "~/components/browse/AddToReadingListButton";
 
@@ -68,10 +69,12 @@ export const Route = createFileRoute("/_app/$surahId/")({
   head: ({ loaderData }) => {
     const chapter = loaderData?.[0];
     if (!chapter) return {};
+    const locale = useI18nStore.getState().locale;
+    const name = getSurahName(chapter.id, chapter.translated_name.name, locale);
     return {
       meta: [
         {
-          title: `${chapter.translated_name.name} (${chapter.name_simple}) | Mahfuz`,
+          title: `${name} (${chapter.name_arabic}) | Mahfuz`,
         },
       ],
     };
