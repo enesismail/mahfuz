@@ -51,6 +51,7 @@ export const media = {
     perVerse: "Per verse",
     nVerses: "{n} verses",
     memorizeSurahs: "Memorization Surahs",
+    suggestedSurahs: "Suggested Surahs",
   },
 
   focus: {

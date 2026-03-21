@@ -51,6 +51,7 @@ export const media = {
     perVerse: "Ayet ayet",
     nVerses: "{n}'er ayet",
     memorizeSurahs: "Ezber Sureleri",
+    suggestedSurahs: "Önerilen Sureler",
   },
 
   focus: {
