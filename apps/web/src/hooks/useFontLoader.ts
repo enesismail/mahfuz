@@ -45,7 +45,8 @@ export function useFontLoader() {
       injectGoogleFont(font.googleUrl);
     }
 
-    const arabicFontSize = getArabicFontSizeForMode({ viewMode, normalArabicFontSize, wbwArabicFontSize, mushafArabicFontSize });
+    const showWordByWord = usePreferencesStore.getState().showWordByWord;
+    const arabicFontSize = getArabicFontSizeForMode({ viewMode, showWordByWord, normalArabicFontSize, wbwArabicFontSize, mushafArabicFontSize });
     const translationFontSize = getTranslationFontSizeForMode({ viewMode, normalTranslationFontSize, mushafTranslationFontSize });
 
     const html = document.documentElement;

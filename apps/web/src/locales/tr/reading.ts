@@ -28,8 +28,7 @@ export const readingMessages = {
     moreActions: "Daha fazla",
     goToVerseDetail: "Ayet detayına git",
     viewModes: {
-      normal: "Normal",
-      wordByWord: "Kelime",
+      metin: "Metin",
       mushaf: "Mushaf",
     },
     juzLoading: "Cüz yükleniyor...",
@@ -69,6 +68,8 @@ export const readingMessages = {
     wordTranslationLabel: "Kelime Çevirisi",
     wordTranslationSubtitle: "Her kelimenin anlamı",
     swapOrder: "Sırayı Değiştir",
+    wordByWordLabel: "Kelime Kelime",
+    wordByWordSubtitle: "Her kelimenin çevirisi ve okunuşunu göster",
   },
 
   toolbar: {

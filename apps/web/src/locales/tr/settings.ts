@@ -17,8 +17,7 @@ export const settingsMessages = {
     transliteration: "Okunuş (Transliterasyon)",
     transliterationSize: "Okunuş Boyutu",
     viewModes: {
-      normal: "Normal",
-      wordByWord: "Kelime",
+      metin: "Metin",
       mushaf: "Mushaf",
     },
     language: "Dil",

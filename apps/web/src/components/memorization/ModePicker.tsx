@@ -29,30 +29,30 @@ export function ModePicker({ source, surahName, versesCount, userId, practice }:
   const modes: ModeCard[] = [
     {
       mode: "learn",
-      colorClass: "text-blue-600",
-      bgClass: "bg-blue-500/10",
+      colorClass: "text-[var(--theme-text-secondary)]",
+      bgClass: "bg-[var(--theme-hover-bg)]",
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-600">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--theme-text-secondary)]">
           <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
         </svg>
       ),
     },
     {
       mode: "listen",
-      colorClass: "text-purple-600",
-      bgClass: "bg-purple-500/10",
+      colorClass: "text-[var(--theme-text-secondary)]",
+      bgClass: "bg-[var(--theme-hover-bg)]",
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-purple-600">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--theme-text-secondary)]">
           <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
         </svg>
       ),
     },
     {
       mode: "test",
-      colorClass: "text-emerald-600",
-      bgClass: "bg-emerald-500/10",
+      colorClass: "text-[var(--theme-text-secondary)]",
+      bgClass: "bg-[var(--theme-hover-bg)]",
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-600">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--theme-text-secondary)]">
           <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           <path d="M9 14l2 2 4-4" />
         </svg>
@@ -60,20 +60,20 @@ export function ModePicker({ source, surahName, versesCount, userId, practice }:
     },
     {
       mode: "type",
-      colorClass: "text-amber-600",
-      bgClass: "bg-amber-500/10",
+      colorClass: "text-[var(--theme-text-secondary)]",
+      bgClass: "bg-[var(--theme-hover-bg)]",
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-amber-600">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--theme-text-secondary)]">
           <rect x="2" y="6" width="20" height="12" rx="2" /><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8" />
         </svg>
       ),
     },
     {
       mode: "immersive",
-      colorClass: "text-slate-600",
-      bgClass: "bg-slate-500/10",
+      colorClass: "text-[var(--theme-text-secondary)]",
+      bgClass: "bg-[var(--theme-hover-bg)]",
       icon: (
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-600">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[var(--theme-text-secondary)]">
           <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
         </svg>
       ),

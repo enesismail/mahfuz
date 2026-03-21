@@ -88,6 +88,7 @@ function SettingCard({ icon, iconBg, label, subtitle, checked, onChange, childre
 
 function PreviewCard({ verse }: { verse: Verse }) {
   const viewMode = usePreferencesStore((s) => s.viewMode);
+  const showWordByWord = usePreferencesStore((s) => s.showWordByWord);
   const normalShowTranslation = usePreferencesStore((s) => s.normalShowTranslation);
   const wbwShowTranslation = usePreferencesStore((s) => s.wbwShowTranslation);
   const colorizeWords = usePreferencesStore((s) => s.colorizeWords);
@@ -104,7 +105,8 @@ function PreviewCard({ verse }: { verse: Verse }) {
   const normalTranslationFontSize = usePreferencesStore((s) => s.normalTranslationFontSize);
   const mushafTranslationFontSize = usePreferencesStore((s) => s.mushafTranslationFontSize);
 
-  const arabicScale = getArabicFontSizeForMode({ viewMode, normalArabicFontSize, wbwArabicFontSize, mushafArabicFontSize });
+  const isWbw = viewMode === "metin" && showWordByWord;
+  const arabicScale = getArabicFontSizeForMode({ viewMode, showWordByWord, normalArabicFontSize, wbwArabicFontSize, mushafArabicFontSize });
   const translationScale = getTranslationFontSizeForMode({ viewMode, normalTranslationFontSize, mushafTranslationFontSize });
 
   const wordItems = verse.words?.filter((w) => w.char_type_name === "word") || [];
@@ -114,7 +116,7 @@ function PreviewCard({ verse }: { verse: Verse }) {
   // .arabic-text already applies: font-size: calc(1em * var(--arabic-font-scale, 1))
   // .translation-text applies: font-size: calc(1em * var(--translation-font-scale, 1))
 
-  if (viewMode === "wordByWord") {
+  if (isWbw) {
     return (
       <div className="mb-4 h-[240px] overflow-y-auto overscroll-contain rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-5">
         <div dir="rtl" className="flex flex-wrap justify-end gap-x-4 gap-y-3">
@@ -153,7 +155,7 @@ function PreviewCard({ verse }: { verse: Verse }) {
           <span key={w.id} style={{ color: colorOf(i) }}>{w.text_uthmani}{" "}</span>
         ))}
       </p>
-      {viewMode === "normal" && normalShowTranslation && verse.translations?.[0] && (
+      {viewMode === "metin" && normalShowTranslation && verse.translations?.[0] && (
         <p className="translation-text mt-4 border-l-2 border-[var(--theme-translation-accent)] pl-3 leading-[1.7] text-[var(--theme-text-secondary)]" dangerouslySetInnerHTML={{ __html: verse.translations[0].text }} />
       )}
     </div>
@@ -165,12 +167,8 @@ function PreviewCard({ verse }: { verse: Verse }) {
 function getModeOptions(t: ReturnType<typeof useTranslation>["t"]): { value: ViewMode; label: string; icon: React.ReactNode }[] {
   return [
     {
-      value: "normal", label: t.settings.viewModes.normal,
+      value: "metin", label: t.settings.viewModes.metin,
       icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h7M3 12h10" /></svg>,
-    },
-    {
-      value: "wordByWord", label: t.settings.viewModes.wordByWord,
-      icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1.5" y="3" width="4" height="4.5" rx="1" /><rect x="7.5" y="3" width="4" height="4.5" rx="1" /><rect x="1.5" y="9.5" width="4" height="4.5" rx="1" /><rect x="7.5" y="9.5" width="4" height="4.5" rx="1" /></svg>,
     },
     {
       value: "mushaf", label: t.settings.viewModes.mushaf,
@@ -297,6 +295,8 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
   // All preferences
   const viewMode = usePreferencesStore((s) => s.viewMode);
   const setViewMode = usePreferencesStore((s) => s.setViewMode);
+  const showWordByWord = usePreferencesStore((s) => s.showWordByWord);
+  const setShowWordByWord = usePreferencesStore((s) => s.setShowWordByWord);
   const arabicFontId = usePreferencesStore((s) => s.arabicFontId);
   const setArabicFont = usePreferencesStore((s) => s.setArabicFont);
   const colorizeWords = usePreferencesStore((s) => s.colorizeWords);
@@ -347,8 +347,9 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
   const adjustGlobalFontScale = usePreferencesStore((s) => s.adjustGlobalFontScale);
   const setGlobalFontScale = usePreferencesStore((s) => s.setGlobalFontScale);
 
-  const arabicSize = viewMode === "wordByWord" ? wbwArabicFontSize : viewMode === "mushaf" ? mushafArabicFontSize : normalArabicFontSize;
-  const setArabicSize = viewMode === "wordByWord" ? setWbwArabicFontSize : viewMode === "mushaf" ? setMushafArabicFontSize : setNormalArabicFontSize;
+  const isWbw = viewMode === "metin" && showWordByWord;
+  const arabicSize = isWbw ? wbwArabicFontSize : viewMode === "mushaf" ? mushafArabicFontSize : normalArabicFontSize;
+  const setArabicSize = isWbw ? setWbwArabicFontSize : viewMode === "mushaf" ? setMushafArabicFontSize : setNormalArabicFontSize;
 
   const modeOptions = getModeOptions(t);
 
@@ -503,7 +504,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
               <span className="text-[12px] font-medium text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
               <span className="text-[11px] tabular-nums text-[var(--theme-text-quaternary)]">%{Math.round((viewMode === "mushaf" ? mushafTranslationFontSize : normalTranslationFontSize) * 100)}</span>
             </div>
-            <CompactSlider value={viewMode === "mushaf" ? mushafTranslationFontSize : normalTranslationFontSize} onChange={viewMode === "mushaf" ? setMushafTranslationFontSize : setNormalTranslationFontSize} />
+            <CompactSlider value={viewMode === "mushaf" ? mushafTranslationFontSize : normalTranslationFontSize} onChange={(viewMode === "mushaf" ? setMushafTranslationFontSize : setNormalTranslationFontSize)} />
           </div>
         </CategorySection>
 
@@ -512,7 +513,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
           title={t.toolbar.textCategory}
           icon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round"><path d="M3 5h12M3 10h8M3 15h10M3 20h6" /></svg>}
         >
-          {viewMode === "normal" && (
+          {viewMode === "metin" && (
             <>
               <SettingCard
                 icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h6M3 12h8" /></svg>}
@@ -544,36 +545,39 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
                   </div>
                 </div>
               </SettingCard>
-            </>
-          )}
-          {viewMode === "wordByWord" && (
-            <>
-              {(wbwTransliterationFirst
-                ? [
-                    { key: "tl", label: t.reading.transliterationLabel, subtitle: t.reading.transliterationSubtitle, checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
-                    { key: "tr", label: t.reading.wordTranslationLabel, subtitle: t.reading.wordTranslationSubtitle, checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
-                  ]
-                : [
-                    { key: "tr", label: t.reading.wordTranslationLabel, subtitle: t.reading.wordTranslationSubtitle, checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
-                    { key: "tl", label: t.reading.transliterationLabel, subtitle: t.reading.transliterationSubtitle, checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
-                  ]
-              ).map((item) => (
-                <SettingCard key={item.key} icon={item.icon} iconBg={item.iconBg} label={item.label} subtitle={item.subtitle} checked={item.checked} onChange={item.onChange}>
-                  <CompactSlider value={item.size} onChange={item.onSize} />
-                </SettingCard>
-              ))}
+              {/* WBW toggle */}
               <SettingCard
-                icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h6M3 12h8" /></svg>}
-                iconBg="bg-blue-500" label={t.reading.translation} subtitle={t.reading.translationSubtitle}
-                checked={wbwShowTranslation} onChange={setWbwShowTranslation}
+                icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><rect x="1.5" y="3" width="4" height="4.5" rx="1" /><rect x="7.5" y="3" width="4" height="4.5" rx="1" /><rect x="1.5" y="9.5" width="4" height="4.5" rx="1" /><rect x="7.5" y="9.5" width="4" height="4.5" rx="1" /></svg>}
+                iconBg="bg-indigo-500" label={t.reading.wordByWordLabel ?? "Kelime Kelime"} subtitle={t.reading.wordByWordSubtitle ?? "Her kelimenin çevirisi ve okunuşunu göster"}
+                checked={showWordByWord} onChange={setShowWordByWord}
               >
-                <TranslationPicker compact />
+                {(wbwTransliterationFirst
+                  ? [
+                      { key: "tl", label: t.reading.transliterationLabel, subtitle: t.reading.transliterationSubtitle, checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
+                      { key: "tr", label: t.reading.wordTranslationLabel, subtitle: t.reading.wordTranslationSubtitle, checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
+                    ]
+                  : [
+                      { key: "tr", label: t.reading.wordTranslationLabel, subtitle: t.reading.wordTranslationSubtitle, checked: wbwShowWordTranslation, onChange: setWbwShowWordTranslation, size: wordTranslationSize, onSize: setWordTranslationSize, iconBg: "bg-emerald-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"><rect x="1.5" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="9" y="2" width="5.5" height="5.5" rx="1.5" /><rect x="1.5" y="9.5" width="5.5" height="5" rx="1.5" /><rect x="9" y="9.5" width="5.5" height="5" rx="1.5" /></svg> },
+                      { key: "tl", label: t.reading.transliterationLabel, subtitle: t.reading.transliterationSubtitle, checked: wbwShowWordTransliteration, onChange: setWbwShowWordTransliteration, size: wordTransliterationSize, onSize: setWordTransliterationSize, iconBg: "bg-purple-500", icon: <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M1.5 12L4 3.5h1L7.5 12" /><path d="M2.8 9.5h3.4" /><path d="M14 12V8.5a2 2 0 1 0-4 0V12" /></svg> },
+                    ]
+                ).map((item) => (
+                  <SettingCard key={item.key} icon={item.icon} iconBg={item.iconBg} label={item.label} subtitle={item.subtitle} checked={item.checked} onChange={item.onChange}>
+                    <CompactSlider value={item.size} onChange={item.onSize} />
+                  </SettingCard>
+                ))}
+                <SettingCard
+                  icon={<svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M3 4h10M3 8h6M3 12h8" /></svg>}
+                  iconBg="bg-blue-500" label={t.reading.translation} subtitle={t.reading.translationSubtitle}
+                  checked={wbwShowTranslation} onChange={setWbwShowTranslation}
+                >
+                  <TranslationPicker compact />
+                </SettingCard>
+                <button type="button" onClick={() => setWbwTransliterationFirst(!wbwTransliterationFirst)}
+                  className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--theme-bg-primary)] px-3 py-2 text-[12px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]">
+                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M7 4v16M7 4l-4 4M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4" /></svg>
+                  {t.reading.swapOrder}
+                </button>
               </SettingCard>
-              <button type="button" onClick={() => setWbwTransliterationFirst(!wbwTransliterationFirst)}
-                className="mt-1 flex w-full items-center justify-center gap-1.5 rounded-xl bg-[var(--theme-bg-primary)] px-3 py-2 text-[12px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]">
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M7 4v16M7 4l-4 4M7 4l4 4M17 20V4M17 20l-4-4M17 20l4-4" /></svg>
-                {t.reading.swapOrder}
-              </button>
             </>
           )}
           {viewMode === "mushaf" && (

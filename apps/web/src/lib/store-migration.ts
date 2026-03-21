@@ -61,9 +61,13 @@ export function migrateV1ToV2(): void {
       textType: s.textType ?? "uthmani",
     });
 
-    // Reading prefs
+    // Reading prefs — map old "wordByWord"/"normal" → "metin"
+    const oldVm = s.viewMode ?? "normal";
+    const migratedViewMode = oldVm === "mushaf" ? "mushaf" : "metin";
+    const migratedShowWbw = oldVm === "wordByWord";
     writeZustandStore("mahfuz-reading-prefs", {
-      viewMode: s.viewMode ?? "normal",
+      viewMode: migratedViewMode,
+      showWordByWord: migratedShowWbw,
       selectedTranslations: s.selectedTranslations ?? ["omer-celik"],
       normalShowTranslation: s.normalShowTranslation ?? true,
       normalShowWordHover: s.normalShowWordHover ?? true,

@@ -29,6 +29,7 @@ export const AyahText = memo(function AyahText({
   // Consolidated preferences selector — single subscription instead of 8
   const prefs = usePreferencesStore(useShallow((s) => ({
     viewMode: s.viewMode,
+    showWordByWord: s.showWordByWord,
     colorizeWords: s.colorizeWords,
     colorPaletteId: s.colorPaletteId,
     normalArabicFontSize: s.normalArabicFontSize,
@@ -43,7 +44,8 @@ export const AyahText = memo(function AyahText({
 
   const colors = getActiveColors({ colorPaletteId: prefs.colorPaletteId });
   const viewMode = viewModeProp ?? prefs.viewMode;
-  const showTranslation = viewMode === "wordByWord" ? prefs.wbwShowTranslation : prefs.normalShowTranslation;
+  const isWbw = viewMode === "metin" && prefs.showWordByWord;
+  const showTranslation = isWbw ? prefs.wbwShowTranslation : prefs.normalShowTranslation;
 
   // Audio selectors — only re-render when THIS verse's audio state changes
   const isCurrentVerse = useAudioStore((s) => s.currentVerseKey === verse.verse_key);
@@ -296,7 +298,7 @@ export const AyahText = memo(function AyahText({
       </div>
       {/* Arabic text with inline end-of-ayah marker */}
       <div className="mb-5" dir="rtl">
-        {viewMode === "wordByWord" && verse.words ? (
+        {isWbw && verse.words ? (
           <WordByWord
             words={verse.words}
             colorizeWords={prefs.colorizeWords}

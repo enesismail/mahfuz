@@ -1,5 +1,5 @@
 export type Theme = "light" | "crystal" | "sepia" | "dark" | "dimmed" | "teal" | "black";
-export type ViewMode = "normal" | "wordByWord" | "mushaf";
+export type ViewMode = "metin" | "mushaf";
 
 export const THEME_OPTIONS: { value: Theme; color: string; border: string }[] = [
   { value: "light", color: "#ffffff", border: "#d2d2d7" },
@@ -76,6 +76,7 @@ export interface ReadingPreset {
   overrides: {
     theme?: Theme;
     viewMode?: ViewMode;
+    showWordByWord?: boolean;
     arabicFontSize?: number;
     showTranslation?: boolean;
     wbwShowWordTranslation?: boolean;
@@ -108,7 +109,7 @@ export const READING_PRESETS: ReadingPreset[] = [
   },
   {
     id: "study",
-    overrides: { viewMode: "wordByWord", wbwShowWordTranslation: true, wbwShowWordTransliteration: true, wbwShowGrammar: true },
+    overrides: { viewMode: "metin", showWordByWord: true, wbwShowWordTranslation: true, wbwShowWordTransliteration: true, wbwShowGrammar: true },
   },
   {
     id: "mushaf",
@@ -116,6 +117,6 @@ export const READING_PRESETS: ReadingPreset[] = [
   },
   {
     id: "default",
-    overrides: { theme: "sepia", viewMode: "normal", arabicFontSize: 1.65, showTranslation: true },
+    overrides: { theme: "sepia", viewMode: "metin", arabicFontSize: 1.65, showTranslation: true },
   },
 ];

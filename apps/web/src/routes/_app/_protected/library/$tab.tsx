@@ -113,12 +113,6 @@ function LibraryPage() {
 
 // ── Courses Tab ──────────────────────────────────────────────
 
-const LEVEL_SECTION_COLORS: Record<number, { accent: string; bar: string; badge: string }> = {
-  1: { accent: "text-blue-600 dark:text-blue-400", bar: "bg-blue-500", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400" },
-  2: { accent: "text-violet-600 dark:text-violet-400", bar: "bg-violet-500", badge: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400" },
-  3: { accent: "text-amber-600 dark:text-amber-400", bar: "bg-amber-500", badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" },
-  4: { accent: "text-emerald-600 dark:text-emerald-400", bar: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" },
-};
 
 function CoursesTab({ userId }: { userId: string }) {
   const { t } = useTranslation();
@@ -199,7 +193,7 @@ function CoursesTab({ userId }: { userId: string }) {
           <span className="text-[12px] text-[var(--theme-text-tertiary)]">
             {t.learn.levels.currentLevel}:
           </span>
-          <span className={`text-[13px] font-semibold ${LEVEL_SECTION_COLORS[selectedLearnLevel]?.accent || "text-[var(--theme-text)]"}`}>
+          <span className="text-[13px] font-semibold text-[var(--theme-text)]">
             {resolveNestedKey(t.learn as Record<string, any>, LEVELS[selectedLearnLevel - 1]?.titleKey || "") || ""}
           </span>
         </div>
@@ -232,7 +226,6 @@ function CoursesTab({ userId }: { userId: string }) {
             const lp = levelProgress[level.id];
             const progress = lp.total > 0 ? Math.round((lp.completed / lp.total) * 100) : 0;
             const isComplete = lp.completed >= lp.total && lp.total > 0;
-            const color = LEVEL_SECTION_COLORS[level.id];
             const title = resolveNestedKey(t.learn as Record<string, any>, level.titleKey) || level.titleKey;
             const desc = resolveNestedKey(t.learn as Record<string, any>, level.descriptionKey) || level.descriptionKey;
 
@@ -243,7 +236,7 @@ function CoursesTab({ userId }: { userId: string }) {
                   <span className="text-[20px]">{level.icon}</span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h3 className={`text-[16px] font-bold ${color.accent}`}>
+                      <h3 className="text-[16px] font-bold text-[var(--theme-text)]">
                         {title}
                       </h3>
                       {isComplete && (
@@ -262,7 +255,7 @@ function CoursesTab({ userId }: { userId: string }) {
                 {/* Level progress bar */}
                 <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-[var(--theme-bg)]">
                   <div
-                    className={`h-full rounded-full transition-all ${isComplete ? "bg-emerald-500" : color.bar}`}
+                    className={`h-full rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-primary-600"}`}
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -290,11 +283,7 @@ function CoursesTab({ userId }: { userId: string }) {
                   <Link
                     to="/learn/level/$levelId/exam"
                     params={{ levelId: String(level.id) }}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-[14px] font-medium transition-all hover:shadow-sm active:scale-[0.97] ${
-                      isComplete
-                        ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
-                        : "border-[var(--theme-border)] bg-[var(--theme-bg-primary)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)]"
-                    }`}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-4 py-3 text-[14px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-hover-bg)] hover:shadow-sm active:scale-[0.97]"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -304,7 +293,7 @@ function CoursesTab({ userId }: { userId: string }) {
                   <Link
                     to="/learn/level/$levelId/practice"
                     params={{ levelId: String(level.id) }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-4 py-3 text-[14px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-hover-bg)] hover:shadow-sm active:scale-[0.97]"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-4 py-3 text-[14px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-hover-bg)] hover:shadow-sm active:scale-[0.97]"
                   >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -347,7 +336,7 @@ function TracksTab({ userId }: { userId: string }) {
       {/* Stats bar */}
       <div className="mb-6 flex items-center gap-4 rounded-2xl bg-[var(--theme-bg-primary)] p-4 shadow-[var(--shadow-card)]">
         <div className="flex-1 text-center">
-          <p className="text-xl font-bold text-amber-500">{questStats.wordsLearned}</p>
+          <p className="text-xl font-bold text-primary-600">{questStats.wordsLearned}</p>
           <p className="text-[11px] text-[var(--theme-text-tertiary)]">{t.learn.quests.wordsLearnedLabel}</p>
         </div>
         <div className="h-8 w-px bg-[var(--theme-border)]" />

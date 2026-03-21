@@ -11,16 +11,6 @@ interface LibraryCourseCardProps {
   isUnlocked: boolean;
 }
 
-const STAGE_COLORS = [
-  { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", bar: "bg-blue-500" },
-  { bg: "bg-violet-100 dark:bg-violet-900/30", text: "text-violet-700 dark:text-violet-400", bar: "bg-violet-500" },
-  { bg: "bg-rose-100 dark:bg-rose-900/30", text: "text-rose-700 dark:text-rose-400", bar: "bg-rose-500" },
-  { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400", bar: "bg-amber-500" },
-  { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-400", bar: "bg-emerald-500" },
-  { bg: "bg-cyan-100 dark:bg-cyan-900/30", text: "text-cyan-700 dark:text-cyan-400", bar: "bg-cyan-500" },
-  { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400", bar: "bg-orange-500" },
-  { bg: "bg-teal-100 dark:bg-teal-900/30", text: "text-teal-700 dark:text-teal-400", bar: "bg-teal-500" },
-];
 
 export function LibraryCourseCard({
   stageId,
@@ -35,7 +25,6 @@ export function LibraryCourseCard({
   const isComplete = completedCount >= lessonCount && lessonCount > 0;
   const title = resolveNestedKey(t.learn as Record<string, any>, titleKey) || titleKey;
   const description = resolveNestedKey(t.learn as Record<string, any>, descriptionKey) || descriptionKey;
-  const color = STAGE_COLORS[(stageId - 1) % STAGE_COLORS.length];
 
   const card = (
     <div
@@ -48,7 +37,7 @@ export function LibraryCourseCard({
       }`}
     >
       {/* Color band top */}
-      <div className={`h-1.5 w-full ${isComplete ? "bg-emerald-500" : isUnlocked ? color.bar : "bg-[var(--theme-border)]"}`} />
+      <div className={`h-1.5 w-full ${isComplete ? "bg-emerald-500" : isUnlocked ? "bg-primary-600" : "bg-[var(--theme-border)]"}`} />
 
       <div className="flex flex-1 flex-col p-4">
         {/* Icon / number */}
@@ -58,7 +47,7 @@ export function LibraryCourseCard({
               isComplete
                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400"
                 : isUnlocked
-                  ? `${color.bg} ${color.text}`
+                  ? "bg-primary-600/10 text-primary-700 dark:text-primary-400"
                   : "bg-[var(--theme-hover-bg)] text-[var(--theme-text-quaternary)]"
             }`}
           >
@@ -105,7 +94,7 @@ export function LibraryCourseCard({
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-[var(--theme-bg)]">
                 <div
-                  className={`h-full rounded-full transition-all ${isComplete ? "bg-emerald-500" : color.bar}`}
+                  className={`h-full rounded-full transition-all ${isComplete ? "bg-emerald-500" : "bg-primary-600"}`}
                   style={{ width: `${progress}%` }}
                 />
               </div>

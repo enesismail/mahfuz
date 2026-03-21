@@ -13,6 +13,8 @@ import { TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
 import { useTranslation } from "~/hooks/useTranslation";
 import { getSurahName } from "~/lib/surah-name";
 import { useReadingHistory } from "~/stores/useReadingHistory";
+import { useReadingStats } from "~/stores/useReadingStats";
+import { useSwipeNavigation } from "~/hooks/useSwipeNavigation";
 
 import type { ChapterAudioData } from "@mahfuz/audio-engine";
 
@@ -36,57 +38,6 @@ export const Route = createFileRoute("/_app/$surahId/$verseNum")({
   },
   component: VerseReaderView,
 });
-
-/* Swipe hook (from $pageNumber.tsx pattern) */
-
-function useSwipeNavigation(
-  ref: React.RefObject<HTMLElement | null>,
-  { onSwipeLeft, onSwipeRight }: { onSwipeLeft: () => void; onSwipeRight: () => void },
-) {
-  const pointerStart = useRef<{ x: number; y: number; time: number } | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const SWIPE_THRESHOLD = 50;
-    const MAX_VERTICAL_RATIO = 1.5;
-
-    function onPointerDown(e: globalThis.PointerEvent) {
-      if (e.pointerType === "touch" || e.pointerType === "mouse") {
-        pointerStart.current = { x: e.clientX, y: e.clientY, time: Date.now() };
-      }
-    }
-
-    function onPointerUp(e: globalThis.PointerEvent) {
-      if (!pointerStart.current) return;
-      const dx = e.clientX - pointerStart.current.x;
-      const dy = e.clientY - pointerStart.current.y;
-      const elapsed = Date.now() - pointerStart.current.time;
-      pointerStart.current = null;
-
-      if (elapsed > 500) return;
-      if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-      if (Math.abs(dy) > Math.abs(dx) * MAX_VERTICAL_RATIO) return;
-
-      if (dx > 0) onSwipeRight();
-      else onSwipeLeft();
-    }
-
-    function onPointerCancel() {
-      pointerStart.current = null;
-    }
-
-    el.addEventListener("pointerdown", onPointerDown);
-    el.addEventListener("pointerup", onPointerUp);
-    el.addEventListener("pointercancel", onPointerCancel);
-    return () => {
-      el.removeEventListener("pointerdown", onPointerDown);
-      el.removeEventListener("pointerup", onPointerUp);
-      el.removeEventListener("pointercancel", onPointerCancel);
-    };
-  }, [ref, onSwipeLeft, onSwipeRight]);
-}
 
 /* Main Component */
 
@@ -210,11 +161,13 @@ function VerseReaderView() {
     }
   }, [surah, verseNum, hasNext, queryClient]);
 
-  // Track verse-level reading
+  // Track verse-level reading + page for khatam
   const visitVerse = useReadingHistory((s) => s.visitVerse);
+  const markPageRead = useReadingStats((s) => s.markPageRead);
   useEffect(() => {
     visitVerse(surah, verseNum, getSurahName(chapter.id, chapter.translated_name.name, locale));
-  }, [surah, verseNum, visitVerse, chapter, locale]);
+    if (verse.page_number) markPageRead(verse.page_number);
+  }, [surah, verseNum, visitVerse, chapter, locale, verse.page_number, markPageRead]);
 
   // Audio
   const fetchChapterAudio = useCallback(async (): Promise<ChapterAudioData> => {

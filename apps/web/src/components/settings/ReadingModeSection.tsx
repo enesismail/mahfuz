@@ -4,7 +4,7 @@ import { TranslationPicker } from "~/components/quran/TranslationPicker";
 import { useTranslation } from "~/hooks/useTranslation";
 import { SettingsLabel, ToggleSwitch } from "./SettingsShared";
 
-type ReadingModeTab = "normal" | "wordByWord" | "mushaf";
+type ReadingModeTab = "metin" | "mushaf";
 
 function getSampleData(textType: string) {
   const isUthmani = textType === "uthmani";
@@ -92,8 +92,7 @@ export function ReadingModeSection({
   const { t } = useTranslation();
 
   const READING_MODE_OPTIONS: { value: ReadingModeTab; label: string }[] = [
-    { value: "normal", label: t.settings.viewModes.normal },
-    { value: "wordByWord", label: t.settings.viewModes.wordByWord },
+    { value: "metin", label: t.settings.viewModes.metin },
     { value: "mushaf", label: t.settings.viewModes.mushaf },
   ];
 
@@ -101,23 +100,15 @@ export function ReadingModeSection({
     <>
       <SegmentedControl options={READING_MODE_OPTIONS} value={readingModeTab} onChange={onReadingModeTabChange} stretch />
       <div className="mt-5">
-        {readingModeTab === "normal" && (
-          <NormalTabContent
+        {readingModeTab === "metin" && (
+          <MetinTabContent
             fontFamily={fontFamily}
-            arabicFontSize={normalArabicFontSize}
+            normalArabicFontSize={normalArabicFontSize}
             translationFontSize={normalTranslationFontSize}
-            onArabicSizeChange={onNormalArabicSizeChange}
+            onNormalArabicSizeChange={onNormalArabicSizeChange}
             onTranslationSizeChange={onNormalTranslationSizeChange}
-            colorizeWords={colorizeWords}
-            colors={colors}
-            textType={textType}
-          />
-        )}
-        {readingModeTab === "wordByWord" && (
-          <WbwTabContent
-            fontFamily={fontFamily}
-            arabicFontSize={wbwArabicFontSize}
-            onArabicSizeChange={onWbwArabicSizeChange}
+            wbwArabicFontSize={wbwArabicFontSize}
+            onWbwArabicSizeChange={onWbwArabicSizeChange}
             colorizeWords={colorizeWords}
             colors={colors}
             showWordTranslation={wbwShowWordTranslation}
@@ -150,24 +141,44 @@ export function ReadingModeSection({
   );
 }
 
-// ─── Normal tab ─────────────────────────────────────────────────────
-function NormalTabContent({
+// ─── Metin tab (Normal + WBW combined) ──────────────────────────────
+function MetinTabContent({
   fontFamily,
-  arabicFontSize,
+  normalArabicFontSize,
   translationFontSize,
-  onArabicSizeChange,
+  onNormalArabicSizeChange,
   onTranslationSizeChange,
+  wbwArabicFontSize,
+  onWbwArabicSizeChange,
   colorizeWords,
   colors,
+  showWordTranslation,
+  showWordTransliteration,
+  wordTranslationSize,
+  wordTransliterationSize,
+  onShowWordTranslationChange,
+  onShowWordTransliterationChange,
+  onWordTranslationSizeChange,
+  onWordTransliterationSizeChange,
   textType,
 }: {
   fontFamily: string;
-  arabicFontSize: number;
+  normalArabicFontSize: number;
   translationFontSize: number;
-  onArabicSizeChange: (v: number) => void;
+  onNormalArabicSizeChange: (v: number) => void;
   onTranslationSizeChange: (v: number) => void;
+  wbwArabicFontSize: number;
+  onWbwArabicSizeChange: (v: number) => void;
   colorizeWords: boolean;
   colors: string[];
+  showWordTranslation: boolean;
+  showWordTransliteration: boolean;
+  wordTranslationSize: number;
+  wordTransliterationSize: number;
+  onShowWordTranslationChange: (v: boolean) => void;
+  onShowWordTransliterationChange: (v: boolean) => void;
+  onWordTranslationSizeChange: (v: number) => void;
+  onWordTransliterationSizeChange: (v: number) => void;
   textType: string;
 }) {
   const { t } = useTranslation();
@@ -181,7 +192,14 @@ function NormalTabContent({
   const setNormalHoverShowTransliteration = usePreferencesStore((s) => s.setNormalHoverShowTransliteration);
   const normalHoverTextSize = usePreferencesStore((s) => s.normalHoverTextSize);
   const setNormalHoverTextSize = usePreferencesStore((s) => s.setNormalHoverTextSize);
+  const showWordByWord = usePreferencesStore((s) => s.showWordByWord);
+  const setShowWordByWord = usePreferencesStore((s) => s.setShowWordByWord);
+  const wbwShowTranslation = usePreferencesStore((s) => s.wbwShowTranslation);
+  const setWbwShowTranslation = usePreferencesStore((s) => s.setWbwShowTranslation);
   const { sampleWords } = getSampleData(textType);
+
+  const arabicFontSize = showWordByWord ? wbwArabicFontSize : normalArabicFontSize;
+  const onArabicSizeChange = showWordByWord ? onWbwArabicSizeChange : onNormalArabicSizeChange;
 
   const fontStyle = {
     fontFamily: `${fontFamily}, "Traditional Arabic", serif`,
@@ -202,17 +220,24 @@ function NormalTabContent({
   return (
     <>
       {/* Preview */}
-      <div className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-5 py-4">
-        <p className="text-[var(--theme-text)]" dir="rtl" style={fontStyle}>
-          {sampleWords.map(renderWord)}
-        </p>
-        <p
-          className="mt-2 font-sans text-[var(--theme-text-secondary)]"
-          style={{ fontSize: `calc(15px * ${translationFontSize})`, lineHeight: 1.8 }}
-        >
-          {t.settings.sampleTranslation}
-        </p>
-      </div>
+      {showWordByWord ? (
+        <div className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-4">
+          <div className="flex flex-wrap justify-end gap-x-5 gap-y-3" dir="rtl">
+            {sampleWords.map((word, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <span className="text-xl" dir="rtl" style={{ fontFamily: `${fontFamily}, "Traditional Arabic", serif`, fontSize: `calc(1.5rem * ${wbwArabicFontSize})`, color: colorizeWords ? colors[i % colors.length] : "var(--theme-text)" }}>{word}</span>
+                {showWordTranslation && <span className="font-sans text-[var(--theme-text-tertiary)]" style={{ fontSize: `calc(11px * ${wordTranslationSize})` }}>{SAMPLE_WORD_TRANSLATIONS[i]}</span>}
+                {showWordTransliteration && <span className="font-sans text-[var(--theme-text-quaternary)]" style={{ fontSize: `calc(10px * ${wordTransliterationSize})` }}>{SAMPLE_WORD_TRANSLITERATIONS[i]}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-5 py-4">
+          <p className="text-[var(--theme-text)]" dir="rtl" style={fontStyle}>{sampleWords.map(renderWord)}</p>
+          <p className="mt-2 font-sans text-[var(--theme-text-secondary)]" style={{ fontSize: `calc(15px * ${translationFontSize})`, lineHeight: 1.8 }}>{t.settings.sampleTranslation}</p>
+        </div>
+      )}
 
       {/* Arabic size slider */}
       <div className="mt-5">
@@ -222,262 +247,124 @@ function NormalTabContent({
         </div>
         <div className="mt-2 flex items-center gap-3">
           <span className="arabic-text text-sm text-[var(--theme-text-tertiary)]">ع</span>
-          <input
-            type="range" min="0.6" max="5.0" step="0.05"
-            value={arabicFontSize}
-            onChange={(e) => onArabicSizeChange(Number(e.target.value))}
-            className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600"
-          />
+          <input type="range" min="0.6" max="5.0" step="0.05" value={arabicFontSize} onChange={(e) => onArabicSizeChange(Number(e.target.value))} className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600" />
           <span className="arabic-text text-xl text-[var(--theme-text-tertiary)]">ع</span>
         </div>
       </div>
 
       {/* Translation size slider */}
-      <div className="mt-5">
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.translationSize}</span>
-          <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(translationFontSize * 100)}</span>
+      {!showWordByWord && (
+        <div className="mt-5">
+          <div className="flex items-center justify-between">
+            <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.translationSize}</span>
+            <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(translationFontSize * 100)}</span>
+          </div>
+          <div className="mt-2 flex items-center gap-3">
+            <span className="text-xs text-[var(--theme-text-tertiary)]">A</span>
+            <input type="range" min="0.6" max="5.0" step="0.05" value={translationFontSize} onChange={(e) => onTranslationSizeChange(Number(e.target.value))} className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600" />
+            <span className="text-lg text-[var(--theme-text-tertiary)]">A</span>
+          </div>
         </div>
-        <div className="mt-2 flex items-center gap-3">
-          <span className="text-xs text-[var(--theme-text-tertiary)]">A</span>
-          <input
-            type="range" min="0.6" max="5.0" step="0.05"
-            value={translationFontSize}
-            onChange={(e) => onTranslationSizeChange(Number(e.target.value))}
-            className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600"
-          />
-          <span className="text-lg text-[var(--theme-text-tertiary)]">A</span>
-        </div>
-      </div>
+      )}
 
       {/* Translation toggle */}
       <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
         <div className="flex items-center justify-between">
           <div>
             <SettingsLabel>{t.settings.showTranslation}</SettingsLabel>
-            <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
-              {t.settings.showTranslationDesc}
-            </p>
+            <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.showTranslationDesc}</p>
           </div>
-          <ToggleSwitch checked={normalShowTranslation} onChange={setNormalShowTranslation} />
+          <ToggleSwitch checked={showWordByWord ? wbwShowTranslation : normalShowTranslation} onChange={showWordByWord ? setWbwShowTranslation : setNormalShowTranslation} />
         </div>
-
-        {normalShowTranslation && (
+        {(showWordByWord ? wbwShowTranslation : normalShowTranslation) && (
           <div className="mt-4">
             <SettingsLabel>{t.settings.translationSelection}</SettingsLabel>
-            <p className="mt-0.5 mb-2 text-[12px] text-[var(--theme-text-tertiary)]">
-              {t.settings.translationSelectionDesc}
-            </p>
+            <p className="mt-0.5 mb-2 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.translationSelectionDesc}</p>
             <TranslationPicker />
           </div>
         )}
       </div>
 
-      {/* Hover word info */}
+      {/* Word-by-word toggle */}
       <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
         <div className="flex items-center justify-between">
           <div>
-            <SettingsLabel>{t.reading.wordInfo}</SettingsLabel>
-            <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
-              {t.reading.wordInfoSubtitle}
-            </p>
+            <SettingsLabel>{t.reading.wordByWordLabel ?? "Kelime Kelime"}</SettingsLabel>
+            <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">{t.reading.wordByWordSubtitle ?? "Her kelimenin çevirisi ve okunuşunu göster"}</p>
           </div>
-          <ToggleSwitch checked={normalShowWordHover} onChange={setNormalShowWordHover} />
+          <ToggleSwitch checked={showWordByWord} onChange={setShowWordByWord} />
         </div>
 
-        {normalShowWordHover && (
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <SettingsLabel>{t.reading.hoverTranslation}</SettingsLabel>
-              <ToggleSwitch checked={normalHoverShowTranslation} onChange={setNormalHoverShowTranslation} />
-            </div>
-            <div className="flex items-center justify-between">
-              <SettingsLabel>{t.reading.hoverTransliteration}</SettingsLabel>
-              <ToggleSwitch checked={normalHoverShowTransliteration} onChange={setNormalHoverShowTransliteration} />
-            </div>
+        {showWordByWord && (
+          <div className="mt-4 space-y-4">
+            {/* Word Translation toggle + size */}
             <div>
               <div className="flex items-center justify-between">
-                <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.reading.hoverTextSize}</span>
-                <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(normalHoverTextSize * 100)}</span>
+                <SettingsLabel>{t.settings.wordTranslation}</SettingsLabel>
+                <ToggleSwitch checked={showWordTranslation} onChange={onShowWordTranslationChange} />
               </div>
-              <div className="mt-2 flex items-center gap-3">
-                <span className="text-xs text-[var(--theme-text-tertiary)]">A</span>
-                <input
-                  type="range" min="0.6" max="5.0" step="0.05"
-                  value={normalHoverTextSize}
-                  onChange={(e) => setNormalHoverTextSize(Number(e.target.value))}
-                  className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600"
-                />
-                <span className="text-lg text-[var(--theme-text-tertiary)]">A</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
-// ─── WBW tab ────────────────────────────────────────────────────────
-function WbwTabContent({
-  fontFamily,
-  arabicFontSize,
-  onArabicSizeChange,
-  colorizeWords,
-  colors,
-  showWordTranslation,
-  showWordTransliteration,
-  wordTranslationSize,
-  wordTransliterationSize,
-  onShowWordTranslationChange,
-  onShowWordTransliterationChange,
-  onWordTranslationSizeChange,
-  onWordTransliterationSizeChange,
-  textType,
-}: {
-  fontFamily: string;
-  arabicFontSize: number;
-  onArabicSizeChange: (v: number) => void;
-  colorizeWords: boolean;
-  colors: string[];
-  showWordTranslation: boolean;
-  showWordTransliteration: boolean;
-  wordTranslationSize: number;
-  wordTransliterationSize: number;
-  onShowWordTranslationChange: (v: boolean) => void;
-  onShowWordTransliterationChange: (v: boolean) => void;
-  onWordTranslationSizeChange: (v: number) => void;
-  onWordTransliterationSizeChange: (v: number) => void;
-  textType: string;
-}) {
-  const { t } = useTranslation();
-  const { sampleWords } = getSampleData(textType);
-
-  return (
-    <>
-      {/* Preview */}
-      <div className="rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg)] px-4 py-4">
-        <div className="flex flex-wrap justify-end gap-x-5 gap-y-3" dir="rtl">
-          {sampleWords.map((word, i) => (
-            <div key={i} className="flex flex-col items-center gap-1">
-              <span
-                className="text-xl"
-                dir="rtl"
-                style={{
-                  fontFamily: `${fontFamily}, "Traditional Arabic", serif`,
-                  fontSize: `calc(1.5rem * ${arabicFontSize})`,
-                  color: colorizeWords
-                    ? colors[i % colors.length]
-                    : "var(--theme-text)",
-                }}
-              >
-                {word}
-              </span>
               {showWordTranslation && (
-                <span
-                  className="font-sans text-[var(--theme-text-tertiary)]"
-                  style={{ fontSize: `calc(11px * ${wordTranslationSize})` }}
-                >
-                  {SAMPLE_WORD_TRANSLATIONS[i]}
-                </span>
-              )}
-              {showWordTransliteration && (
-                <span
-                  className="font-sans text-[var(--theme-text-quaternary)]"
-                  style={{ fontSize: `calc(10px * ${wordTransliterationSize})` }}
-                >
-                  {SAMPLE_WORD_TRANSLITERATIONS[i]}
-                </span>
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
+                  <input type="range" min="0.6" max="5.0" step="0.05" value={wordTranslationSize} onChange={(e) => onWordTranslationSizeChange(Number(e.target.value))} className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600" />
+                  <span className="shrink-0 text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(wordTranslationSize * 100)}</span>
+                </div>
               )}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Arabic size slider */}
-      <div className="mt-5">
-        <div className="flex items-center justify-between">
-          <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.settings.arabicSize}</span>
-          <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(arabicFontSize * 100)}</span>
-        </div>
-        <div className="mt-2 flex items-center gap-3">
-          <span className="arabic-text text-sm text-[var(--theme-text-tertiary)]">ع</span>
-          <input
-            type="range" min="0.6" max="5.0" step="0.05"
-            value={arabicFontSize}
-            onChange={(e) => onArabicSizeChange(Number(e.target.value))}
-            className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600"
-          />
-          <span className="arabic-text text-xl text-[var(--theme-text-tertiary)]">ع</span>
-        </div>
-      </div>
-
-      {/* Word Translation toggle + size */}
-      <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
-        <div className="flex items-center justify-between">
-          <SettingsLabel>{t.settings.wordTranslation}</SettingsLabel>
-          <ToggleSwitch checked={showWordTranslation} onChange={onShowWordTranslationChange} />
-        </div>
-        {showWordTranslation && (
-          <div className="mt-3 flex items-center gap-3">
-            <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.translationSize}</span>
-            <input
-              type="range" min="0.6" max="5.0" step="0.05"
-              value={wordTranslationSize}
-              onChange={(e) => onWordTranslationSizeChange(Number(e.target.value))}
-              className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600"
-            />
-            <span className="shrink-0 text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">
-              %{Math.round(wordTranslationSize * 100)}
-            </span>
+            {/* Word Transliteration toggle + size */}
+            <div className="border-t border-[var(--theme-border)] pt-4">
+              <div className="flex items-center justify-between">
+                <SettingsLabel>{t.settings.transliteration}</SettingsLabel>
+                <ToggleSwitch checked={showWordTransliteration} onChange={onShowWordTransliterationChange} />
+              </div>
+              {showWordTransliteration && (
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.transliterationSize}</span>
+                  <input type="range" min="0.6" max="5.0" step="0.05" value={wordTransliterationSize} onChange={(e) => onWordTransliterationSizeChange(Number(e.target.value))} className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600" />
+                  <span className="shrink-0 text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(wordTransliterationSize * 100)}</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      {/* Word Transliteration toggle + size */}
-      <div className="mt-4 border-t border-[var(--theme-border)] pt-5">
-        <div className="flex items-center justify-between">
-          <SettingsLabel>{t.settings.transliteration}</SettingsLabel>
-          <ToggleSwitch checked={showWordTransliteration} onChange={onShowWordTransliterationChange} />
-        </div>
-        {showWordTransliteration && (
-          <div className="mt-3 flex items-center gap-3">
-            <span className="shrink-0 text-[12px] text-[var(--theme-text-tertiary)]">{t.settings.transliterationSize}</span>
-            <input
-              type="range" min="0.6" max="5.0" step="0.05"
-              value={wordTransliterationSize}
-              onChange={(e) => onWordTransliterationSizeChange(Number(e.target.value))}
-              className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600"
-            />
-            <span className="shrink-0 text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">
-              %{Math.round(wordTransliterationSize * 100)}
-            </span>
+      {/* Hover word info (only when not in WBW) */}
+      {!showWordByWord && (
+        <div className="mt-5 border-t border-[var(--theme-border)] pt-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <SettingsLabel>{t.reading.wordInfo}</SettingsLabel>
+              <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">{t.reading.wordInfoSubtitle}</p>
+            </div>
+            <ToggleSwitch checked={normalShowWordHover} onChange={setNormalShowWordHover} />
           </div>
-        )}
-      </div>
-
-      {/* Verse-level translation (meal) toggle */}
-      <WbwMealToggle />
+          {normalShowWordHover && (
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <SettingsLabel>{t.reading.hoverTranslation}</SettingsLabel>
+                <ToggleSwitch checked={normalHoverShowTranslation} onChange={setNormalHoverShowTranslation} />
+              </div>
+              <div className="flex items-center justify-between">
+                <SettingsLabel>{t.reading.hoverTransliteration}</SettingsLabel>
+                <ToggleSwitch checked={normalHoverShowTransliteration} onChange={setNormalHoverShowTransliteration} />
+              </div>
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-medium text-[var(--theme-text)]">{t.reading.hoverTextSize}</span>
+                  <span className="text-[12px] tabular-nums text-[var(--theme-text-tertiary)]">%{Math.round(normalHoverTextSize * 100)}</span>
+                </div>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className="text-xs text-[var(--theme-text-tertiary)]">A</span>
+                  <input type="range" min="0.6" max="5.0" step="0.05" value={normalHoverTextSize} onChange={(e) => setNormalHoverTextSize(Number(e.target.value))} className="h-1 flex-1 cursor-pointer appearance-none rounded-full bg-[var(--theme-border)] accent-primary-600" />
+                  <span className="text-lg text-[var(--theme-text-tertiary)]">A</span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </>
-  );
-}
-
-function WbwMealToggle() {
-  const { t } = useTranslation();
-  const wbwShowTranslation = usePreferencesStore((s) => s.wbwShowTranslation);
-  const setWbwShowTranslation = usePreferencesStore((s) => s.setWbwShowTranslation);
-  return (
-    <div className="mt-4 border-t border-[var(--theme-border)] pt-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <SettingsLabel>{t.settings.showTranslation}</SettingsLabel>
-          <p className="mt-0.5 text-[12px] text-[var(--theme-text-tertiary)]">
-            {t.settings.showTranslationDesc}
-          </p>
-        </div>
-        <ToggleSwitch checked={wbwShowTranslation} onChange={setWbwShowTranslation} />
-      </div>
-    </div>
   );
 }
 

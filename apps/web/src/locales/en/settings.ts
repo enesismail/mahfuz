@@ -17,8 +17,7 @@ export const settingsMessages = {
     transliteration: "Transliteration",
     transliterationSize: "Transliteration Size",
     viewModes: {
-      normal: "Normal",
-      wordByWord: "Word",
+      metin: "Text",
       mushaf: "Mushaf",
     },
     language: "Language",

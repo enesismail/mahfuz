@@ -28,6 +28,7 @@ export function getActiveColors(state: { colorPaletteId: ColorPaletteId }): stri
 interface PreferencesState {
   arabicFontId: string;
   viewMode: ViewMode;
+  showWordByWord: boolean;
   theme: Theme;
   selectedTranslations: string[];
   colorizeWords: boolean;
@@ -60,6 +61,7 @@ interface PreferencesState {
 
   setArabicFont: (id: string) => void;
   setViewMode: (mode: ViewMode) => void;
+  setShowWordByWord: (value: boolean) => void;
   setTheme: (theme: Theme) => void;
   toggleTranslation: (id: string) => void;
   setSelectedTranslations: (ids: string[]) => void;
@@ -97,7 +99,8 @@ export const usePreferencesStore = create<PreferencesState>()(
   persist(
     (set, get) => ({
       arabicFontId: "scheherazade-new",
-      viewMode: "normal",
+      viewMode: "metin",
+      showWordByWord: false,
       theme: "sepia",
       selectedTranslations: ["omer-celik"],
       colorizeWords: true,
@@ -130,6 +133,7 @@ export const usePreferencesStore = create<PreferencesState>()(
 
       setArabicFont: (id) => set({ arabicFontId: id }),
       setViewMode: (mode) => set({ viewMode: mode }),
+      setShowWordByWord: (value) => set({ showWordByWord: value }),
       setTheme: (theme) => set({ theme }),
       toggleTranslation: (id) =>
         set((state) => {
@@ -200,15 +204,23 @@ export const usePreferencesStore = create<PreferencesState>()(
     }),
     {
       name: "mahfuz-preferences",
-      version: 2,
+      version: 3,
       migrate: (persisted: any, version: number) => {
         if (version < 1 && persisted) {
-          // mushafPage → mushaf (QCF is now primary mushaf mode)
           if (persisted.viewMode === "mushafPage") persisted.viewMode = "mushaf";
         }
         if (version < 2 && persisted) {
-          // mushafFlow removed — fall back to mushaf (QCF)
           if (persisted.viewMode === "mushafFlow") persisted.viewMode = "mushaf";
+        }
+        if (version < 3 && persisted) {
+          // 3-mode → 2-mode: "wordByWord" → "metin" + showWordByWord, "normal" → "metin"
+          if (persisted.viewMode === "wordByWord") {
+            persisted.viewMode = "metin";
+            persisted.showWordByWord = true;
+          } else if (persisted.viewMode === "normal") {
+            persisted.viewMode = "metin";
+            persisted.showWordByWord = false;
+          }
         }
         return persisted;
       },
@@ -217,13 +229,10 @@ export const usePreferencesStore = create<PreferencesState>()(
 );
 
 export function getArabicFontSizeForMode(
-  state: Pick<PreferencesState, "viewMode" | "normalArabicFontSize" | "wbwArabicFontSize" | "mushafArabicFontSize">,
+  state: Pick<PreferencesState, "viewMode" | "showWordByWord" | "normalArabicFontSize" | "wbwArabicFontSize" | "mushafArabicFontSize">,
 ): number {
-  switch (state.viewMode) {
-    case "wordByWord": return state.wbwArabicFontSize;
-    case "mushaf": return state.mushafArabicFontSize;
-    default: return state.normalArabicFontSize;
-  }
+  if (state.viewMode === "mushaf") return state.mushafArabicFontSize;
+  return state.showWordByWord ? state.wbwArabicFontSize : state.normalArabicFontSize;
 }
 
 export function getTranslationFontSizeForMode(

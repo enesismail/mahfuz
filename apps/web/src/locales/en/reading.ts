@@ -28,8 +28,7 @@ export const readingMessages = {
     moreActions: "More actions",
     goToVerseDetail: "Go to verse detail",
     viewModes: {
-      normal: "Normal",
-      wordByWord: "Word",
+      metin: "Text",
       mushaf: "Mushaf",
     },
     juzLoading: "Loading juz...",
@@ -69,6 +68,8 @@ export const readingMessages = {
     wordTranslationLabel: "Word Translation",
     wordTranslationSubtitle: "Meaning of each word",
     swapOrder: "Swap Order",
+    wordByWordLabel: "Word by Word",
+    wordByWordSubtitle: "Show translation and transliteration for each word",
   },
 
   toolbar: {

@@ -30,8 +30,7 @@ export function ViewModeMushafIcon({ className = "h-3.5 w-3.5" }: IconProps) {
 }
 
 export const VIEW_MODE_ICONS: Record<string, ReactNode> = {
-  normal: <ViewModeNormalIcon />,
-  wordByWord: <ViewModeWbwIcon />,
+  metin: <ViewModeNormalIcon />,
   mushaf: <ViewModeMushafIcon />,
 };
 

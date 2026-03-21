@@ -5,7 +5,8 @@ export function Bismillah() {
   const normalArabicFontSize = usePreferencesStore((s) => s.normalArabicFontSize);
   const wbwArabicFontSize = usePreferencesStore((s) => s.wbwArabicFontSize);
   const mushafArabicFontSize = usePreferencesStore((s) => s.mushafArabicFontSize);
-  const scale = getArabicFontSizeForMode({ viewMode, normalArabicFontSize, wbwArabicFontSize, mushafArabicFontSize });
+  const showWordByWord = usePreferencesStore((s) => s.showWordByWord);
+  const scale = getArabicFontSizeForMode({ viewMode, showWordByWord, normalArabicFontSize, wbwArabicFontSize, mushafArabicFontSize });
 
   const fontSize = 32 * scale;
 

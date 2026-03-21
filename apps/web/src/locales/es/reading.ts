@@ -28,8 +28,7 @@ export const readingMessages = {
     moreActions: "Más acciones",
     goToVerseDetail: "Ir al detalle de la aleya",
     viewModes: {
-      normal: "Normal",
-      wordByWord: "Palabra",
+      metin: "Texto",
       mushaf: "Mushaf",
     },
     juzLoading: "Cargando juz...",
@@ -69,6 +68,8 @@ export const readingMessages = {
     wordTranslationLabel: "Traducción por palabra",
     wordTranslationSubtitle: "Significado de cada palabra",
     swapOrder: "Invertir orden",
+    wordByWordLabel: "Palabra por Palabra",
+    wordByWordSubtitle: "Mostrar traducción y transliteración de cada palabra",
   },
 
   toolbar: {

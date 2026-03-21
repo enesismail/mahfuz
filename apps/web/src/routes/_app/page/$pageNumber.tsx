@@ -1,15 +1,9 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueries, useQueryClient } from "@tanstack/react-query";
-import { useState, useCallback, useRef, useEffect, useMemo, type PointerEvent as ReactPointerEvent } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { versesByLayoutPageQueryOptions } from "~/hooks/useVerses";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
-import { chapterAudioQueryOptions } from "~/hooks/useAudio";
-import { wbwByChapterQueryOptions } from "~/hooks/useWbwData";
-import { mergeWbwIntoVerses } from "~/lib/quran-data";
-import { Bismillah, VerseList, ReadingToolbar, MushafPageImage, QcfMealPanel } from "~/components/quran";
 import { Loading } from "~/components/ui/Loading";
-import { SegmentedControl } from "~/components/ui/SegmentedControl";
-import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import {
   usePageLayout,
   getActiveLayout,
@@ -17,18 +11,9 @@ import {
   getJuzForPageByLayout,
   getAllJuzRangesByLayout,
 } from "~/lib/page-layout";
-import type { ViewMode } from "~/stores/usePreferencesStore";
-import { useAudioStore } from "~/stores/useAudioStore";
-import type { Chapter, Verse } from "@mahfuz/shared/types";
-import type { ChapterAudioData } from "@mahfuz/audio-engine";
-import { useReadingHistory } from "~/stores/useReadingHistory";
-import { useReadingListStore } from "~/stores/useReadingListStore";
-import { useReadingStats } from "~/stores/useReadingStats";
-import { AddToReadingListButton } from "~/components/browse/AddToReadingListButton";
-import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
+import type { Chapter } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
-import { getSurahName } from "~/lib/surah-name";
-import { FocusModeIcon } from "~/components/focus/FocusIcons";
+import { UnifiedReader } from "~/components/reader/UnifiedReader";
 
 export const Route = createFileRoute("/_app/page/$pageNumber")({
   loader: ({ context, params }) => {
@@ -43,595 +28,42 @@ export const Route = createFileRoute("/_app/page/$pageNumber")({
   head: ({ params }) => ({
     meta: [{ title: `Sayfa ${params.pageNumber} | Mahfuz` }],
   }),
-  component: MushafPageView,
+  component: PageView,
 });
 
-const VIEW_MODE_ICONS: Record<string, React.ReactNode> = {
-  normal: (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M3 4h10M3 8h7M3 12h10" />
-    </svg>
-  ),
-  wordByWord: (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <rect x="1.5" y="3" width="4" height="4.5" rx="1" />
-      <rect x="7.5" y="3" width="4" height="4.5" rx="1" />
-      <rect x="1.5" y="9.5" width="4" height="4.5" rx="1" />
-      <rect x="7.5" y="9.5" width="4" height="4.5" rx="1" />
-    </svg>
-  ),
-  mushaf: (
-    <svg className="h-3.5 w-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 2.5h4.5a1.5 1.5 0 0 1 1.5 1.5v10S6.5 13 4.25 13 2 14 2 14V2.5z" />
-      <path d="M14 2.5H9.5A1.5 1.5 0 0 0 8 4v10s1.5-1 3.75-1S14 14 14 14V2.5z" />
-    </svg>
-  ),
-};
-
-/**
- * Swipe navigation hook for touch devices.
- * RTL-aware: swipe right = next page, swipe left = previous page.
- */
-function useSwipeNavigation(
-  ref: React.RefObject<HTMLElement | null>,
-  { onSwipeLeft, onSwipeRight }: { onSwipeLeft: () => void; onSwipeRight: () => void },
-) {
-  const pointerStart = useRef<{ x: number; y: number; time: number } | null>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const SWIPE_THRESHOLD = 50;
-    const MAX_VERTICAL_RATIO = 1.5; // allow up to 1.5x vertical travel
-
-    function onPointerDown(e: globalThis.PointerEvent) {
-      // Only track single-finger touch or mouse
-      if (e.pointerType === "touch" || e.pointerType === "mouse") {
-        pointerStart.current = { x: e.clientX, y: e.clientY, time: Date.now() };
-      }
-    }
-
-    function onPointerUp(e: globalThis.PointerEvent) {
-      if (!pointerStart.current) return;
-      const dx = e.clientX - pointerStart.current.x;
-      const dy = e.clientY - pointerStart.current.y;
-      const elapsed = Date.now() - pointerStart.current.time;
-      pointerStart.current = null;
-
-      // Ignore slow drags (>500ms) or too-vertical gestures
-      if (elapsed > 500) return;
-      if (Math.abs(dx) < SWIPE_THRESHOLD) return;
-      if (Math.abs(dy) > Math.abs(dx) * MAX_VERTICAL_RATIO) return;
-
-      if (dx > 0) {
-        onSwipeRight();
-      } else {
-        onSwipeLeft();
-      }
-    }
-
-    function onPointerCancel() {
-      pointerStart.current = null;
-    }
-
-    el.addEventListener("pointerdown", onPointerDown);
-    el.addEventListener("pointerup", onPointerUp);
-    el.addEventListener("pointercancel", onPointerCancel);
-    return () => {
-      el.removeEventListener("pointerdown", onPointerDown);
-      el.removeEventListener("pointerup", onPointerUp);
-      el.removeEventListener("pointercancel", onPointerCancel);
-    };
-  }, [ref, onSwipeLeft, onSwipeRight]);
-}
-
-function MushafPageView() {
+function PageView() {
   const { pageNumber } = Route.useParams();
   const pageNum = Number(pageNumber);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const viewMode = usePreferencesStore((s) => s.viewMode);
-  const setViewMode = usePreferencesStore((s) => s.setViewMode);
-  const mushafShowTranslation = usePreferencesStore((s) => s.mushafShowTranslation);
-  const setMushafShowTranslation = usePreferencesStore((s) => s.setMushafShowTranslation);
-  const { t, locale } = useTranslation();
-
   const layout = usePageLayout();
   const totalPages = getTotalPages(layout);
-
-  const viewModeOptions = useMemo(() => ([
-    { value: "normal" as ViewMode, label: t.quranReader.viewModes.normal, icon: VIEW_MODE_ICONS.normal },
-    { value: "wordByWord" as ViewMode, label: t.quranReader.viewModes.wordByWord, icon: VIEW_MODE_ICONS.wordByWord },
-    { value: "mushaf" as ViewMode, label: t.quranReader.viewModes.mushaf, icon: VIEW_MODE_ICONS.mushaf },
-  ]), [t]);
-  const [pickerOpen, setPickerOpen] = useState(false);
-
-  const reciterId = useAudioStore((s) => s.reciterId);
-  const playVerse = useAudioStore((s) => s.playVerse);
-  const playbackState = useAudioStore((s) => s.playbackState);
-  const audioChapterId = useAudioStore((s) => s.chapterId);
-  const togglePlayPause = useAudioStore((s) => s.togglePlayPause);
+  const { t } = useTranslation();
 
   const { data: versesData } = useSuspenseQuery(versesByLayoutPageQueryOptions(pageNum, layout));
   const { data: chapters } = useSuspenseQuery(chaptersQueryOptions());
 
-  // WBW data for mushaf mode: load for each surah on this page
-  const surahIdsOnPage = useMemo(() => {
-    const ids = new Set<number>();
-    for (const v of versesData.verses) {
-      ids.add(Number(v.verse_key.split(":")[0]));
-    }
-    return Array.from(ids);
-  }, [versesData.verses]);
-
-  const isMushaf = viewMode === "wordByWord";
-  const wbwQueries = useQueries({
-    queries: surahIdsOnPage.map((chId) => ({
-      ...wbwByChapterQueryOptions(chId),
-      enabled: isMushaf,
-    })),
-  });
-
-  const versesWithWords = useMemo(() => {
-    if (!isMushaf) return versesData.verses;
-    // Merge WBW data from all loaded chapters
-    let merged = versesData.verses;
-    for (const q of wbwQueries) {
-      if (q.data) {
-        merged = mergeWbwIntoVerses(merged, q.data);
-      }
-    }
-    return merged;
-  }, [isMushaf, versesData.verses, wbwQueries]);
-
-  const translatedVerses = useTranslatedVerses(versesWithWords);
-
-  // Auto-scroll to playing verse (page view renders all verses in DOM, no virtualizer)
-  const currentVerseKey = useAudioStore((s) => s.currentVerseKey);
-  const audioPlaybackState = useAudioStore((s) => s.playbackState);
-  useEffect(() => {
-    if (!currentVerseKey || audioPlaybackState !== "playing") return;
-    const el = document.getElementById(`verse-${currentVerseKey}`);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-    }
-  }, [currentVerseKey, audioPlaybackState]);
-
-  const visitPage = useReadingHistory((s) => s.visitPage);
-  const touchItem = useReadingListStore((s) => s.touchItem);
-  useEffect(() => {
-    visitPage(pageNum);
-    touchItem("page", pageNum);
-  }, [pageNum, visitPage, touchItem]);
-
-  // Track page for khatam progress
-  const markPageRead = useReadingStats((s) => s.markPageRead);
-  useEffect(() => {
-    markPageRead(pageNum);
-  }, [pageNum, markPageRead]);
-
-  // Group verses by chapter_id (derived from verse_key)
-  const verseGroups = useMemo(() => {
-    const groups: { chapterId: number; chapter: Chapter | undefined; verses: Verse[] }[] = [];
-    let currentChapterId = -1;
-
-    for (const verse of translatedVerses) {
-      const chId = Number(verse.verse_key.split(":")[0]);
-      if (chId !== currentChapterId) {
-        currentChapterId = chId;
-        groups.push({
-          chapterId: chId,
-          chapter: chapters.find((ch) => ch.id === chId),
-          verses: [],
-        });
-      }
-      groups[groups.length - 1].verses.push(verse);
-    }
-    return groups;
-  }, [translatedVerses, chapters]);
-
-  const juzNumber = getJuzForPageByLayout(pageNum, layout);
-
-  // Fullscreen support for Mushaf mode
-  const mushafContainerRef = useRef<HTMLDivElement>(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-
-  useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
-    document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
-  }, []);
-
-  useEffect(() => {
-    if (viewMode !== "mushaf" && document.fullscreenElement) {
-      document.exitFullscreen();
-    }
-  }, [viewMode]);
-
-  const toggleFullscreen = useCallback(() => {
-    if (!mushafContainerRef.current) return;
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else {
-      mushafContainerRef.current.requestFullscreen();
-    }
-  }, []);
-
-  const buildChapterAudio = useCallback(async (chId: number): Promise<ChapterAudioData> => {
-    const qdcFile = await queryClient.fetchQuery(chapterAudioQueryOptions(reciterId, chId));
-    return {
-      audioUrl: qdcFile.audio_url,
-      verseTimings: qdcFile.verse_timings.map((t) => ({
-        verseKey: t.verse_key,
-        from: t.timestamp_from,
-        to: t.timestamp_to,
-        segments: t.segments,
-      })),
-    };
-  }, [queryClient, reciterId]);
-
-  // Audio: play from a specific verse
-  const handlePlayFromVerse = useCallback(
-    async (verseKey: string) => {
-      const chapterId = Number(verseKey.split(":")[0]);
-      const ch = chapters.find((c) => c.id === chapterId);
-      const audioData = await buildChapterAudio(chapterId);
-      playVerse(
-        chapterId,
-        ch ? getSurahName(ch.id, ch.translated_name.name, locale) : `Sure ${chapterId}`,
-        verseKey,
-        audioData,
-      );
-    },
-    [chapters, buildChapterAudio, playVerse],
-  );
-
-  // Play page audio, starts from first verse on this page
-  const firstGroup = verseGroups[0];
-  const isPlayingThisPage =
-    firstGroup && audioChapterId === firstGroup.chapterId &&
-    (playbackState === "playing" || playbackState === "loading");
-
-  const handlePlayPage = useCallback(async () => {
-    if (isPlayingThisPage) { togglePlayPause(); return; }
-    if (!firstGroup) return;
-    const ch = firstGroup.chapter;
-    const firstVerseKey = firstGroup.verses[0]?.verse_key;
-    if (!firstVerseKey) return;
-    const audioData = await buildChapterAudio(firstGroup.chapterId);
-    playVerse(firstGroup.chapterId, ch ? getSurahName(ch.id, ch.translated_name.name, locale) : `Sure ${firstGroup.chapterId}`, firstVerseKey, audioData);
-  }, [isPlayingThisPage, togglePlayPause, firstGroup, buildChapterAudio, playVerse]);
-
-  // Keyboard navigation (ArrowLeft/Right)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === "ArrowLeft" && pageNum > 1) {
-        navigate({ to: "/page/$pageNumber", params: { pageNumber: String(pageNum - 1) } });
-      } else if (e.key === "ArrowRight" && pageNum < totalPages) {
-        navigate({ to: "/page/$pageNumber", params: { pageNumber: String(pageNum + 1) } });
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [pageNum, navigate]);
-
-  const hasPrev = pageNum > 1;
-  const hasNext = pageNum < totalPages;
-
-  // Swipe navigation (RTL: swipe right = next page, swipe left = prev page)
-  const swipeContainerRef = useRef<HTMLDivElement>(null);
-  const goNext = useCallback(() => {
-    if (hasNext) navigate({ to: "/page/$pageNumber", params: { pageNumber: String(pageNum + 1) } });
-  }, [hasNext, pageNum, navigate]);
-  const goPrev = useCallback(() => {
-    if (hasPrev) navigate({ to: "/page/$pageNumber", params: { pageNumber: String(pageNum - 1) } });
-  }, [hasPrev, pageNum, navigate]);
-  // Disable swipe nav in mushaf mode — conflicts with QCF page rendering
-  const swipeEnabled = viewMode !== "mushaf";
-  useSwipeNavigation(swipeContainerRef, {
-    onSwipeLeft: swipeEnabled ? goPrev : () => {},
-    onSwipeRight: swipeEnabled ? goNext : () => {},
-  });
-
-  const fullscreenIcon = (
-    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="2 6 2 2 6 2" />
-      <polyline points="18 6 18 2 14 2" />
-      <polyline points="2 14 2 18 6 18" />
-      <polyline points="18 14 18 18 14 18" />
-    </svg>
-  );
-
-  const exitFullscreenIcon = (
-    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="6 2 6 6 2 6" />
-      <polyline points="14 2 14 6 18 6" />
-      <polyline points="6 18 6 14 2 14" />
-      <polyline points="14 18 14 14 18 14" />
-    </svg>
-  );
-
   return (
-    <div ref={swipeContainerRef} className="mx-auto max-w-[960px] px-5 py-8 sm:px-6 sm:py-10 lg:max-w-[1200px]" style={{ touchAction: "pan-y" }}>
-      {/* Page header, compact horizontal */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl bg-[var(--theme-pill-bg)] px-4 py-3.5">
-        <div className="relative z-10 flex items-center justify-between gap-3">
-          {/* Left: page info */}
-          <button
-            type="button"
-            onClick={() => setPickerOpen(true)}
-            className="group min-w-0 text-left transition-transform active:scale-[0.97]"
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-[1.75rem] font-semibold tabular-nums leading-none text-[var(--theme-text)]">{pageNum}</span>
-              <div className="flex items-center gap-1">
-                <span className="text-[15px] font-semibold text-[var(--theme-text)]">{t.common.page} {pageNum}</span>
-                <svg className="h-3 w-3 text-[var(--theme-text-tertiary)]" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M4 6l4 4 4-4" />
-                </svg>
-              </div>
-            </div>
-            <p className="mt-0.5 text-[11px] text-[var(--theme-text-tertiary)]">
-              {verseGroups[0].chapter ? getSurahName(verseGroups[0].chapter.id, verseGroups[0].chapter.translated_name.name, locale) : ""}
-              {verseGroups.length > 1 && verseGroups[verseGroups.length - 1].chapter && `–${getSurahName(verseGroups[verseGroups.length - 1].chapter!.id, verseGroups[verseGroups.length - 1].chapter!.translated_name.name, locale)}`}
-              {" · "}{versesData.pagination.total_records} {t.quranReader.versesUnit} · {t.common.juz} {juzNumber}
-            </p>
-          </button>
-
-          {/* Right: action buttons */}
-          <div className="flex shrink-0 items-center gap-1.5">
-            <button
-              onClick={handlePlayPage}
-              className="inline-flex items-center gap-1 rounded-full bg-primary-600 px-3 py-1.5 text-[11px] font-medium text-white transition-all hover:bg-primary-700 active:scale-[0.97]"
-            >
-              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor">
-                {isPlayingThisPage ? (
-                  <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" />
-                ) : (
-                  <path d="M8 5.14v14l11-7-11-7z" />
-                )}
-              </svg>
-              {isPlayingThisPage ? t.quranReader.pause : t.quranReader.listen}
-            </button>
-            <Link
-              to="/focus/$pageNumber"
-              params={{ pageNumber: String(pageNum) }}
-              className="inline-flex items-center gap-1 rounded-full bg-[var(--theme-pill-bg)] px-3 py-1.5 text-[11px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-hover-bg)] active:scale-[0.97]"
-            >
-              <FocusModeIcon width={14} height={14} />
-              Focus
-            </Link>
-            <AddToReadingListButton type="page" id={pageNum} />
-          </div>
-        </div>
-      </div>
-
-      {/* View mode controls + Reading toolbar, sticky band */}
-      <div className="sticky top-0 z-20 -mx-5 mb-6 border-b border-[var(--theme-border)] bg-[var(--theme-bg)] px-1 py-2 sm:-mx-6 sm:px-2">
-        <div className="flex items-center justify-between">
-          {/* Left arrow: prev page */}
-          {pageNum > 1 ? (
-            <Link
-              to="/page/$pageNumber"
-              params={{ pageNumber: String(pageNum - 1) }}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-              aria-label={t.nav.prevPage}
-            >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-            </Link>
-          ) : (
-            <span className="w-8 shrink-0" />
-          )}
-
-          {/* Center: unified toolbar (icon-only tabs + A ع) */}
-          <div className="flex min-w-0 flex-1 items-center justify-center">
-            <div className="flex items-center rounded-xl bg-[var(--theme-pill-bg)] p-1">
-              <SegmentedControl options={viewModeOptions} value={viewMode} onChange={setViewMode} iconOnlyMobile transparent />
-              <div className="mx-0.5 h-4 w-px bg-[var(--theme-border)]" />
-              <ReadingToolbar segmentStyle />
-            </div>
-          </div>
-
-          {/* Right group: fullscreen + arrow */}
-          <div className="flex shrink-0 items-center gap-0.5">
-            {viewMode === "mushaf" && (
-              <button
-                type="button"
-                onClick={toggleFullscreen}
-                aria-label={t.quranReader.fullscreen}
-                className="flex h-8 w-8 items-center justify-center rounded-lg transition-colors hover:bg-[var(--theme-hover-bg)]"
-                style={{ color: "var(--theme-text-tertiary)" }}
-              >
-                {fullscreenIcon}
-              </button>
-            )}
-            {pageNum < totalPages ? (
-              <Link
-                to="/page/$pageNumber"
-                params={{ pageNumber: String(pageNum + 1) }}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
-                aria-label={t.nav.nextPage}
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-              </Link>
-            ) : (
-              <span className="w-8 shrink-0" />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Mushaf fullscreen container */}
-      <div
-        ref={mushafContainerRef}
-        className={isFullscreen ? "h-screen overflow-y-auto bg-[var(--theme-bg)] px-5 py-8 sm:px-6" : ""}
-      >
-        {/* Exit fullscreen button */}
-        {isFullscreen && (
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            aria-label={t.quranReader.exitFullscreen}
-            className="fixed top-4 right-4 z-50 flex h-10 w-10 items-center justify-center rounded-xl backdrop-blur-xl transition-colors hover:bg-[var(--theme-hover-bg)]"
-            style={{
-              background: "color-mix(in srgb, var(--theme-hover-bg) 80%, transparent)",
-              color: "var(--theme-text-tertiary)",
-            }}
-          >
-            {exitFullscreenIcon}
-          </button>
-        )}
-
-        {/* QCF mushaf mode (matbu eşleşen) — Berkenar layout falls back to flowing text */}
-        {viewMode === "mushaf" && layout === "berkenar" ? (
-          <>
-            <div className="mb-4 rounded-xl bg-amber-500/10 px-4 py-2.5 text-[12px] text-amber-700">
-              {t.settings?.berkenarNoMushaf ?? "Berkenar düzeninde matbu mushaf görünümü desteklenmiyor. Akan metin gösteriliyor."}
-            </div>
-            {verseGroups.map((group) => (
-              <VerseList key={group.chapterId} verses={group.verses} onPlayFromVerse={handlePlayFromVerse} />
-            ))}
-          </>
-        ) : viewMode === "mushaf" ? (
-          <>
-            {/* Meal toggle button */}
-            <div className="mb-3 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setMushafShowTranslation(!mushafShowTranslation)}
-                title={mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
-                className="flex h-8 items-center gap-1.5 rounded-full bg-[var(--theme-pill-bg)] px-3 text-[11px] font-medium text-[var(--theme-text-tertiary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {mushafShowTranslation ? (
-                    <>
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </>
-                  ) : (
-                    <>
-                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                      <line x1="2" x2="22" y1="2" y2="22" />
-                    </>
-                  )}
-                </svg>
-                {mushafShowTranslation ? t.toolbar.mushafHideMeal : t.toolbar.mushafShowMeal}
-              </button>
-            </div>
-
-            {mushafShowTranslation ? (
-              /* QCF page + meal panel side by side */
-              <div className="mushaf-qcf-spread-with-meal">
-                <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-                <QcfMealPanel verses={translatedVerses} pageNumber={pageNum} currentVerseKey={currentVerseKey ?? undefined} />
-              </div>
-            ) : (
-              /* QCF-only: two-page spread (odd/even) */
-              <>
-                {pageNum > 2 && pageNum % 2 === 1 ? (
-                  <div className="mushaf-qcf-spread">
-                    <MushafPageImage pageNumber={pageNum - 1} onVerseTap={handlePlayFromVerse} />
-                    <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-                  </div>
-                ) : pageNum > 2 && pageNum % 2 === 0 ? (
-                  <div className="mushaf-qcf-spread">
-                    <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-                    <MushafPageImage pageNumber={pageNum + 1 <= totalPages ? pageNum + 1 : pageNum} onVerseTap={handlePlayFromVerse} />
-                  </div>
-                ) : (
-                  <MushafPageImage pageNumber={pageNum} onVerseTap={handlePlayFromVerse} />
-                )}
-              </>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Verses grouped by surah with Bismillah dividers */}
-            {verseGroups.map((group, groupIndex) => {
-              const isNewSurah = group.verses[0]?.verse_number === 1;
-              return (
-                <div key={group.chapterId}>
-                  {/* Surah divider for multi-surah pages */}
-                  {(groupIndex > 0 || isNewSurah) && group.chapter && (
-                    <div className={`mb-6 text-center ${groupIndex > 0 ? "mt-14" : "mt-0"}`}>
-                      <Link
-                        to="/$surahId"
-                        params={{ surahId: String(group.chapterId) }}
-                        className="inline-flex items-center gap-2 rounded-full bg-[var(--theme-pill-bg)] px-4 py-2 transition-colors hover:shadow-[var(--shadow-elevated)]"
-                      >
-                        <span className="arabic-text text-lg leading-none text-[var(--theme-text)]">
-                          {group.chapter.name_arabic}
-                        </span>
-                        <span className="text-[13px] font-medium text-[var(--theme-text-secondary)]">
-                          {getSurahName(group.chapter.id, group.chapter.translated_name.name, locale)}
-                        </span>
-                      </Link>
-                    </div>
-                  )}
-
-                  {/* Bismillah if surah starts here and has bismillah_pre */}
-                  {isNewSurah && group.chapter?.bismillah_pre && <Bismillah />}
-
-                  {/* Verse list for this group */}
-                  <VerseList
-                    verses={group.verses}
-                    onPlayFromVerse={handlePlayFromVerse}
-                  />
-                </div>
-              );
-            })}
-          </>
-        )}
-      </div>
-
-      {/* Prev/Next page navigation */}
-      <div className="mt-10 flex items-center justify-between border-t border-[var(--theme-divider)]/40 pt-6">
-        {hasPrev ? (
-          <Link
-            to="/page/$pageNumber"
-            params={{ pageNumber: String(pageNum - 1) }}
-            className="text-[15px] font-medium text-primary-600 transition-colors hover:text-primary-700"
-          >
-            ← {t.quranReader.prevPage}
-          </Link>
-        ) : (
-          <span />
-        )}
-        <span className="text-[12px] text-[var(--theme-text-quaternary)]">
-          {pageNum} / {totalPages}
-        </span>
-        {hasNext ? (
-          <Link
-            to="/page/$pageNumber"
-            params={{ pageNumber: String(pageNum + 1) }}
-            className="text-[15px] font-medium text-primary-600 transition-colors hover:text-primary-700"
-          >
-            {t.quranReader.nextPage} →
-          </Link>
-        ) : (
-          <span />
-        )}
-      </div>
-
-      {/* Page picker overlay */}
-      {pickerOpen && (
+    <UnifiedReader
+      source="page"
+      verses={versesData.verses}
+      chapters={chapters}
+      currentId={pageNum}
+      totalCount={totalPages}
+      focusPageNumber={pageNum}
+      picker={({ onClose }) => (
         <PagePicker
           currentPage={pageNum}
           chapters={chapters}
           layout={layout}
           t={t}
           onSelect={(p) => {
-            setPickerOpen(false);
+            onClose();
             navigate({ to: "/page/$pageNumber", params: { pageNumber: String(p) } });
           }}
-          onClose={() => setPickerOpen(false)}
+          onClose={onClose}
         />
       )}
-    </div>
+    />
   );
 }
 
@@ -650,7 +82,7 @@ function PagePicker({
   layout: import("@mahfuz/shared/constants").PageLayout;
   onSelect: (page: number) => void;
   onClose: () => void;
-  t: ReturnType<typeof useTranslation>["t"];
+  t: ReturnType<typeof import("~/hooks/useTranslation").useTranslation>["t"];
 }) {
   const juzRanges = getAllJuzRangesByLayout(layout);
   const currentJuz = getJuzForPageByLayout(currentPage, layout);
@@ -658,7 +90,6 @@ function PagePicker({
   const scrubberRef = useRef<HTMLDivElement>(null);
   const [activeJuz, setActiveJuz] = useState<number | null>(null);
 
-  // Build page → chapter name lookup
   const pageChapterMap = useMemo(() => {
     const map: Record<number, string> = {};
     for (const ch of chapters) {
@@ -669,14 +100,12 @@ function PagePicker({
     return map;
   }, [chapters]);
 
-  // Auto-scroll to current juz on mount
   useEffect(() => {
     requestAnimationFrame(() => {
       currentJuzRef.current?.scrollIntoView({ block: "center" });
     });
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -685,7 +114,6 @@ function PagePicker({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  // Scrubber: resolve juz from pointer Y position
   const getJuzFromY = useCallback((clientY: number) => {
     const el = scrubberRef.current;
     if (!el) return null;
@@ -698,7 +126,6 @@ function PagePicker({
     document.getElementById(`picker-juz-${juz}`)?.scrollIntoView({ behavior: "auto", block: "start" });
   }, []);
 
-  // Pointer scrub handlers
   const handleScrubStart = useCallback((e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     const juz = getJuzFromY(e.clientY);
@@ -711,9 +138,7 @@ function PagePicker({
     if (juz && juz !== activeJuz) { setActiveJuz(juz); scrollToJuz(juz); }
   }, [getJuzFromY, activeJuz, scrollToJuz]);
 
-  const handleScrubEnd = useCallback(() => {
-    setActiveJuz(null);
-  }, []);
+  const handleScrubEnd = useCallback(() => { setActiveJuz(null); }, []);
 
   return (
     <div
@@ -721,35 +146,18 @@ function PagePicker({
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div className="mx-auto mt-10 flex w-[92%] max-w-[600px] animate-scale-in flex-col overflow-hidden rounded-2xl bg-[var(--theme-bg-primary)] shadow-[var(--shadow-modal)] sm:mt-14">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[var(--theme-border)] px-4 py-3">
-          <h2 className="text-[15px] font-semibold text-[var(--theme-text)]">
-            {t.quranReader.goToPage}
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-[13px] font-medium text-primary-600"
-          >
-            {t.common.close}
-          </button>
+          <h2 className="text-[15px] font-semibold text-[var(--theme-text)]">{t.quranReader.goToPage}</h2>
+          <button onClick={onClose} className="text-[13px] font-medium text-primary-600">{t.common.close}</button>
         </div>
 
-        {/* Content area with right-side scrubber */}
         <div className="relative flex max-h-[70vh] min-h-0">
-          {/* Scrollable page grid */}
           <div className="flex-1 overflow-y-auto px-3 py-3 pr-8">
             {juzRanges.map(({ juz, start, end }) => (
-              <div
-                key={juz}
-                id={`picker-juz-${juz}`}
-                ref={juz === currentJuz ? currentJuzRef : undefined}
-                className="mb-5 last:mb-0"
-              >
+              <div key={juz} id={`picker-juz-${juz}`} ref={juz === currentJuz ? currentJuzRef : undefined} className="mb-5 last:mb-0">
                 <p className="sticky top-0 z-10 mb-2 bg-[var(--theme-bg-primary)] py-1 text-[13px] font-semibold text-[var(--theme-text)]">
                   {t.common.juz} {juz}
-                  <span className="ml-2 text-[12px] font-normal text-[var(--theme-text-tertiary)]">
-                    {t.common.page} {start}–{end}
-                  </span>
+                  <span className="ml-2 text-[12px] font-normal text-[var(--theme-text-tertiary)]">{t.common.page} {start}–{end}</span>
                 </p>
                 <div className="grid grid-cols-5 gap-1.5 sm:grid-cols-8 md:grid-cols-10">
                   {Array.from({ length: end - start + 1 }, (_, i) => {
@@ -767,13 +175,9 @@ function PagePicker({
                             : "bg-[var(--theme-hover-bg)]/60 text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)] hover:text-[var(--theme-text)]"
                         }`}
                       >
-                        <span className="text-[13px] font-semibold tabular-nums leading-tight">
-                          {page}
-                        </span>
+                        <span className="text-[13px] font-semibold tabular-nums leading-tight">{page}</span>
                         {chapterName && (
-                          <span className={`mt-0.5 max-w-full truncate text-[8px] leading-tight ${
-                            isCurrent ? "text-white/80" : "text-[var(--theme-text-quaternary)]"
-                          }`}>
+                          <span className={`mt-0.5 max-w-full truncate text-[8px] leading-tight ${isCurrent ? "text-white/80" : "text-[var(--theme-text-quaternary)]"}`}>
                             {chapterName}
                           </span>
                         )}
@@ -785,7 +189,6 @@ function PagePicker({
             ))}
           </div>
 
-          {/* Right-side juz scrubber, Apple Contacts style */}
           <div
             ref={scrubberRef}
             className="absolute right-0 top-0 bottom-0 flex w-7 cursor-pointer flex-col items-center justify-around py-2 select-none touch-none"
@@ -802,11 +205,7 @@ function PagePicker({
                 <span
                   key={juz}
                   className={`text-[9px] font-semibold tabular-nums leading-none transition-all ${
-                    isActive
-                      ? "scale-125 text-primary-600"
-                      : isCurr
-                        ? "text-primary-600"
-                        : "text-[var(--theme-text-quaternary)]"
+                    isActive ? "scale-125 text-primary-600" : isCurr ? "text-primary-600" : "text-[var(--theme-text-quaternary)]"
                   }`}
                 >
                   {juz}
@@ -815,7 +214,6 @@ function PagePicker({
             })}
           </div>
 
-          {/* Floating juz indicator bubble (shown while scrubbing) */}
           {activeJuz && (
             <div className="pointer-events-none absolute right-9 top-1/2 -translate-y-1/2 rounded-xl bg-primary-600 px-3 py-1.5 text-[13px] font-semibold text-white shadow-lg">
               {t.common.juz} {activeJuz}

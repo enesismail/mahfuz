@@ -21,13 +21,13 @@ export function LibraryTrackCard({ quest, progress }: LibraryTrackCardProps) {
     <Link to="/learn/quest/$questId" params={{ questId: quest.id }}>
       <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] shadow-[var(--shadow-card)] transition-all hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5">
         {/* Color band top */}
-        <div className={`h-1.5 w-full ${progressPct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`} />
+        <div className={`h-1.5 w-full ${progressPct >= 100 ? "bg-emerald-500" : "bg-primary-600"}`} />
 
         <div className="flex flex-1 flex-col p-4">
           {/* Arabic letter badge */}
-          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-amber-500/20">
+          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-600/10">
             <span
-              className="arabic-text text-[22px] font-bold text-amber-400"
+              className="arabic-text text-[22px] font-bold text-primary-700 dark:text-primary-400"
               dir="rtl"
               style={{ letterSpacing: "0.15em" }}
             >
@@ -71,7 +71,7 @@ export function LibraryTrackCard({ quest, progress }: LibraryTrackCardProps) {
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-[var(--theme-bg)]">
               <div
-                className={`h-full rounded-full transition-all ${progressPct >= 100 ? "bg-emerald-500" : "bg-amber-500"}`}
+                className={`h-full rounded-full transition-all ${progressPct >= 100 ? "bg-emerald-500" : "bg-primary-600"}`}
                 style={{ width: `${progressPct}%` }}
               />
             </div>

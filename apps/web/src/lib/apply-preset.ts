@@ -26,6 +26,9 @@ export function applyPreset(preset: ReadingPreset) {
   if (overrides.viewMode !== undefined) {
     useReadingPrefs.getState().setViewMode(overrides.viewMode);
   }
+  if (overrides.showWordByWord !== undefined) {
+    useReadingPrefs.getState().setShowWordByWord(overrides.showWordByWord);
+  }
   if (overrides.showTranslation !== undefined) {
     useReadingPrefs.getState().setNormalShowTranslation(overrides.showTranslation);
   }

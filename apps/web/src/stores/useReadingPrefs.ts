@@ -3,9 +3,12 @@ import type { ViewMode } from "~/lib/constants";
 import type { PageLayout } from "@mahfuz/shared/constants";
 
 export const useReadingPrefs = createPreferenceStore("mahfuz-reading-prefs", {
-  viewMode: "normal" as ViewMode,
+  viewMode: "metin" as ViewMode,
   pageLayout: "berkenar" as PageLayout,
   selectedTranslations: ["omer-celik"] as string[],
+
+  // WBW toggle (sub-mode of metin)
+  showWordByWord: false,
 
   // Per-mode show/hide
   normalShowTranslation: true,
@@ -33,12 +36,10 @@ export const useReadingPrefs = createPreferenceStore("mahfuz-reading-prefs", {
 export function getArabicFontSizeForMode(
   viewMode: ViewMode,
   state: { normalArabicFontSize: number; wbwArabicFontSize: number; mushafArabicFontSize: number },
+  showWordByWord?: boolean,
 ): number {
-  switch (viewMode) {
-    case "wordByWord": return state.wbwArabicFontSize;
-    case "mushaf": return state.mushafArabicFontSize;
-    default: return state.normalArabicFontSize;
-  }
+  if (viewMode === "mushaf") return state.mushafArabicFontSize;
+  return showWordByWord ? state.wbwArabicFontSize : state.normalArabicFontSize;
 }
 
 // Helper: get translation font size for current view mode

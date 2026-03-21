@@ -36,7 +36,7 @@ export const Route = createFileRoute("/_app/settings/")({
 });
 
 type AccordionSection = "font" | "wordColor" | "reciter" | "readingMode" | "pageLayout" | "langNav";
-type ReadingModeTab = "normal" | "wordByWord" | "mushaf";
+type ReadingModeTab = "metin" | "mushaf";
 
 function useHydrated() {
   const [hydrated, setHydrated] = useState(false);

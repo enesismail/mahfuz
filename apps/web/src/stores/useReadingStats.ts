@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { getActiveLayout, getTotalPages } from "~/lib/page-layout";
 
 export interface DailyLog {
   date: string; // YYYY-MM-DD
@@ -66,7 +67,8 @@ export const useReadingStats = create<ReadingStatsState>()(
         const { completedPages, khatamCount, logDailyReading } = get();
         if (completedPages.includes(pageNumber)) return;
         const newPages = [...completedPages, pageNumber];
-        if (newPages.length >= 604) {
+        const totalPages = getTotalPages(getActiveLayout());
+        if (newPages.length >= totalPages) {
           set({ completedPages: [], khatamCount: khatamCount + 1 });
         } else {
           set({ completedPages: newPages });
