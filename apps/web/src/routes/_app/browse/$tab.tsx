@@ -13,6 +13,7 @@ import { DailyVerseCard } from "~/components/browse/DailyVerseCard";
 import { QuickAccessSection } from "~/components/browse/QuickAccessSection";
 import { TopicBand } from "~/components/browse/TopicBand";
 import { HeroSection } from "~/components/home/HeroSection";
+import { ReadingStatsCard } from "~/components/browse/ReadingStatsCard";
 
 
 const VALID_TABS = ["surahs", "juzs", "nuzul"] as const;
@@ -82,6 +83,9 @@ function BrowsePage() {
 
       {/* Continue Reading */}
       <ContinueReadingSection />
+
+      {/* Reading Stats */}
+      <ReadingStatsCard />
 
       {/* Quick Access */}
       <QuickAccessSection />

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { versesByLayoutPageQueryOptions } from "~/hooks/useVerses";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { FocusLayout } from "~/components/focus/FocusLayout";
@@ -9,6 +10,8 @@ import { AnnotationToolbar } from "~/components/focus/AnnotationToolbar";
 import { Loading } from "~/components/ui/Loading";
 import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
 import { getActiveLayout, getTotalPages } from "~/lib/page-layout";
+import { useReadingStats } from "~/stores/useReadingStats";
+import { useReadingHistory } from "~/stores/useReadingHistory";
 
 export const Route = createFileRoute("/focus/$pageNumber")({
   validateSearch: () => ({}),
@@ -35,6 +38,14 @@ function FocusRoute() {
   const { pageNumber } = Route.useParams();
   const pageNum = Number(pageNumber);
   const layout = getActiveLayout();
+
+  // Track page read + reading history
+  const markPageRead = useReadingStats((s) => s.markPageRead);
+  const visitPage = useReadingHistory((s) => s.visitPage);
+  useEffect(() => {
+    markPageRead(pageNum);
+    visitPage(pageNum);
+  }, [pageNum, markPageRead, visitPage]);
 
   const { data: versesData } = useSuspenseQuery(
     versesByLayoutPageQueryOptions(pageNum, layout),

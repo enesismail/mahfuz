@@ -185,6 +185,29 @@ function SurahView() {
     touchItem("surah", chapterId);
   }, [chapterId, getSurahName(chapter.id, chapter.translated_name.name, locale), visitSurah, touchItem]);
 
+  // Verse-level tracking with IntersectionObserver
+  const visitVerse = useReadingHistory((s) => s.visitVerse);
+  useEffect(() => {
+    if (viewMode === "mushaf") return; // mushaf doesn't have individual verse elements
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const verseKey = entry.target.getAttribute("data-verse-key");
+            if (verseKey) {
+              const [s, v] = verseKey.split(":").map(Number);
+              if (s && v) visitVerse(s, v, getSurahName(chapter.id, chapter.translated_name.name, locale));
+            }
+          }
+        }
+      },
+      { threshold: 0.5 },
+    );
+    const verseEls = document.querySelectorAll("[data-verse-key]");
+    verseEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [viewMode, chapterId, visitVerse, chapter, locale]);
+
   const juzNumber = getJuzForPage(chapter.pages[0]);
 
   // Fullscreen support for Mushaf mode

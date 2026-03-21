@@ -23,6 +23,7 @@ import type { Chapter, Verse } from "@mahfuz/shared/types";
 import type { ChapterAudioData } from "@mahfuz/audio-engine";
 import { useReadingHistory } from "~/stores/useReadingHistory";
 import { useReadingListStore } from "~/stores/useReadingListStore";
+import { useReadingStats } from "~/stores/useReadingStats";
 import { AddToReadingListButton } from "~/components/browse/AddToReadingListButton";
 import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
 import { useTranslation } from "~/hooks/useTranslation";
@@ -203,6 +204,12 @@ function MushafPageView() {
     visitPage(pageNum);
     touchItem("page", pageNum);
   }, [pageNum, visitPage, touchItem]);
+
+  // Track page for khatam progress
+  const markPageRead = useReadingStats((s) => s.markPageRead);
+  useEffect(() => {
+    markPageRead(pageNum);
+  }, [pageNum, markPageRead]);
 
   // Group verses by chapter_id (derived from verse_key)
   const verseGroups = useMemo(() => {

@@ -12,6 +12,7 @@ import { TranslationBlock } from "~/components/quran/TranslationBlock";
 import { TOTAL_CHAPTERS } from "@mahfuz/shared/constants";
 import { useTranslation } from "~/hooks/useTranslation";
 import { getSurahName } from "~/lib/surah-name";
+import { useReadingHistory } from "~/stores/useReadingHistory";
 
 import type { ChapterAudioData } from "@mahfuz/audio-engine";
 
@@ -208,6 +209,12 @@ function VerseReaderView() {
       queryClient.prefetchQuery(verseByKeyQueryOptions(`${surah + 1}:1`));
     }
   }, [surah, verseNum, hasNext, queryClient]);
+
+  // Track verse-level reading
+  const visitVerse = useReadingHistory((s) => s.visitVerse);
+  useEffect(() => {
+    visitVerse(surah, verseNum, getSurahName(chapter.id, chapter.translated_name.name, locale));
+  }, [surah, verseNum, visitVerse, chapter, locale]);
 
   // Audio
   const fetchChapterAudio = useCallback(async (): Promise<ChapterAudioData> => {
