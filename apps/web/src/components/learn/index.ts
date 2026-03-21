@@ -13,3 +13,6 @@ export { ProgressMap } from "./ProgressMap";
 export { QuestCard } from "./QuestCard";
 export { QuestExerciseCard } from "./QuestExerciseCard";
 export { QuestResults } from "./QuestResults";
+export { MatchingExercise } from "./MatchingExercise";
+export { LatinToArabicExercise } from "./LatinToArabicExercise";
+export { LevelPicker } from "./LevelPicker";

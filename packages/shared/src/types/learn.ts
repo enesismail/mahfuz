@@ -39,10 +39,25 @@ export interface AudioRef {
   wordPosition: number;   // 1-based
 }
 
+export type LevelId = 1 | 2 | 3 | 4;
+
+export interface Level {
+  id: LevelId;
+  titleKey: string;       // i18n key under learn.levels
+  descriptionKey: string;
+  subtitleKey: string;     // user-facing "Sıfırdan Başlıyorum" etc.
+  icon: string;            // emoji icon
+  stageIds: number[];      // which stages belong to this level
+  color: string;           // tailwind color name (blue, violet, etc.)
+  examQuestionCount: number;
+  examPassThreshold: number; // 0-100
+}
+
 export interface Stage {
   id: number;             // 1-14
   titleKey: string;       // i18n key under learn.stages
   descriptionKey: string; // i18n key
+  level: LevelId;         // which level this stage belongs to
   lessons: Lesson[];
   prerequisites: number[];
 }
@@ -83,7 +98,22 @@ export type ExerciseType =
   | "word_build"
   | "fill_blank"
   | "word_read"
-  | "tajweed_identify";
+  | "tajweed_identify"
+  | "latin_to_arabic"
+  | "matching";
+
+/** Matching exercise: user pairs items from two columns */
+export interface MatchingPair {
+  left: string;    // e.g. Arabic letter "ب"
+  right: string;   // e.g. Latin name "Be"
+}
+
+/** Extended exercise for matching type — pairs field used instead of options */
+export interface MatchingExerciseData extends Omit<Exercise, "options"> {
+  type: "matching";
+  pairs: MatchingPair[];
+  options: ExerciseOption[]; // kept empty for type compat
+}
 
 export interface ExerciseOption {
   text: string;
@@ -127,6 +157,64 @@ export const MASTERY_INTERVALS = {
   2: 7 * 24 * 60 * 60 * 1000,  // Level 2 → 7 days
   3: Infinity,                  // Level 3 → no auto review
 } as const;
+
+/** The 4 proficiency levels */
+export const LEVELS: Level[] = [
+  {
+    id: 1,
+    titleKey: "levels.beginner.title",
+    descriptionKey: "levels.beginner.desc",
+    subtitleKey: "levels.beginner.subtitle",
+    icon: "🌱",
+    stageIds: [1, 2, 3, 4, 5],
+    color: "blue",
+    examQuestionCount: 10,
+    examPassThreshold: 80,
+  },
+  {
+    id: 2,
+    titleKey: "levels.elementary.title",
+    descriptionKey: "levels.elementary.desc",
+    subtitleKey: "levels.elementary.subtitle",
+    icon: "📖",
+    stageIds: [6, 7, 8, 9],
+    color: "violet",
+    examQuestionCount: 10,
+    examPassThreshold: 80,
+  },
+  {
+    id: 3,
+    titleKey: "levels.intermediate.title",
+    descriptionKey: "levels.intermediate.desc",
+    subtitleKey: "levels.intermediate.subtitle",
+    icon: "📜",
+    stageIds: [10, 11],
+    color: "amber",
+    examQuestionCount: 10,
+    examPassThreshold: 80,
+  },
+  {
+    id: 4,
+    titleKey: "levels.advanced.title",
+    descriptionKey: "levels.advanced.desc",
+    subtitleKey: "levels.advanced.subtitle",
+    icon: "🎓",
+    stageIds: [12, 13, 14],
+    color: "emerald",
+    examQuestionCount: 12,
+    examPassThreshold: 80,
+  },
+];
+
+/** Get level by ID */
+export function getLevelById(id: LevelId): Level {
+  return LEVELS[id - 1];
+}
+
+/** Get level for a given stage */
+export function getLevelForStage(stageId: number): Level | undefined {
+  return LEVELS.find((l) => l.stageIds.includes(stageId));
+}
 
 /** Sevap Point values for learn module */
 export const LEARN_SEVAP_POINT_VALUES = {

@@ -5,4 +5,8 @@ export const useAppUI = createPreferenceStore("mahfuz-app-ui", {
   hasSeenOnboarding: false,
   showLearnTab: true,
   showMemorizeTab: true,
+  /** Selected learn level (0 = not yet chosen, 1-4 = level) */
+  selectedLearnLevel: 0,
+  /** Whether user has completed the level picker */
+  hasPickedLearnLevel: false,
 });

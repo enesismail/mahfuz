@@ -9,6 +9,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 1: Letters (Harfler)
   {
     id: 1,
+    level: 1,
     titleKey: "stages.letters.title",
     descriptionKey: "stages.letters.desc",
     prerequisites: [],
@@ -414,6 +415,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 2: Connecting Forms (Bağlantı)
   {
     id: 2,
+    level: 1,
     titleKey: "stages.connecting.title",
     descriptionKey: "stages.connecting.desc",
     prerequisites: [1],
@@ -559,6 +561,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 3: Fatha / Üstün
   {
     id: 3,
+    level: 1,
     titleKey: "stages.fatha.title",
     descriptionKey: "stages.fatha.desc",
     prerequisites: [1],
@@ -805,6 +808,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 4: Kasra / Esre
   {
     id: 4,
+    level: 1,
     titleKey: "stages.kasra.title",
     descriptionKey: "stages.kasra.desc",
     prerequisites: [3],
@@ -814,6 +818,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 5: Damma / Ötre
   {
     id: 5,
+    level: 1,
     titleKey: "stages.damma.title",
     descriptionKey: "stages.damma.desc",
     prerequisites: [4],
@@ -823,6 +828,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 6: Long Vowels / Uzun Sesli (Med Asli)
   {
     id: 6,
+    level: 2,
     titleKey: "stages.longVowels.title",
     descriptionKey: "stages.longVowels.desc",
     prerequisites: [5],
@@ -903,6 +909,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 7: Sukun / Cezm + CVC
   {
     id: 7,
+    level: 2,
     titleKey: "stages.sukun.title",
     descriptionKey: "stages.sukun.desc",
     prerequisites: [6],
@@ -990,6 +997,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 8: Tanwin / Tenvin
   {
     id: 8,
+    level: 2,
     titleKey: "stages.tanwin.title",
     descriptionKey: "stages.tanwin.desc",
     prerequisites: [7],
@@ -1062,6 +1070,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 9: Shadda / Şedde
   {
     id: 9,
+    level: 2,
     titleKey: "stages.shadda.title",
     descriptionKey: "stages.shadda.desc",
     prerequisites: [8],
@@ -1137,6 +1146,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 10: Basic Words / Temel Kelimeler
   {
     id: 10,
+    level: 3,
     titleKey: "stages.basicWords.title",
     descriptionKey: "stages.basicWords.desc",
     prerequisites: [9],
@@ -1146,6 +1156,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 11: Short Surahs / Kısa Sureler
   {
     id: 11,
+    level: 3,
     titleKey: "stages.shortSurahs.title",
     descriptionKey: "stages.shortSurahs.desc",
     prerequisites: [10],
@@ -1271,6 +1282,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 12: Basic Tajweed / Temel Tecvid
   {
     id: 12,
+    level: 4,
     titleKey: "stages.basicTajweed.title",
     descriptionKey: "stages.basicTajweed.desc",
     prerequisites: [11],
@@ -1374,6 +1386,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 13: Madd Rules / Med Kuralları
   {
     id: 13,
+    level: 4,
     titleKey: "stages.maddRules.title",
     descriptionKey: "stages.maddRules.desc",
     prerequisites: [12],
@@ -1461,6 +1474,7 @@ export const CURRICULUM: Stage[] = [
   // Stage 14: Advanced Tajweed / İleri Tecvid
   {
     id: 14,
+    level: 4,
     titleKey: "stages.advancedTajweed.title",
     descriptionKey: "stages.advancedTajweed.desc",
     prerequisites: [13],
@@ -1791,6 +1805,11 @@ export function getLessonById(lessonId: string): { stage: Stage; lesson: (typeof
     if (lesson) return { stage, lesson };
   }
   return undefined;
+}
+
+/** Get all stages for a given level */
+export function getStagesByLevel(levelId: number): Stage[] {
+  return CURRICULUM.filter((s) => s.level === levelId);
 }
 
 /** Total number of lessons across all stages */

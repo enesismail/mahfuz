@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { Suspense, useMemo, useState, useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { CURRICULUM } from "@mahfuz/shared/data/learn/curriculum";
+import { CURRICULUM, getStagesByLevel } from "@mahfuz/shared/data/learn/curriculum";
+import { LEVELS, type LevelId } from "@mahfuz/shared/types";
 import { SIDE_QUESTS } from "@mahfuz/shared/data/learn/quests";
 import { useLearnDashboard, useStageUnlockStatus } from "~/hooks/useLearn";
 import { useQuestDashboard } from "~/hooks/useQuest";
@@ -10,8 +11,11 @@ import { StatsOverview, SurahSelector, GoalsSettings } from "~/components/memori
 import { memorizationRepository, type MemorizationCardEntry } from "@mahfuz/db";
 import { LibraryCourseCard } from "~/components/library/LibraryCourseCard";
 import { LibraryTrackCard } from "~/components/library/LibraryTrackCard";
+import { LevelPicker } from "~/components/learn";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { useTranslation } from "~/hooks/useTranslation";
+import { useAppUI } from "~/stores/useAppUI";
+import { resolveNestedKey } from "~/lib/i18n-utils";
 import { getSurahName } from "~/lib/surah-name";
 import { Skeleton } from "~/components/ui/Skeleton";
 import { Button } from "~/components/ui/Button";
@@ -109,10 +113,60 @@ function LibraryPage() {
 
 // ── Courses Tab ──────────────────────────────────────────────
 
+const LEVEL_SECTION_COLORS: Record<number, { accent: string; bar: string; badge: string }> = {
+  1: { accent: "text-blue-600 dark:text-blue-400", bar: "bg-blue-500", badge: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400" },
+  2: { accent: "text-violet-600 dark:text-violet-400", bar: "bg-violet-500", badge: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-400" },
+  3: { accent: "text-amber-600 dark:text-amber-400", bar: "bg-amber-500", badge: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400" },
+  4: { accent: "text-emerald-600 dark:text-emerald-400", bar: "bg-emerald-500", badge: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400" },
+};
+
 function CoursesTab({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const { stageProgress, totalSevapPoint, isLoading } = useLearnDashboard(userId);
   const { unlockedStages } = useStageUnlockStatus(userId);
+  const { hasPickedLearnLevel, selectedLearnLevel, setHasPickedLearnLevel, setSelectedLearnLevel } = useAppUI();
+  const [showLevelPicker, setShowLevelPicker] = useState(false);
+
+  // Show level picker if user hasn't picked yet
+  if (!hasPickedLearnLevel || showLevelPicker) {
+    return (
+      <div className="py-4">
+        {showLevelPicker && (
+          <button
+            onClick={() => setShowLevelPicker(false)}
+            className="mb-4 inline-flex items-center gap-1 text-[13px] text-[var(--theme-text-secondary)] hover:text-[var(--theme-text)]"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            {t.common.back}
+          </button>
+        )}
+        <LevelPicker
+          onSelect={(levelId) => {
+            setShowLevelPicker(false);
+          }}
+        />
+      </div>
+    );
+  }
+
+  // Compute level progress
+  const levelProgress = useMemo(() => {
+    const result: Record<number, { total: number; completed: number }> = {};
+    for (const level of LEVELS) {
+      const stages = getStagesByLevel(level.id);
+      let total = 0;
+      let completed = 0;
+      for (const stage of stages) {
+        total += stage.lessons.length;
+        const sp = stageProgress.get(stage.id);
+        completed += sp?.completed || 0;
+      }
+      result[level.id] = { total, completed };
+    }
+    return result;
+  }, [stageProgress]);
 
   return (
     <>
@@ -139,27 +193,126 @@ function CoursesTab({ userId }: { userId: string }) {
         </div>
       </div>
 
-      {/* Card grid */}
+      {/* Change level button */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] text-[var(--theme-text-tertiary)]">
+            {t.learn.levels.currentLevel}:
+          </span>
+          <span className={`text-[13px] font-semibold ${LEVEL_SECTION_COLORS[selectedLearnLevel]?.accent || "text-[var(--theme-text)]"}`}>
+            {resolveNestedKey(t.learn as Record<string, any>, LEVELS[selectedLearnLevel - 1]?.titleKey || "") || ""}
+          </span>
+        </div>
+        <button
+          onClick={() => setShowLevelPicker(true)}
+          className="rounded-lg border border-[var(--theme-border)] px-3 py-1.5 text-[12px] font-medium text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-hover-bg)]"
+        >
+          {t.learn.levels.changeLevel}
+        </button>
+      </div>
+
+      {/* Level sections */}
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} variant="card" className="h-48" />
+        <div className="space-y-6">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-6 w-40" />
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+                {Array.from({ length: 3 }).map((_, j) => (
+                  <Skeleton key={j} variant="card" className="h-48" />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
-          {CURRICULUM.map((stage) => {
-            const sp = stageProgress.get(stage.id);
+        <div className="space-y-8">
+          {LEVELS.map((level) => {
+            const stages = getStagesByLevel(level.id);
+            const lp = levelProgress[level.id];
+            const progress = lp.total > 0 ? Math.round((lp.completed / lp.total) * 100) : 0;
+            const isComplete = lp.completed >= lp.total && lp.total > 0;
+            const color = LEVEL_SECTION_COLORS[level.id];
+            const title = resolveNestedKey(t.learn as Record<string, any>, level.titleKey) || level.titleKey;
+            const desc = resolveNestedKey(t.learn as Record<string, any>, level.descriptionKey) || level.descriptionKey;
+
             return (
-              <LibraryCourseCard
-                key={stage.id}
-                stageId={stage.id}
-                titleKey={stage.titleKey}
-                descriptionKey={stage.descriptionKey}
-                lessonCount={stage.lessons.length}
-                completedCount={sp?.completed || 0}
-                isUnlocked={unlockedStages.has(stage.id)}
-              />
+              <section key={level.id}>
+                {/* Level header */}
+                <div className="mb-3 flex items-center gap-3">
+                  <span className="text-[20px]">{level.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className={`text-[16px] font-bold ${color.accent}`}>
+                        {title}
+                      </h3>
+                      {isComplete && (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[12px] text-[var(--theme-text-tertiary)]">{desc}</p>
+                  </div>
+                  <span className="text-[12px] font-medium text-[var(--theme-text-tertiary)]">
+                    {lp.completed}/{lp.total}
+                  </span>
+                </div>
+
+                {/* Level progress bar */}
+                <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-[var(--theme-bg)]">
+                  <div
+                    className={`h-full rounded-full transition-all ${isComplete ? "bg-emerald-500" : color.bar}`}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+
+                {/* Stage cards grid */}
+                <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+                  {stages.map((stage) => {
+                    const sp = stageProgress.get(stage.id);
+                    return (
+                      <LibraryCourseCard
+                        key={stage.id}
+                        stageId={stage.id}
+                        titleKey={stage.titleKey}
+                        descriptionKey={stage.descriptionKey}
+                        lessonCount={stage.lessons.length}
+                        completedCount={sp?.completed || 0}
+                        isUnlocked={unlockedStages.has(stage.id)}
+                      />
+                    );
+                  })}
+                </div>
+
+                {/* Level exam + practice buttons */}
+                <div className="mt-4 flex gap-3">
+                  <Link
+                    to="/learn/level/$levelId/exam"
+                    params={{ levelId: String(level.id) }}
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-[14px] font-medium transition-all hover:shadow-sm active:scale-[0.97] ${
+                      isComplete
+                        ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-700 dark:bg-emerald-950/20 dark:text-emerald-400"
+                        : "border-[var(--theme-border)] bg-[var(--theme-bg-primary)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)]"
+                    }`}
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {t.learn.levels.exam}
+                  </Link>
+                  <Link
+                    to="/learn/level/$levelId/practice"
+                    params={{ levelId: String(level.id) }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-[var(--theme-border)] bg-[var(--theme-bg-primary)] px-4 py-3 text-[14px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-hover-bg)] hover:shadow-sm active:scale-[0.97]"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    {t.learn.levels.practice}
+                  </Link>
+                </div>
+              </section>
             );
           })}
         </div>
