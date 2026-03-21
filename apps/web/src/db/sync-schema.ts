@@ -156,5 +156,7 @@ export const readingHistory = sqliteTable("reading_history", {
   lastSurahName: text("last_surah_name"),
   lastPageNumber: integer("last_page_number"),
   lastJuzNumber: integer("last_juz_number"),
+  lastVerseKey: text("last_verse_key"),
+  lastVerseNum: integer("last_verse_num"),
   updatedAt: integer("updated_at").notNull(),
 });

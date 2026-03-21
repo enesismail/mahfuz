@@ -99,6 +99,8 @@ interface PushPayload {
     lastSurahName: string | null;
     lastPageNumber: number | null;
     lastJuzNumber: number | null;
+    lastVerseKey?: string | null;
+    lastVerseNum?: number | null;
     updatedAt: number;
   };
 }
@@ -191,6 +193,8 @@ interface PullResponse {
     lastSurahName: string | null;
     lastPageNumber: number | null;
     lastJuzNumber: number | null;
+    lastVerseKey?: string | null;
+    lastVerseNum?: number | null;
     updatedAt: number;
   } | null;
 }
@@ -526,6 +530,8 @@ export const pushChanges = createServerFn({ method: "POST" })
             lastSurahName: data.readingHistoryData.lastSurahName,
             lastPageNumber: data.readingHistoryData.lastPageNumber,
             lastJuzNumber: data.readingHistoryData.lastJuzNumber,
+            lastVerseKey: data.readingHistoryData.lastVerseKey ?? null,
+            lastVerseNum: data.readingHistoryData.lastVerseNum ?? null,
             updatedAt: data.readingHistoryData.updatedAt,
           })
           .onConflictDoUpdate({
@@ -535,6 +541,8 @@ export const pushChanges = createServerFn({ method: "POST" })
               lastSurahName: data.readingHistoryData.lastSurahName,
               lastPageNumber: data.readingHistoryData.lastPageNumber,
               lastJuzNumber: data.readingHistoryData.lastJuzNumber,
+              lastVerseKey: data.readingHistoryData.lastVerseKey ?? null,
+              lastVerseNum: data.readingHistoryData.lastVerseNum ?? null,
               updatedAt: data.readingHistoryData.updatedAt,
             },
           });
@@ -732,6 +740,8 @@ export const pullChanges = createServerFn({ method: "GET" })
               lastSurahName: readingHistoryRow.lastSurahName,
               lastPageNumber: readingHistoryRow.lastPageNumber,
               lastJuzNumber: readingHistoryRow.lastJuzNumber,
+              lastVerseKey: readingHistoryRow.lastVerseKey ?? null,
+              lastVerseNum: readingHistoryRow.lastVerseNum ?? null,
               updatedAt: readingHistoryRow.updatedAt,
             }
           : null,

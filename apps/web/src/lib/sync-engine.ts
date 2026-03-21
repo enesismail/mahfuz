@@ -7,35 +7,82 @@ import { usePreferencesStore } from "~/stores/usePreferencesStore";
 import { useReadingList } from "~/stores/useReadingList";
 import type { ReadingListItem } from "~/stores/useReadingList";
 import { useReadingHistory } from "~/stores/useReadingHistory";
+import { useReadingPrefs } from "~/stores/useReadingPrefs";
+import { useDisplayPrefs } from "~/stores/useDisplayPrefs";
+import { useAudioPrefs } from "~/stores/useAudioPrefs";
+import { useI18nStore } from "~/stores/useI18nStore";
+import { useFocusStore } from "~/stores/useFocusStore";
+import { useVerseBookmarks } from "~/stores/useVerseBookmarks";
+import type { VerseBookmark } from "~/stores/useVerseBookmarks";
+import { useReadingStats } from "~/stores/useReadingStats";
 
 type SyncStatus = "idle" | "syncing" | "error";
 
-/** Keys to exclude from preferences sync (device-specific or setters) */
-const PREFS_EXCLUDE_KEYS = new Set([
-  "sidebarCollapsed",
-  "hasSeenOnboarding",
-  // All setter functions (v2 createPreferenceStore names)
-  "setArabicFont", "setViewMode", "setTheme", "toggleTranslation",
-  "setSelectedTranslations", "setColorizeWords", "setColorPalette",
-  "setNormalShowTranslation", "setNormalShowWordHover",
-  "setWbwShowTranslation", "setWbwShowWordTranslation",
-  "setWbwShowWordTransliteration", "setWordTranslationSize",
-  "setWordTransliterationSize", "setWbwTransliterationFirst",
-  "setNormalArabicFontSize", "setNormalTranslationFontSize",
-  "setWbwArabicFontSize", "setMushafArabicFontSize",
-  "setTextType", "setShowLearnTab", "setShowMemorizeTab",
-  "setSidebarCollapsed", "setHasSeenOnboarding",
-]);
-
-function getPrefsData(): Record<string, unknown> {
-  const state = usePreferencesStore.getState();
+/** Extract non-function data from a store state */
+function extractData(state: Record<string, unknown>): Record<string, unknown> {
   const data: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(state)) {
-    if (!PREFS_EXCLUDE_KEYS.has(key) && typeof value !== "function") {
+    if (typeof value !== "function") {
       data[key] = value;
     }
   }
   return data;
+}
+
+/** Keys to exclude from compat shim sync (device-specific) */
+const PREFS_EXCLUDE_KEYS = new Set([
+  "sidebarCollapsed",
+  "hasSeenOnboarding",
+]);
+
+function getPrefsData(): Record<string, unknown> {
+  // Compat shim data (backward compat with old clients)
+  const compatState = usePreferencesStore.getState();
+  const compatData: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(compatState)) {
+    if (!PREFS_EXCLUDE_KEYS.has(key) && typeof value !== "function") {
+      compatData[key] = value;
+    }
+  }
+
+  // v2 split store data
+  const readingState = extractData(useReadingPrefs.getState() as unknown as Record<string, unknown>);
+  const displayState = extractData(useDisplayPrefs.getState() as unknown as Record<string, unknown>);
+  const audioState = extractData(useAudioPrefs.getState() as unknown as Record<string, unknown>);
+  const focusRaw = useFocusStore.getState();
+  const focusState = {
+    focusViewMode: focusRaw.focusViewMode,
+    focusFontSize: focusRaw.focusFontSize,
+    lastFocusPage: focusRaw.lastFocusPage,
+    showAnnotations: focusRaw.showAnnotations,
+  };
+  const i18nState = { locale: useI18nStore.getState().locale };
+
+  // Bookmarks
+  const bookmarks = useVerseBookmarks.getState().bookmarks;
+
+  // Reading stats
+  const statsRaw = useReadingStats.getState();
+  const statsState = {
+    completedPages: statsRaw.completedPages,
+    dailyLogs: statsRaw.dailyLogs,
+    currentStreak: statsRaw.currentStreak,
+    longestStreak: statsRaw.longestStreak,
+    khatamCount: statsRaw.khatamCount,
+  };
+
+  return {
+    ...compatData,
+    _v2: {
+      reading: readingState,
+      display: displayState,
+      audio: audioState,
+      i18n: i18nState,
+      focus: focusState,
+    },
+    _bookmarks: bookmarks,
+    _stats: statsState,
+  };
 }
 
 export class SyncEngine {
@@ -86,6 +133,12 @@ export class SyncEngine {
   };
 
   async sync(): Promise<void> {
+    // Skip sync when offline
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      this.onStatusChange("idle");
+      return;
+    }
+
     this.onStatusChange("syncing");
 
     try {
@@ -162,6 +215,8 @@ export class SyncEngine {
               lastSurahName: readingHistoryState.lastSurahName,
               lastPageNumber: readingHistoryState.lastPageNumber,
               lastJuzNumber: readingHistoryState.lastJuzNumber,
+              lastVerseKey: readingHistoryState.lastVerseKey,
+              lastVerseNum: readingHistoryState.lastVerseNum,
               updatedAt: readingHistorySyncTs,
             }
           : undefined;
@@ -331,9 +386,69 @@ export class SyncEngine {
         if (pulled.preferences.updatedAt > localUpdatedAt) {
           const serverPrefs = JSON.parse(pulled.preferences.data);
           setSyncTimestamp("preferences", pulled.preferences.updatedAt);
-          usePreferencesStore.setState({
-            ...serverPrefs,
-          });
+
+          // Apply to compat shim (backward compat)
+          const { _v2, _bookmarks, _stats, ...compatPrefs } = serverPrefs;
+          usePreferencesStore.setState(compatPrefs);
+
+          // Apply to v2 split stores
+          if (_v2) {
+            if (_v2.reading) {
+              const { reading } = _v2;
+              // Only set data fields, not setters
+              const readingData: Record<string, unknown> = {};
+              for (const [k, v] of Object.entries(reading)) {
+                if (typeof v !== "function") readingData[k] = v;
+              }
+              useReadingPrefs.setState(readingData);
+            }
+            if (_v2.display) {
+              const displayData: Record<string, unknown> = {};
+              for (const [k, v] of Object.entries(_v2.display)) {
+                if (typeof v !== "function") displayData[k] = v;
+              }
+              useDisplayPrefs.setState(displayData);
+            }
+            if (_v2.audio) {
+              const audioData: Record<string, unknown> = {};
+              for (const [k, v] of Object.entries(_v2.audio)) {
+                if (typeof v !== "function") audioData[k] = v;
+              }
+              useAudioPrefs.setState(audioData);
+            }
+            if (_v2.i18n?.locale) {
+              useI18nStore.getState().setLocale(_v2.i18n.locale);
+            }
+            if (_v2.focus) {
+              useFocusStore.setState({
+                focusViewMode: _v2.focus.focusViewMode,
+                focusFontSize: _v2.focus.focusFontSize,
+                lastFocusPage: _v2.focus.lastFocusPage,
+                showAnnotations: _v2.focus.showAnnotations,
+              });
+            }
+          }
+
+          // Merge bookmarks (union by verseKey, newer addedAt wins)
+          if (_bookmarks && Array.isArray(_bookmarks)) {
+            const localBookmarks = useVerseBookmarks.getState().bookmarks;
+            const bookmarkMap = new Map<string, VerseBookmark>();
+            for (const b of localBookmarks) {
+              bookmarkMap.set(b.verseKey, b);
+            }
+            for (const b of _bookmarks as VerseBookmark[]) {
+              const existing = bookmarkMap.get(b.verseKey);
+              if (!existing || b.addedAt > existing.addedAt) {
+                bookmarkMap.set(b.verseKey, b);
+              }
+            }
+            useVerseBookmarks.getState()._setBookmarks(Array.from(bookmarkMap.values()));
+          }
+
+          // Merge reading stats
+          if (_stats) {
+            useReadingStats.getState()._setAll(_stats);
+          }
         }
       }
 
@@ -389,6 +504,8 @@ export class SyncEngine {
               lastSurahName: pulled.readingHistoryData.lastSurahName,
               lastPageNumber: pulled.readingHistoryData.lastPageNumber,
               lastJuzNumber: pulled.readingHistoryData.lastJuzNumber,
+              lastVerseKey: pulled.readingHistoryData.lastVerseKey ?? null,
+              lastVerseNum: pulled.readingHistoryData.lastVerseNum ?? null,
             },
             pulled.readingHistoryData.updatedAt,
           );

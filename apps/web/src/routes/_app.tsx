@@ -146,6 +146,19 @@ function AppLayout() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id]);
 
+  // Track online/offline status for sync indicator
+  useEffect(() => {
+    const handleOnline = () => syncSetStatus("idle");
+    const handleOffline = () => syncSetStatus("offline");
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    if (!navigator.onLine) syncSetStatus("offline");
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [syncSetStatus]);
+
   const handleSignOut = useCallback(async () => {
     await signOut();
     await router.invalidate();
