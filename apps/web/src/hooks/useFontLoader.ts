@@ -5,6 +5,7 @@ import {
   getArabicFontSizeForMode,
   getTranslationFontSizeForMode,
 } from "~/stores/usePreferencesStore";
+import { useDisplayPrefs } from "~/stores/useDisplayPrefs";
 
 const injectedLinks = new Set<string>();
 
@@ -59,11 +60,28 @@ export function useFontLoader() {
     );
   }, [arabicFontId, viewMode, normalArabicFontSize, normalTranslationFontSize, wbwArabicFontSize, mushafArabicFontSize, mushafTranslationFontSize]);
 
+  const autoTheme = useDisplayPrefs((s) => s.autoTheme);
+  const dayTheme = useDisplayPrefs((s) => s.dayTheme);
+  const nightTheme = useDisplayPrefs((s) => s.nightTheme);
+
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) {
-      meta.setAttribute("content", THEME_META_COLORS[theme] || "#059669");
+    function applyTheme(t: string) {
+      document.documentElement.setAttribute("data-theme", t);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) {
+        meta.setAttribute("content", THEME_META_COLORS[t] || "#059669");
+      }
     }
-  }, [theme]);
+
+    if (autoTheme) {
+      const mq = window.matchMedia("(prefers-color-scheme: dark)");
+      const resolve = () => (mq.matches ? nightTheme : dayTheme);
+      applyTheme(resolve());
+      const handler = () => applyTheme(resolve());
+      mq.addEventListener("change", handler);
+      return () => mq.removeEventListener("change", handler);
+    } else {
+      applyTheme(theme);
+    }
+  }, [theme, autoTheme, dayTheme, nightTheme]);
 }

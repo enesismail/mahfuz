@@ -17,6 +17,7 @@ export function applyPreset(preset: ReadingPreset) {
   const { overrides } = preset;
 
   if (overrides.theme !== undefined) {
+    useDisplayPrefs.getState().setAutoTheme(false);
     useDisplayPrefs.getState().setTheme(overrides.theme);
   }
   if (overrides.arabicFontSize !== undefined) {

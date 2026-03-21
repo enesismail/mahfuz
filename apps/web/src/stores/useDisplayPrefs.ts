@@ -4,6 +4,9 @@ import type { ColorPaletteId } from "~/lib/fonts";
 
 export const useDisplayPrefs = createPreferenceStore("mahfuz-display-prefs", {
   theme: "sepia" as Theme,
+  autoTheme: false,
+  dayTheme: "sepia" as Theme,
+  nightTheme: "dark" as Theme,
   arabicFontId: "scheherazade-new",
   colorizeWords: true,
   colorPaletteId: "pastel" as ColorPaletteId,

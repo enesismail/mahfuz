@@ -249,6 +249,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
 
   const theme = useDisplayPrefs((s) => s.theme);
   const setTheme = useDisplayPrefs((s) => s.setTheme);
+  const autoTheme = useDisplayPrefs((s) => s.autoTheme);
   const currentReciterId = useAudioPrefs((s) => s.reciterId);
   const setReciterId = useAudioPrefs((s) => s.setReciterId);
 
@@ -460,7 +461,7 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
           icon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>}
           defaultOpen
         >
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {THEME_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -473,6 +474,11 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
                 aria-label={opt.value}
               />
             ))}
+            {autoTheme && (
+              <span className="rounded-full bg-primary-600/15 px-2 py-0.5 text-[10px] font-semibold text-primary-600">
+                AUTO
+              </span>
+            )}
           </div>
         </CategorySection>
 

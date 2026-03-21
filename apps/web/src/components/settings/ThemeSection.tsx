@@ -1,6 +1,7 @@
 import type { Theme } from "~/stores/usePreferencesStore";
 import { useTranslation } from "~/hooks/useTranslation";
-import { SettingsLabel } from "./SettingsShared";
+import { SettingsLabel, ToggleSwitch } from "./SettingsShared";
+import { useDisplayPrefs } from "~/stores/useDisplayPrefs";
 
 const THEME_OPTIONS: { value: Theme; color: string; ring?: string }[] = [
   { value: "light", color: "#ffffff" },
@@ -12,12 +13,7 @@ const THEME_OPTIONS: { value: Theme; color: string; ring?: string }[] = [
   { value: "black", color: "#000000" },
 ];
 
-interface ThemeSectionProps {
-  theme: Theme;
-  onThemeChange: (theme: Theme) => void;
-}
-
-export function ThemeSection({ theme, onThemeChange }: ThemeSectionProps) {
+function ThemeGrid({ selected, onSelect, label }: { selected: Theme; onSelect: (t: Theme) => void; label?: string }) {
   const { t } = useTranslation();
 
   const themeLabels: Record<Theme, string> = {
@@ -31,15 +27,15 @@ export function ThemeSection({ theme, onThemeChange }: ThemeSectionProps) {
   };
 
   return (
-    <>
-      <SettingsLabel>{t.theme.settings}</SettingsLabel>
-      <div className="mt-2 flex flex-wrap gap-2">
+    <div>
+      {label && <span className="mb-1.5 block text-[12px] font-medium text-[var(--theme-text-tertiary)]">{label}</span>}
+      <div className="flex flex-wrap gap-2">
         {THEME_OPTIONS.map((opt) => {
-          const active = theme === opt.value;
+          const active = selected === opt.value;
           return (
             <button
               key={opt.value}
-              onClick={() => onThemeChange(opt.value)}
+              onClick={() => onSelect(opt.value)}
               className={`flex min-w-[72px] flex-1 flex-col items-center gap-2 rounded-2xl border px-2 py-3 transition-all ${
                 active
                   ? "border-primary-500 bg-primary-50 shadow-sm"
@@ -65,6 +61,45 @@ export function ThemeSection({ theme, onThemeChange }: ThemeSectionProps) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+interface ThemeSectionProps {
+  theme: Theme;
+  onThemeChange: (theme: Theme) => void;
+}
+
+export function ThemeSection({ theme, onThemeChange }: ThemeSectionProps) {
+  const { t } = useTranslation();
+  const autoTheme = useDisplayPrefs((s) => s.autoTheme);
+  const setAutoTheme = useDisplayPrefs((s) => s.setAutoTheme);
+  const dayTheme = useDisplayPrefs((s) => s.dayTheme);
+  const setDayTheme = useDisplayPrefs((s) => s.setDayTheme);
+  const nightTheme = useDisplayPrefs((s) => s.nightTheme);
+  const setNightTheme = useDisplayPrefs((s) => s.setNightTheme);
+
+  return (
+    <>
+      <SettingsLabel>{t.theme.settings}</SettingsLabel>
+
+      {/* Auto theme toggle */}
+      <div className="mt-2 mb-3 flex items-center justify-between rounded-xl bg-[var(--theme-pill-bg)] px-3 py-2.5">
+        <div className="min-w-0 flex-1">
+          <span className="block text-[13px] font-medium text-[var(--theme-text)]">{t.theme.auto}</span>
+          <span className="block text-[11px] text-[var(--theme-text-quaternary)]">{t.theme.autoSubtitle}</span>
+        </div>
+        <ToggleSwitch checked={autoTheme} onChange={setAutoTheme} />
+      </div>
+
+      {autoTheme ? (
+        <div className="space-y-3">
+          <ThemeGrid selected={dayTheme} onSelect={setDayTheme} label={t.theme.dayTheme} />
+          <ThemeGrid selected={nightTheme} onSelect={setNightTheme} label={t.theme.nightTheme} />
+        </div>
+      ) : (
+        <ThemeGrid selected={theme} onSelect={onThemeChange} />
+      )}
     </>
   );
 }
