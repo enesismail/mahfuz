@@ -2,6 +2,7 @@ import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { CURRICULUM, getStageById } from "@mahfuz/shared/data/learn/curriculum";
 import { useStageUnlockStatus } from "~/hooks/useLearn";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { useStagePrefetch } from "~/hooks/useLearnAudio";
 import { useState, useEffect } from "react";
 import { resolveNestedKey } from "~/lib/i18n-utils";
@@ -45,7 +46,7 @@ function StageDetail() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
         <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-card)]">
-          <div className="mb-3 text-[48px]">🔒</div>
+          <div className="mb-3 flex justify-center"><EmojiIcon emoji="🔒" className="h-12 w-12" /></div>
           <h2 className="text-lg font-bold text-[var(--theme-text)]">{t.learn.stageLocked}</h2>
           <p className="mt-2 text-[13px] text-[var(--theme-text-secondary)]">
             {t.learn.stageLockedDesc}

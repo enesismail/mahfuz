@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { memorizationRepository } from "@mahfuz/db";
 import type { ConfidenceLevel } from "@mahfuz/shared/types";
@@ -458,7 +459,7 @@ export function SurahSelector({ userId }: SurahSelectorProps) {
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-500">
-              ✓ {t.memorize.confidence.mastered}
+              <EmojiIcon emoji="✓" className="h-2.5 w-2.5" /> {t.memorize.confidence.mastered}
             </span>
             <span
               className={`text-[14px] text-[var(--theme-text-quaternary)] transition-transform ${isExpanded ? "rotate-90" : ""}`}

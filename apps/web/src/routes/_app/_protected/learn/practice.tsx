@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useTranslation } from "~/hooks/useTranslation";
 import { useAdaptivePractice } from "~/hooks/useLearn";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 export const Route = createFileRoute("/_app/_protected/learn/practice")({
   component: LearnPractice,
@@ -34,7 +35,7 @@ function LearnPractice() {
         </div>
       ) : dueConcepts.length === 0 ? (
         <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-card)]">
-          <div className="mb-3 text-[48px]">✨</div>
+          <div className="mb-3 flex justify-center"><EmojiIcon emoji="✨" className="h-12 w-12" /></div>
           <h2 className="text-lg font-bold text-[var(--theme-text)]">{t.learn.noPractice}</h2>
           <p className="mt-2 text-[13px] text-[var(--theme-text-secondary)]">{t.learn.noPracticeDesc}</p>
         </div>

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { EXPANDED_TOPIC_INDEX } from "~/data/topic-index-expanded";
 import type { TopicEntry, TopicCategory } from "~/data/topic-index-expanded";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { chaptersQueryOptions } from "~/hooks/useChapters";
 import { useTranslation } from "~/hooks/useTranslation";
 import type { Chapter } from "@mahfuz/shared/types";
@@ -70,7 +71,7 @@ export function TopicBand() {
                   : "border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] text-[var(--theme-text)] hover:bg-[var(--theme-hover-bg)]"
               }`}
             >
-              <span className="text-[14px] leading-none">{cat.icon}</span>
+              <EmojiIcon emoji={cat.icon} className="h-3.5 w-3.5" />
               {getCategoryLabel(cat, locale)}
             </button>
           );
@@ -86,7 +87,7 @@ export function TopicBand() {
           {/* Category header */}
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-[18px] leading-none">{openCategory.icon}</span>
+              <EmojiIcon emoji={openCategory.icon} className="h-[18px] w-[18px]" />
               <h3 className="text-[14px] font-semibold text-[var(--theme-text)]">
                 {getCategoryLabel(openCategory, locale)}
               </h3>
@@ -182,7 +183,7 @@ function TopicGrid({
             : "bg-[var(--theme-hover-bg)] hover:bg-[var(--theme-pill-bg)] active:scale-[0.97]"
         }`}
       >
-        <span className="text-[18px] leading-none">{entry.icon}</span>
+        <EmojiIcon emoji={entry.icon} className="h-[18px] w-[18px]" />
         <span
           className={`max-w-full px-0.5 text-center text-[10px] font-medium leading-tight ${
             isOpen ? "text-primary-700" : "text-[var(--theme-text-secondary)]"
@@ -219,7 +220,7 @@ function TopicGrid({
           />
           {/* Header */}
           <div className="mb-2.5 flex items-center gap-2">
-            <span className="text-[18px] leading-none">{topic.icon}</span>
+            <EmojiIcon emoji={topic.icon} className="h-[18px] w-[18px]" />
             <div className="flex-1">
               <h3 className="text-[13px] font-semibold text-[var(--theme-text)]">
                 {getTopicName(topic, locale)}

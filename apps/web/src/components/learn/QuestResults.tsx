@@ -1,5 +1,6 @@
 import { useTranslation } from "~/hooks/useTranslation";
 import { Button } from "~/components/ui/Button";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 interface QuestResultsProps {
   totalExercises: number;
@@ -24,8 +25,8 @@ export function QuestResults({
     <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
       {/* Header */}
       <div className="mb-6 text-center">
-        <div className="mb-3 text-[48px]">
-          {isPerfect ? "🎉" : accuracy >= 70 ? "✅" : "📝"}
+        <div className="mb-3 flex justify-center">
+          <EmojiIcon emoji={isPerfect ? "🎉" : accuracy >= 70 ? "✅" : "📝"} className="h-12 w-12" />
         </div>
         <h2 className="text-xl font-bold text-[var(--theme-text)]">
           {t.learn.quests.sessionComplete}

@@ -3,6 +3,7 @@ import { useState, useCallback, useMemo } from "react";
 import { getStageById } from "@mahfuz/shared/data/learn/curriculum";
 import { useLearnStore } from "~/stores/useLearnStore";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import {
   ExerciseCard,
   SoundMatchExercise,
@@ -132,7 +133,7 @@ function StageExamPage() {
         <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
           {/* Header */}
           <div className="mb-6 text-center">
-            <div className="mb-3 text-[48px]">{passed ? "🎉" : "📝"}</div>
+            <div className="mb-3 flex justify-center"><EmojiIcon emoji={passed ? "🎉" : "📝"} className="h-12 w-12" /></div>
             <h2 className="text-xl font-bold text-[var(--theme-text)]">
               {passed ? t.learn.examPassed : t.learn.examFailed}
             </h2>

@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { LEVELS, getLevelById, type LevelId } from "@mahfuz/shared/types";
 import { useLearnStore } from "~/stores/useLearnStore";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { resolveNestedKey } from "~/lib/i18n-utils";
 import {
   ExerciseCard,
@@ -145,7 +146,7 @@ function LevelExamPage() {
         <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)] sm:p-8">
           {/* Header */}
           <div className="mb-6 text-center">
-            <div className="mb-3 text-[48px]">{passed ? level.icon : "📝"}</div>
+            <div className="mb-3 flex justify-center"><EmojiIcon emoji={passed ? level.icon : "📝"} className="h-12 w-12" /></div>
             <h2 className="text-xl font-bold text-[var(--theme-text)]">
               {passed ? t.learn.levels.examPassed : t.learn.levels.examFailed}
             </h2>
@@ -233,7 +234,7 @@ function LevelExamPage() {
         </Link>
 
         <div className="mb-2 flex items-center gap-2">
-          <span className="text-[20px]">{level.icon}</span>
+          <EmojiIcon emoji={level.icon} className="h-5 w-5" />
           <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:bg-amber-900/40 dark:text-amber-400">
             {t.learn.levels.exam}
           </span>

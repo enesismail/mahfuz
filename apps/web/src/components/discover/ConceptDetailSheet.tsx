@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import type { Concept } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 interface ConceptDetailSheetProps {
   concept: Concept;
@@ -41,7 +42,7 @@ export const ConceptDetailSheet = memo(function ConceptDetailSheet({
         {/* Header */}
         <div className="mb-4">
           <div className="flex items-center gap-2">
-            {concept.icon && <span className="text-[24px]">{concept.icon}</span>}
+            {concept.icon && <EmojiIcon emoji={concept.icon} className="h-6 w-6" />}
             <h2 className="text-[22px] font-bold text-[var(--theme-text)]">{name}</h2>
           </div>
           <p className="mt-2 text-[14px] leading-relaxed text-[var(--theme-text-secondary)]">

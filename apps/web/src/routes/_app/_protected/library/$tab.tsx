@@ -3,6 +3,7 @@ import { Suspense, useMemo, useState, useEffect } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { CURRICULUM, getStagesByLevel } from "@mahfuz/shared/data/learn/curriculum";
 import { LEVELS, type LevelId } from "@mahfuz/shared/types";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { SIDE_QUESTS } from "@mahfuz/shared/data/learn/quests";
 import { useLearnDashboard, useStageUnlockStatus } from "~/hooks/useLearn";
 import { useQuestDashboard } from "~/hooks/useQuest";
@@ -233,7 +234,7 @@ function CoursesTab({ userId }: { userId: string }) {
               <section key={level.id}>
                 {/* Level header */}
                 <div className="mb-3 flex items-center gap-3">
-                  <span className="text-[20px]">{level.icon}</span>
+                  <EmojiIcon emoji={level.icon} className="h-5 w-5" />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="text-[16px] font-bold text-[var(--theme-text)]">
@@ -241,7 +242,7 @@ function CoursesTab({ userId }: { userId: string }) {
                       </h3>
                       {isComplete && (
                         <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400">
-                          ✓
+                          <EmojiIcon emoji="✓" className="h-2.5 w-2.5" />
                         </span>
                       )}
                     </div>

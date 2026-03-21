@@ -3,6 +3,7 @@ import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogTitle } from "~/components/ui/Dialog";
 import { chapterQueryOptions, chaptersQueryOptions } from "~/hooks/useChapters";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { versesByChapterQueryOptions } from "~/hooks/useVerses";
 import { wbwByChapterQueryOptions } from "~/hooks/useWbwData";
 import { mergeWbwIntoVerses } from "~/lib/quran-data";
@@ -277,7 +278,7 @@ function TopicNavBar({ topic, topicKey, currentSurahId, t, locale }: { topic: To
   return (
     <div className="mb-6 rounded-2xl bg-[var(--theme-bg-primary)] p-3">
       <div className="mb-2.5 flex items-center gap-2">
-        <span className="text-[18px] leading-none">{topic.icon}</span>
+        <EmojiIcon emoji={topic.icon} className="h-[18px] w-[18px]" />
         <span className="flex-1 text-[13px] font-semibold text-[var(--theme-text)]">{topicName}</span>
         <Link to="/browse/$tab" params={{ tab: "index" }} search={{ topic: topicKey }} className="text-[11px] font-medium text-primary-600 hover:text-primary-700">{t.quranReader.backToIndex}</Link>
       </div>

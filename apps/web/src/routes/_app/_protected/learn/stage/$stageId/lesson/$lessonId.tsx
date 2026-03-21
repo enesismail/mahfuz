@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { getLessonById } from "@mahfuz/shared/data/learn/curriculum";
 import { getLetterById } from "@mahfuz/shared/data/learn/alphabet";
 import { useLearnStore } from "~/stores/useLearnStore";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import { useLessonSession } from "~/hooks/useLearn";
 import { useTranslation } from "~/hooks/useTranslation";
 import {
@@ -245,7 +246,7 @@ function ContentBlockRenderer({ block }: { block: ContentBlock }) {
       return (
         <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/20">
           <p className="text-[13px] text-amber-800 dark:text-amber-300">
-            💡 {text}
+            <EmojiIcon emoji="💡" className="inline-block h-3.5 w-3.5 mr-1" />{text}
           </p>
         </div>
       );

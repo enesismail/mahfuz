@@ -1,6 +1,7 @@
 import { BADGE_DEFINITIONS } from "@mahfuz/gamification";
 import type { UserBadgeEntry } from "@mahfuz/db";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 interface BadgeGridProps {
   badges: UserBadgeEntry[];
@@ -31,7 +32,7 @@ export function BadgeGrid({ badges }: BadgeGridProps) {
               }`}
               title={badgeName}
             >
-              <span className="text-2xl">{badge.icon}</span>
+              <EmojiIcon emoji={badge.icon} className="h-6 w-6" />
               <span className="text-[11px] font-medium leading-tight text-[var(--theme-text-secondary)]">
                 {badgeName}
               </span>

@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 // Rows modeled after standard Arabic keyboard layout
 const ROWS = [
@@ -49,7 +50,7 @@ export const ArabicKeyboard = memo(function ArabicKeyboard({
               onClick={onClear}
               className="flex h-9 w-12 items-center justify-center rounded-lg bg-[var(--theme-hover-bg)] text-[13px] font-medium text-[var(--theme-text-secondary)] transition-colors hover:bg-[var(--theme-pill-bg)] active:bg-primary-600/10 sm:w-14"
             >
-              ✕
+              <EmojiIcon emoji="✕" className="h-3.5 w-3.5" />
             </button>
           )}
         </div>

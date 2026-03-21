@@ -2,6 +2,7 @@ import { useTranslation } from "~/hooks/useTranslation";
 import { useAppUI } from "~/stores/useAppUI";
 import { LEVELS, type LevelId } from "@mahfuz/shared/types";
 import { resolveNestedKey } from "~/lib/i18n-utils";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 
 interface LevelPickerProps {
@@ -42,8 +43,8 @@ export function LevelPicker({ onSelect }: LevelPickerProps) {
               className="group flex items-start gap-4 rounded-2xl border border-[var(--theme-border)] bg-[var(--theme-bg-primary)] p-4 text-left shadow-[var(--shadow-card)] transition-all hover:shadow-[var(--shadow-elevated)] hover:-translate-y-0.5 active:scale-[0.99]"
             >
               {/* Icon */}
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--theme-hover-bg)] text-[24px]">
-                {level.icon}
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[var(--theme-hover-bg)]">
+                <EmojiIcon emoji={level.icon} className="h-6 w-6" />
               </div>
 
               {/* Content */}

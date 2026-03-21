@@ -1,4 +1,5 @@
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 interface StreakDisplayProps {
   currentStreak: number;
@@ -24,7 +25,7 @@ export function StreakDisplay({ currentStreak, longestStreak, last7Days }: Strea
   return (
     <div className="rounded-2xl bg-[var(--theme-bg-primary)] p-6 shadow-[var(--shadow-card)]">
       <div className="mb-4 flex items-center gap-3">
-        <span className="text-3xl">🔥</span>
+        <EmojiIcon emoji="🔥" className="h-8 w-8" />
         <div>
           <p className="text-2xl font-bold text-[var(--theme-text)]">
             {currentStreak} <span className="text-sm font-normal text-[var(--theme-text-tertiary)]">{t.memorize.stats.streakSuffix}</span>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BADGE_DEFINITIONS } from "@mahfuz/gamification";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 interface BadgeUnlockToastProps {
   badgeIds: string[];
@@ -35,9 +36,7 @@ export function BadgeUnlockToast({ badgeIds, onDismiss }: BadgeUnlockToastProps)
           {badgeIds.map((id) => {
             const badge = BADGE_DEFINITIONS.find((b) => b.id === id);
             return (
-              <span key={id} className="text-2xl">
-                {badge?.icon || "🏅"}
-              </span>
+              <EmojiIcon key={id} emoji={badge?.icon || "🏅"} className="h-6 w-6" />
             );
           })}
         </div>

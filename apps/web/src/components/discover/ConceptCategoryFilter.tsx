@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { ConceptCategory } from "@mahfuz/shared/types";
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 
 interface ConceptCategoryFilterProps {
   categories: ConceptCategory[];
@@ -42,7 +43,7 @@ export const ConceptCategoryFilter = memo(function ConceptCategoryFilter({
                 : "bg-[var(--theme-pill-bg)] text-[var(--theme-text-secondary)] hover:bg-[var(--theme-hover-bg)]"
             }`}
           >
-            {cat.icon} {label}
+            <EmojiIcon emoji={cat.icon} className="h-3.5 w-3.5 inline-block" /> {label}
           </button>
         );
       })}

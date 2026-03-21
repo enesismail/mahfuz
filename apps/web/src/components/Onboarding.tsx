@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import {
   usePreferencesStore,
   ARABIC_FONTS,
@@ -148,7 +149,7 @@ export function Onboarding() {
                     key={f.label}
                     className="rounded-xl bg-[var(--theme-pill-bg)] px-3 py-3 text-center"
                   >
-                    <span className="mb-1 block text-[22px]">{f.icon}</span>
+                    <span className="mb-1 flex justify-center"><EmojiIcon emoji={f.icon} className="h-[22px] w-[22px]" /></span>
                     <span className="text-[12px] font-medium text-[var(--theme-text-secondary)]">
                       {f.label}
                     </span>

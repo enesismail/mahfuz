@@ -1,4 +1,5 @@
 import { useTranslation } from "~/hooks/useTranslation";
+import { EmojiIcon } from "~/components/icons/EmojiIcon";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +19,7 @@ export function GoalCelebration({ onBackToPanel, onContinue }: GoalCelebrationPr
     <Dialog open>
       <DialogContent preventOverlayClose>
         <div className="mx-4 w-full max-w-sm animate-scale-in rounded-2xl bg-[var(--theme-bg-primary)] p-8 text-center shadow-[var(--shadow-float)]">
-          <div className="mb-4 text-5xl">🎉</div>
+          <div className="mb-4 flex justify-center"><EmojiIcon emoji="🎉" className="h-12 w-12" /></div>
           <DialogTitle className="mb-2 text-xl font-bold text-[var(--theme-text)]">
             {t.memorize.goalCelebration.title}
           </DialogTitle>
