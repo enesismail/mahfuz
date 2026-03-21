@@ -26,6 +26,7 @@ import { ReciterSection } from "~/components/settings/ReciterSection";
 import { ReadingModeSection } from "~/components/settings/ReadingModeSection";
 import { LanguageSection } from "~/components/settings/LanguageSection";
 import { PageLayoutSection } from "~/components/settings/PageLayoutSection";
+import { PresetSection } from "~/components/settings/PresetSection";
 import { getLocaleConfig } from "~/locales/registry";
 import { useReadingPrefs } from "~/stores/useReadingPrefs";
 
@@ -260,6 +261,11 @@ function SettingsPage() {
       <p className="mb-5 text-sm text-[var(--theme-text-tertiary)]">
         {t.settings.subtitle}
       </p>
+
+      {/* Presets */}
+      <div className="mb-5">
+        <PresetSection />
+      </div>
 
       {/* Ribbon bar */}
       <div className="scrollbar-none grid grid-cols-3 gap-1.5 sm:grid-cols-6">

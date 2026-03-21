@@ -10,6 +10,12 @@ import { useTranslatedVerses } from "~/hooks/useTranslatedVerses";
 import { useAudioStore } from "~/stores/useAudioStore";
 import { TranslationPicker } from "./TranslationPicker";
 import { useTranslation } from "~/hooks/useTranslation";
+import { THEME_OPTIONS, READING_PRESETS } from "~/lib/constants";
+import type { Theme } from "~/lib/constants";
+import { useDisplayPrefs } from "~/stores/useDisplayPrefs";
+import { useAudioPrefs } from "~/stores/useAudioPrefs";
+import { CURATED_RECITERS } from "@mahfuz/shared/constants";
+import { applyPreset } from "~/lib/apply-preset";
 
 /* ─ Shared helpers ─ */
 
@@ -248,6 +254,11 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
   const panelRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
 
+  const theme = useDisplayPrefs((s) => s.theme);
+  const setTheme = useDisplayPrefs((s) => s.setTheme);
+  const currentReciterId = useAudioPrefs((s) => s.reciterId);
+  const setReciterId = useAudioPrefs((s) => s.setReciterId);
+
   const audioVisible = useAudioStore((s) => s.isVisible);
 
   // Close with exit animation (desktop only)
@@ -388,6 +399,25 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
 
       {/* Scrollable settings area */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-20 lg:pb-5">
+      {/* Preset pills */}
+      <div className="mb-3 flex gap-2 overflow-x-auto scrollbar-none">
+        {READING_PRESETS.map((preset, i) => {
+          const names = [t.presets?.nightReading ?? "Gece", t.presets?.studyMode ?? "Çalışma", t.presets?.mushafMode ?? "Mushaf", t.presets?.default ?? "Varsayılan"];
+          const icons = ["🌙", "📖", "📗", "⚙️"];
+          return (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => applyPreset(preset)}
+              className="flex shrink-0 items-center gap-1 rounded-full bg-[var(--theme-pill-bg)] px-3 py-1.5 text-[11px] font-medium text-[var(--theme-text-secondary)] transition-all hover:bg-[var(--theme-hover-bg)] active:scale-[0.97]"
+            >
+              <span className="text-[13px]">{icons[i]}</span>
+              {names[i]}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Global font scale strip */}
       <div className="mb-3 flex items-center justify-between rounded-xl bg-[var(--theme-pill-bg)] px-3 py-2">
         <span className="text-[12px] font-medium text-[var(--theme-text-secondary)]">{t.toolbar.fontScale}</span>
@@ -427,6 +457,28 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
 
       {/* Category accordions */}
       <div className="rounded-xl bg-[var(--theme-pill-bg)] px-3">
+        {/* Theme Category */}
+        <CategorySection
+          title={t.toolbar?.themeCategory ?? "Tema"}
+          icon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>}
+          defaultOpen
+        >
+          <div className="flex flex-wrap gap-2">
+            {THEME_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setTheme(opt.value as Theme)}
+                className={`h-8 w-8 rounded-full border-2 transition-all ${
+                  theme === opt.value ? "border-primary-600 ring-2 ring-primary-600/30 scale-110" : "border-[var(--theme-divider)]"
+                }`}
+                style={{ backgroundColor: opt.color }}
+                aria-label={opt.value}
+              />
+            ))}
+          </div>
+        </CategorySection>
+
         {/* Size Category */}
         <CategorySection
           title={t.toolbar.sizeCategory}
@@ -567,6 +619,34 @@ export function ReadingToolbar({ segmentStyle }: { segmentStyle?: boolean } = {}
               ))}
             </div>
           )}
+        </CategorySection>
+
+        {/* Reciter Category */}
+        <CategorySection
+          title={t.toolbar?.reciterCategory ?? "Kari"}
+          icon={<svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" /><path d="M19 10v2a7 7 0 0 1-14 0v-2" /><line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" /></svg>}
+        >
+          <div className="grid grid-cols-2 gap-1.5">
+            {CURATED_RECITERS.map((reciter) => (
+              <button
+                key={reciter.id}
+                type="button"
+                onClick={() => setReciterId(reciter.id)}
+                className={`flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition-all ${
+                  currentReciterId === reciter.id
+                    ? "border-primary-500 bg-primary-600/10"
+                    : "border-[var(--theme-border)] bg-[var(--theme-bg-primary)] hover:border-[var(--theme-divider)]"
+                }`}
+              >
+                <span className={`text-[11px] font-medium leading-tight ${currentReciterId === reciter.id ? "text-primary-700" : "text-[var(--theme-text-secondary)]"}`}>
+                  {reciter.name}
+                </span>
+                {currentReciterId === reciter.id && (
+                  <svg className="ml-auto h-3.5 w-3.5 shrink-0 text-primary-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                )}
+              </button>
+            ))}
+          </div>
         </CategorySection>
       </div>
       </div>{/* end scrollable */}

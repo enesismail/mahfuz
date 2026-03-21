@@ -70,3 +70,36 @@ export function getSampleData(textType: string) {
     sampleWords: isUthmani ? SAMPLE_WORDS_UTHMANI : SAMPLE_WORDS_SIMPLE,
   };
 }
+
+export interface ReadingPreset {
+  id: string;
+  overrides: {
+    theme?: Theme;
+    viewMode?: ViewMode;
+    arabicFontSize?: number;
+    showTranslation?: boolean;
+    wbwShowWordTranslation?: boolean;
+    wbwShowWordTransliteration?: boolean;
+    wbwShowGrammar?: boolean;
+    mushafShowTranslation?: boolean;
+  };
+}
+
+export const READING_PRESETS: ReadingPreset[] = [
+  {
+    id: "night",
+    overrides: { theme: "dark", arabicFontSize: 1.3, showTranslation: false },
+  },
+  {
+    id: "study",
+    overrides: { viewMode: "wordByWord", wbwShowWordTranslation: true, wbwShowWordTransliteration: true, wbwShowGrammar: true },
+  },
+  {
+    id: "mushaf",
+    overrides: { viewMode: "mushaf", theme: "sepia", showTranslation: false, mushafShowTranslation: false },
+  },
+  {
+    id: "default",
+    overrides: { theme: "sepia", viewMode: "normal", arabicFontSize: 1, showTranslation: true },
+  },
+];
