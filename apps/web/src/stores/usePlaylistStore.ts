@@ -26,9 +26,10 @@ interface PlaylistState {
   currentItemIndex: number;
   remainingRepeats: number;
   isLoadingNext: boolean;
+  _userPaused: boolean;
 
   // CRUD actions
-  addItem: (surahId: number, surahNameAr: string, surahNameTr: string, versesCount: number) => void;
+  addItem: (surahId: number, surahNameAr: string, surahNameTr: string, versesCount: number, fromVerse?: number, toVerse?: number) => void;
   removeItem: (id: string) => void;
   updateItem: (id: string, patch: Partial<Pick<PlaylistItem, "fromVerse" | "toVerse" | "repeatCount">>) => void;
   moveItem: (fromIndex: number, toIndex: number) => void;
@@ -38,6 +39,8 @@ interface PlaylistState {
   // Playback actions
   startPlaylist: (fetchAudio: FetchAudioFn) => Promise<void>;
   stopPlaylist: () => void;
+  pausePlaylist: () => void;
+  resumePlaylist: () => void;
   skipToNext: (fetchAudio: FetchAudioFn) => Promise<void>;
 
   // Internal: called from useAudioStore callbacks
@@ -69,8 +72,8 @@ async function playCurrentItem(
     const qdcFile = await fetchAudio(reciterId, item.surahId);
     const audioData = buildFilteredAudio(qdcFile, item.fromVerse, item.toVerse);
 
-    // Check we're still active after async fetch
-    if (!get().isActive) return;
+    // Check we're still active and not paused after async fetch
+    if (!get().isActive || get()._userPaused) return;
 
     set({ isLoadingNext: false });
 
@@ -89,17 +92,18 @@ export const usePlaylistStore = create<PlaylistState>()(
       currentItemIndex: 0,
       remainingRepeats: 1,
       isLoadingNext: false,
+      _userPaused: false,
       _fetchAudioRef: null,
 
-      addItem: (surahId, surahNameAr, surahNameTr, versesCount) => {
+      addItem: (surahId, surahNameAr, surahNameTr, versesCount, fromVerse?, toVerse?) => {
         const item: PlaylistItem = {
           id: crypto.randomUUID(),
           surahId,
           surahNameAr,
           surahNameTr,
           versesCount,
-          fromVerse: 1,
-          toVerse: versesCount,
+          fromVerse: fromVerse ?? 1,
+          toVerse: toVerse ?? versesCount,
           repeatCount: 1,
         };
         set({ items: [...get().items, item] });
@@ -158,6 +162,7 @@ export const usePlaylistStore = create<PlaylistState>()(
 
         set({
           isActive: true,
+          _userPaused: false,
           currentItemIndex: 0,
           remainingRepeats: items[0].repeatCount === 0 ? 1 : items[0].repeatCount,
           _fetchAudioRef: fetchAudio,
@@ -167,7 +172,15 @@ export const usePlaylistStore = create<PlaylistState>()(
       },
 
       stopPlaylist: () => {
-        set({ isActive: false, isLoadingNext: false, _fetchAudioRef: null });
+        set({ isActive: false, isLoadingNext: false, _userPaused: false, _fetchAudioRef: null });
+      },
+
+      pausePlaylist: () => {
+        set({ _userPaused: true });
+      },
+
+      resumePlaylist: () => {
+        set({ _userPaused: false });
       },
 
       skipToNext: async (fetchAudio) => {
@@ -192,8 +205,8 @@ export const usePlaylistStore = create<PlaylistState>()(
       },
 
       _handleVerseEnd: (verseKey: string) => {
-        const { isActive, items, currentItemIndex, remainingRepeats, _fetchAudioRef } = get();
-        if (!isActive || currentItemIndex >= items.length) return;
+        const { isActive, items, currentItemIndex, remainingRepeats, _fetchAudioRef, _userPaused } = get();
+        if (!isActive || _userPaused || currentItemIndex >= items.length) return;
 
         const item = items[currentItemIndex];
         const lastVerseKey = `${item.surahId}:${item.toVerse}`;
@@ -235,8 +248,8 @@ export const usePlaylistStore = create<PlaylistState>()(
       },
 
       _handlePlaybackEnded: () => {
-        const { isActive, items, currentItemIndex, remainingRepeats, _fetchAudioRef } = get();
-        if (!isActive || currentItemIndex >= items.length) return;
+        const { isActive, items, currentItemIndex, remainingRepeats, _fetchAudioRef, _userPaused } = get();
+        if (!isActive || _userPaused || currentItemIndex >= items.length) return;
 
         const item = items[currentItemIndex];
 

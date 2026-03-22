@@ -14,10 +14,33 @@ interface MemorizeSurahInfo {
   nameTr: string;
   versesCount: number;
   cardCount: number;
+  memorizedVerses: Set<number>;
 }
 
 // Popular short surahs for memorization suggestions
 const SUGGESTED_SURAH_IDS = [1, 112, 113, 114, 110, 108, 107, 105, 103, 102, 101, 100, 99, 97, 96, 36, 67, 78, 55, 56];
+
+/** Find the first contiguous range of unmemorized verses */
+function getUnmemorizedRange(memorized: Set<number>, total: number): { from: number; to: number } {
+  // Find first unmemorized verse
+  let from = 1;
+  for (let v = 1; v <= total; v++) {
+    if (!memorized.has(v)) {
+      from = v;
+      break;
+    }
+  }
+  // Find last unmemorized verse (contiguous from `from`)
+  let to = from;
+  for (let v = from + 1; v <= total; v++) {
+    if (!memorized.has(v)) {
+      to = v;
+    } else {
+      break;
+    }
+  }
+  return { from, to };
+}
 
 export function MemorizationQuickAdd() {
   const { t } = useTranslation();
@@ -37,11 +60,18 @@ export function MemorizationQuickAdd() {
   const memorizeSurahs = useMemo<MemorizeSurahInfo[]>(() => {
     if (!allCards?.length || !chapters?.length) return [];
 
-    // Count cards per surah
+    // Count cards per surah and track which verses are memorized
     const surahCardCounts = new Map<number, number>();
+    const surahMemorizedVerses = new Map<number, Set<number>>();
     for (const card of allCards) {
-      const surahId = parseInt(card.verseKey.split(":")[0], 10);
+      const [surahStr, verseStr] = card.verseKey.split(":");
+      const surahId = parseInt(surahStr, 10);
+      const verseNum = parseInt(verseStr, 10);
       surahCardCounts.set(surahId, (surahCardCounts.get(surahId) || 0) + 1);
+      if (!surahMemorizedVerses.has(surahId)) {
+        surahMemorizedVerses.set(surahId, new Set());
+      }
+      surahMemorizedVerses.get(surahId)!.add(verseNum);
     }
 
     // Build info for each surah
@@ -55,9 +85,12 @@ export function MemorizationQuickAdd() {
           nameTr: getSurahName(ch.id, ch.translated_name.name, locale),
           versesCount: ch.verses_count,
           cardCount,
+          memorizedVerses: surahMemorizedVerses.get(surahId) || new Set(),
         };
       })
       .filter((x): x is MemorizeSurahInfo => x !== null)
+      // Hide fully memorized surahs — only show in-progress
+      .filter((x) => x.cardCount < x.versesCount)
       .sort((a, b) => a.surahId - b.surahId);
   }, [allCards, chapters, locale]);
 
@@ -107,17 +140,22 @@ export function MemorizationQuickAdd() {
                 ? items.find((i) => i.surahId === s.surahId)
                 : null;
 
+              // Find first unmemorized verse range for smarter defaults
+              const unmemorizedRange = getUnmemorizedRange(s.memorizedVerses, s.versesCount);
+
               return (
                 <SurahChip
                   key={s.surahId}
                   name={s.nameTr}
                   badge={`${s.cardCount}/${s.versesCount}`}
+                  subtitle={`${unmemorizedRange.from}-${unmemorizedRange.to}`}
                   inPlaylist={inPlaylist}
                   onClick={() => {
                     if (inPlaylist && playlistItem) {
                       removeItem(playlistItem.id);
                     } else {
-                      addItem(s.surahId, s.nameAr, s.nameTr, s.versesCount);
+                      // Auto-set range to unmemorized verses
+                      addItem(s.surahId, s.nameAr, s.nameTr, s.versesCount, unmemorizedRange.from, unmemorizedRange.to);
                     }
                   }}
                 />
@@ -171,11 +209,13 @@ export function MemorizationQuickAdd() {
 function SurahChip({
   name,
   badge,
+  subtitle,
   inPlaylist,
   onClick,
 }: {
   name: string;
   badge: string;
+  subtitle?: string;
   inPlaylist: boolean;
   onClick: () => void;
 }) {
@@ -184,7 +224,7 @@ function SurahChip({
       onClick={onClick}
       className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[13px] font-medium transition-colors ${
         inPlaylist
-          ? "border-primary-500/40 bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+          ? "border-primary-600 bg-primary-600 text-white shadow-sm dark:bg-primary-600 dark:text-white"
           : "border-[var(--theme-border)] bg-[var(--theme-bg-secondary)] text-[var(--theme-text)] hover:border-primary-500/30 hover:bg-primary-50/50 dark:hover:bg-primary-900/10"
       }`}
     >
@@ -198,9 +238,14 @@ function SurahChip({
         </svg>
       )}
       <span>{name}</span>
-      <span className="text-[11px] text-[var(--theme-text-quaternary)]">
+      <span className={`text-[11px] ${inPlaylist ? "text-white/70" : "text-[var(--theme-text-quaternary)]"}`}>
         {badge}
       </span>
+      {subtitle && (
+        <span className={`text-[10px] ${inPlaylist ? "text-white/60" : "text-[var(--theme-text-quaternary)]"}`}>
+          ({subtitle})
+        </span>
+      )}
     </button>
   );
 }

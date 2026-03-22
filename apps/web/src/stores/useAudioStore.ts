@@ -149,16 +149,40 @@ export const useAudioStore = create<AudioStoreState>()(
         engine.play(startIndex >= 0 ? startIndex : 0);
       },
 
-      play: () => get().engine?.play(),
-      pause: () => get().engine?.pause(),
+      play: () => {
+        get().engine?.play();
+        // Resume playlist if it was paused
+        const ps = usePlaylistStore.getState();
+        if (ps.isActive && ps._userPaused) {
+          ps.resumePlaylist();
+        }
+      },
+      pause: () => {
+        get().engine?.pause();
+        // Pause playlist to prevent auto-advance
+        const ps = usePlaylistStore.getState();
+        if (ps.isActive) {
+          ps.pausePlaylist();
+        }
+      },
 
       togglePlayPause: () => {
         const { playbackState, engine } = get();
         if (!engine) return;
-        if (playbackState === "playing") {
+        if (playbackState === "playing" || playbackState === "loading") {
           engine.pause();
+          // Pause playlist to prevent auto-advance
+          const ps = usePlaylistStore.getState();
+          if (ps.isActive) {
+            ps.pausePlaylist();
+          }
         } else {
           engine.play();
+          // Resume playlist if it was paused
+          const ps = usePlaylistStore.getState();
+          if (ps.isActive && ps._userPaused) {
+            ps.resumePlaylist();
+          }
         }
       },
 
