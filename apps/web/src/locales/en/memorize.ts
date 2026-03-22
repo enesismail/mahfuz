@@ -139,6 +139,9 @@ export const memorizeMessages = {
       blanksRemaining: "remaining",
       tapToFill: "Tap a blank",
       pickWord: "Pick the correct word",
+      retryTitle: "Make It Right",
+      retryDesc: "{count} wrong answers will be asked again",
+      retryStart: "Retry",
     },
 
     skipExam: {

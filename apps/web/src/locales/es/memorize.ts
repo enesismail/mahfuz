@@ -139,6 +139,9 @@ export const memorizeMessages = {
       blanksRemaining: "restantes",
       tapToFill: "Toca un espacio",
       pickWord: "Elige la palabra correcta",
+      retryTitle: "Recuperación",
+      retryDesc: "{count} respuestas incorrectas se repetirán",
+      retryStart: "Reintentar",
     },
 
     skipExam: {

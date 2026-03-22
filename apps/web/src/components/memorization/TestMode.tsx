@@ -47,6 +47,15 @@ function seededShuffle<T>(arr: T[], rand: () => number): T[] {
   return a;
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 interface BlankSlot {
   flatIdx: number;
   verseIdx: number;
@@ -64,6 +73,8 @@ interface WordMeta {
   wordPosition: number;
   text: string;
 }
+
+type Phase = "main" | "retryIntro" | "retry";
 
 interface TestModeProps {
   source: MemorizeSource;
@@ -176,13 +187,17 @@ export function TestMode({ source, verses, onVerseChange, onComplete }: TestMode
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [verseKeysStr, source.id]);
 
+  const [phase, setPhase] = useState<Phase>("main");
   const [currentBlankIdx, setCurrentBlankIdx] = useState(0);
   const [answers, setAnswers] = useState<Map<number, { selected: string; correct: boolean }>>(new Map());
   const [feedback, setFeedback] = useState<{ correct: boolean; correctWord: string } | null>(null);
+  const [retryBlanks, setRetryBlanks] = useState<BlankSlot[]>([]);
   const wordResultsRef = useRef<WordResult[]>([]);
   const wordStartTime = useRef(Date.now());
 
-  const currentBlank = blanks[currentBlankIdx];
+  // Active blanks depend on phase
+  const activeBlanks = phase === "retry" ? retryBlanks : blanks;
+  const currentBlank = activeBlanks[currentBlankIdx];
 
   // Track verse changes
   useEffect(() => {
@@ -191,9 +206,78 @@ export function TestMode({ source, verses, onVerseChange, onComplete }: TestMode
     }
   }, [currentBlank?.verseIdx]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const finalize = useCallback((finalAnswers: Map<number, { selected: string; correct: boolean }>) => {
+    const verseMap = new Map<string, { correct: number; total: number }>();
+    for (const b of blanks) {
+      if (!verseMap.has(b.verseKey))
+        verseMap.set(b.verseKey, { correct: 0, total: 0 });
+      const v = verseMap.get(b.verseKey)!;
+      v.total++;
+      const ans = finalAnswers.get(b.flatIdx);
+      if (ans?.correct) v.correct++;
+    }
+
+    const verseResults: VerseResult[] = [...verseMap.entries()].map(
+      ([vk, stats]) => ({
+        verseKey: vk,
+        mode: "test" as const,
+        wordsCorrect: stats.correct,
+        wordsTotal: stats.total,
+        timeMs: 0,
+      }),
+    );
+
+    const totalCorrect = verseResults.reduce((s, v) => s + v.wordsCorrect, 0);
+    const totalWords = verseResults.reduce((s, v) => s + v.wordsTotal, 0);
+
+    onComplete({
+      mode: "test",
+      source,
+      verseResults,
+      totalCorrect,
+      totalWords,
+      completedAt: Date.now(),
+    });
+  }, [blanks, source, onComplete]);
+
+  const advanceToNext = useCallback(() => {
+    setFeedback(null);
+    wordStartTime.current = Date.now();
+    const nextIdx = currentBlankIdx + 1;
+    if (nextIdx < activeBlanks.length) {
+      setCurrentBlankIdx(nextIdx);
+    } else if (phase === "main") {
+      // End of main round — check for wrong answers
+      setAnswers((current) => {
+        const wrongBlanks = blanks.filter((b) => {
+          const ans = current.get(b.flatIdx);
+          return ans && !ans.correct;
+        });
+        if (wrongBlanks.length > 0) {
+          // Re-shuffle options for retry
+          const reshuffled = wrongBlanks.map((b) => ({
+            ...b,
+            options: shuffle(b.options),
+          }));
+          setRetryBlanks(reshuffled);
+          setPhase("retryIntro");
+        } else {
+          finalize(current);
+        }
+        return current;
+      });
+    } else {
+      // End of retry round — finalize with updated answers
+      setAnswers((current) => {
+        finalize(current);
+        return current;
+      });
+    }
+  }, [activeBlanks, currentBlankIdx, phase, blanks, finalize]);
+
   const handlePickOption = useCallback(
     (word: string) => {
-      const blank = blanks[currentBlankIdx];
+      const blank = activeBlanks[currentBlankIdx];
       if (!blank || feedback) return;
 
       const isCorrect = word === blank.correctWord;
@@ -213,55 +297,22 @@ export function TestMode({ source, verses, onVerseChange, onComplete }: TestMode
 
       setFeedback({ correct: isCorrect, correctWord: blank.correctWord });
 
-      const delay = isCorrect ? 600 : 1400;
-      setTimeout(() => {
-        setFeedback(null);
-        wordStartTime.current = Date.now();
-        const nextIdx = currentBlankIdx + 1;
-        if (nextIdx < blanks.length) {
-          setCurrentBlankIdx(nextIdx);
-        } else {
-          // Build results
-          setAnswers((finalAnswers) => {
-            const verseMap = new Map<string, { correct: number; total: number }>();
-            for (const b of blanks) {
-              if (!verseMap.has(b.verseKey))
-                verseMap.set(b.verseKey, { correct: 0, total: 0 });
-              const v = verseMap.get(b.verseKey)!;
-              v.total++;
-              const ans = finalAnswers.get(b.flatIdx);
-              if (ans?.correct) v.correct++;
-            }
-
-            const verseResults: VerseResult[] = [...verseMap.entries()].map(
-              ([vk, stats]) => ({
-                verseKey: vk,
-                mode: "test" as const,
-                wordsCorrect: stats.correct,
-                wordsTotal: stats.total,
-                timeMs: 0,
-              }),
-            );
-
-            const totalCorrect = verseResults.reduce((s, v) => s + v.wordsCorrect, 0);
-            const totalWords = verseResults.reduce((s, v) => s + v.wordsTotal, 0);
-
-            onComplete({
-              mode: "test",
-              source,
-              verseResults,
-              totalCorrect,
-              totalWords,
-              completedAt: Date.now(),
-            });
-
-            return finalAnswers;
-          });
-        }
-      }, delay);
+      // Auto-advance only on correct answers
+      if (isCorrect) {
+        setTimeout(() => {
+          advanceToNext();
+        }, 600);
+      }
     },
-    [blanks, currentBlankIdx, source, onComplete, feedback],
+    [activeBlanks, currentBlankIdx, advanceToNext, feedback],
   );
+
+  const startRetry = useCallback(() => {
+    setPhase("retry");
+    setCurrentBlankIdx(0);
+    setFeedback(null);
+    wordStartTime.current = Date.now();
+  }, []);
 
   if (blanks.length === 0) {
     return (
@@ -271,8 +322,37 @@ export function TestMode({ source, verses, onVerseChange, onComplete }: TestMode
     );
   }
 
-  const answeredCount = answers.size;
-  const totalBlanks = blanks.length;
+  // Retry intro screen
+  if (phase === "retryIntro") {
+    return (
+      <div className="flex h-full flex-col items-center justify-center px-4 py-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/15">
+            <svg className="h-8 w-8 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </div>
+          <h2 className="text-[22px] font-bold text-[var(--theme-text)]">
+            {t.memorize.verification.retryTitle}
+          </h2>
+          <p className="text-[15px] text-[var(--theme-text-secondary)]">
+            {t.memorize.verification.retryDesc.replace("{count}", String(retryBlanks.length))}
+          </p>
+          <button
+            onClick={startRetry}
+            className="mt-4 w-full max-w-xs rounded-xl bg-primary-600 px-6 py-3.5 text-[15px] font-semibold text-white transition-colors hover:bg-primary-700 active:scale-[0.97]"
+          >
+            {t.memorize.verification.retryStart}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const answeredCount = phase === "retry"
+    ? (feedback ? currentBlankIdx + 1 : currentBlankIdx)
+    : answers.size;
+  const totalBlanks = activeBlanks.length;
 
   // Build the current verse with the blank highlighted
   const currentVerse = currentBlank ? verses[currentBlank.verseIdx] : null;
@@ -282,15 +362,31 @@ export function TestMode({ source, verses, onVerseChange, onComplete }: TestMode
     <div className="flex h-full flex-col items-center justify-between px-4 py-4">
       {/* Progress dots */}
       <div className="flex w-full items-center gap-1.5">
+        {phase === "retry" && (
+          <span className="mr-1.5 shrink-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-600">
+            {t.memorize.verification.retryTitle}
+          </span>
+        )}
         <div className="flex flex-1 gap-0.5">
-          {blanks.map((b, i) => {
+          {activeBlanks.map((b, i) => {
             const ans = answers.get(b.flatIdx);
             let dotColor = "bg-[var(--theme-hover-bg)]";
-            if (ans) dotColor = ans.correct ? "bg-emerald-500" : "bg-red-400";
-            else if (i === currentBlankIdx) dotColor = "bg-primary-500";
+            if (phase === "retry") {
+              // In retry: show result only for already-answered retry blanks
+              if (i < currentBlankIdx) {
+                dotColor = ans?.correct ? "bg-emerald-500" : "bg-red-400";
+              } else if (i === currentBlankIdx && feedback) {
+                dotColor = ans?.correct ? "bg-emerald-500" : "bg-red-400";
+              } else if (i === currentBlankIdx) {
+                dotColor = "bg-primary-500";
+              }
+            } else {
+              if (ans) dotColor = ans.correct ? "bg-emerald-500" : "bg-red-400";
+              else if (i === currentBlankIdx) dotColor = "bg-primary-500";
+            }
             return (
               <div
-                key={b.flatIdx}
+                key={`${phase}-${b.flatIdx}`}
                 className={`h-1 flex-1 rounded-full transition-colors ${dotColor}`}
               />
             );
@@ -391,10 +487,19 @@ export function TestMode({ source, verses, onVerseChange, onComplete }: TestMode
         </div>
       )}
 
-      {/* Spacer when feedback is shown (keep layout stable) */}
+      {/* Wrong answer: show "Devam" button; correct: spacer for layout stability */}
       {feedback && (
         <div className="w-full max-w-lg pb-2" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
-          <div className="h-[140px]" />
+          {!feedback.correct ? (
+            <button
+              onClick={advanceToNext}
+              className="w-full rounded-xl bg-primary-600 px-4 py-3.5 text-[15px] font-semibold text-white transition-colors hover:bg-primary-700 active:scale-[0.97]"
+            >
+              {t.memorize.nextVerse}
+            </button>
+          ) : (
+            <div className="h-[140px]" />
+          )}
         </div>
       )}
     </div>

@@ -139,6 +139,9 @@ export const memorizeMessages = {
       blanksRemaining: "kalan",
       tapToFill: "Boşluğa dokunun",
       pickWord: "Doğru kelimeyi seçin",
+      retryTitle: "Telafi Hakkı",
+      retryDesc: "{count} yanlış cevap tekrar sorulacak",
+      retryStart: "Telafi Et",
     },
 
     skipExam: {
