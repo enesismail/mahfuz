@@ -99,6 +99,9 @@ export const kidsMessages = {
       whatIsTheName: "letter's name is?",
       whichOrder: "letter is in which order?",
       notFound: "Letter not found",
+      tapDot: "Tap the dot",
+      dragStart: "Start from the green dot",
+      keepGoing: "Keep tracing",
     },
 
     surahs: {

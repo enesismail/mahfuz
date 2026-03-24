@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "~/hooks/useTranslation";
 import { useKidsStore, useActiveKidsProfile } from "~/stores/useKidsStore";
 import { useKidsProgressStore } from "~/stores/useKidsProgressStore";
@@ -342,8 +342,9 @@ function AddChildForm({ onSave, onCancel }: { onSave: () => void; onCancel: () =
   const addProfile = useKidsStore((s) => s.addProfile);
   const setActiveProfile = useKidsStore((s) => s.setActiveProfile);
 
+  const currentYear = new Date().getFullYear();
   const [name, setName] = useState("");
-  const [birthYear, setBirthYear] = useState(2018);
+  const [birthYear, setBirthYear] = useState(currentYear - 6);
   const [selectedAvatar, setSelectedAvatar] = useState<string>(BASE_AVATARS[0]);
 
   const handleCreate = () => {
@@ -353,7 +354,7 @@ function AddChildForm({ onSave, onCancel }: { onSave: () => void; onCancel: () =
       name: name.trim(),
       birthYear,
       avatarId: selectedAvatar,
-      ageGroup: new Date().getFullYear() - birthYear <= 7 ? "small" : "big",
+      ageGroup: currentYear - birthYear <= 7 ? "small" : "big",
     };
     addProfile(profile);
     setActiveProfile(profile);
@@ -375,33 +376,32 @@ function AddChildForm({ onSave, onCancel }: { onSave: () => void; onCancel: () =
         autoFocus
       />
 
-      <label className="mb-1 block text-[13px] font-semibold text-gray-600">
+      <label className="mb-2 block text-[13px] font-semibold text-gray-600">
         {t.kids.profile.birthYear}
       </label>
-      <input
-        type="number"
-        value={birthYear}
-        onChange={(e) => setBirthYear(Number(e.target.value))}
-        min={2010}
-        max={2024}
-        className="mb-4 w-full rounded-xl border border-gray-200 px-4 py-3 text-[15px] focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-100"
-      />
+      <BirthYearPicker value={birthYear} onChange={setBirthYear} />
 
       <label className="mb-2 block text-[13px] font-semibold text-gray-600">
         {t.kids.profile.selectAvatar}
       </label>
-      <div className="mb-4 grid grid-cols-4 gap-2">
+      <div className="mb-4 grid grid-cols-4 gap-3">
         {BASE_AVATARS.map((av) => (
           <button
             key={av}
             onClick={() => setSelectedAvatar(av)}
-            className={`flex h-14 w-14 items-center justify-center rounded-xl text-xl transition-transform active:scale-90 ${
+            className={`flex items-center justify-center rounded-2xl p-2 transition-transform active:scale-90 ${
               selectedAvatar === av
-                ? "ring-2 ring-emerald-400 bg-emerald-200"
-                : "bg-gray-100"
+                ? "ring-2 ring-emerald-400 bg-emerald-50 scale-105"
+                : "bg-gray-50 hover:bg-gray-100"
             }`}
           >
-            {av.replace("avatar-", "")}
+            <AvatarDisplay
+              name={name.trim() || "?"}
+              avatarId={av}
+              level={1}
+              size="sm"
+              showLevel={false}
+            />
           </button>
         ))}
       </div>
@@ -420,6 +420,66 @@ function AddChildForm({ onSave, onCancel }: { onSave: () => void; onCancel: () =
         >
           {t.kids.profile.save}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Birth Year Horizontal Scroll Picker ──────────────────────────
+
+function BirthYearPicker({ value, onChange }: { value: number; onChange: (y: number) => void }) {
+  const currentYear = new Date().getFullYear();
+  const minYear = currentYear - 14; // ~14 years old max
+  const maxYear = currentYear - 2;  // ~2 years old min
+  const years = Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to selected year on mount
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+    const idx = value - minYear;
+    const itemWidth = 72; // w-16 (64px) + gap
+    const scrollLeft = idx * itemWidth - container.clientWidth / 2 + itemWidth / 2;
+    container.scrollTo({ left: scrollLeft, behavior: "instant" });
+  }, []);
+
+  const age = currentYear - value;
+
+  return (
+    <div className="mb-4">
+      <div
+        ref={scrollRef}
+        className="flex gap-2 overflow-x-auto pb-2 scrollbar-none"
+        style={{ scrollSnapType: "x mandatory" }}
+      >
+        {years.map((year) => {
+          const isSelected = year === value;
+          const yearAge = currentYear - year;
+          return (
+            <button
+              key={year}
+              onClick={() => onChange(year)}
+              className={`flex shrink-0 flex-col items-center justify-center rounded-2xl px-3 py-2.5 transition-all active:scale-95 ${
+                isSelected
+                  ? "bg-emerald-500 text-white shadow-md shadow-emerald-200 scale-105"
+                  : "bg-gray-50 text-gray-600 hover:bg-gray-100"
+              }`}
+              style={{ scrollSnapAlign: "center", minWidth: 64 }}
+            >
+              <span className={`text-[15px] font-bold ${isSelected ? "text-white" : "text-gray-800"}`}>
+                {year}
+              </span>
+              <span className={`text-[11px] ${isSelected ? "text-emerald-100" : "text-gray-400"}`}>
+                {yearAge} yaş
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="mt-1.5 text-center text-[13px] font-medium text-emerald-600">
+        {value} — {age} yaş
       </div>
     </div>
   );

@@ -6,6 +6,8 @@ import { KidsTabBar } from "./KidsTabBar";
 import { AvatarDisplay } from "./AvatarDisplay";
 import { FloatingMascot } from "./Mascot";
 import { CelebrationOverlay } from "./CelebrationOverlay";
+import { KidsBackground } from "./KidsBackground";
+import { AudioProvider } from "~/components/audio/AudioProvider";
 import { KIDS_LEVELS } from "~/lib/kids-constants";
 
 export function KidsLayout() {
@@ -80,10 +82,19 @@ export function KidsLayout() {
   const currentPath = matches[matches.length - 1]?.fullPath ?? "";
 
   const backTarget = useMemo(() => {
-    // Sub-pages: go to parent kids page
-    if (currentPath.startsWith("/kids/letters/")) return { to: "/kids/letters" as const, label: t.kids.nav.letters };
-    // Top-level kids pages: go to main app
-    if (currentPath.startsWith("/kids/")) return { to: "/browse" as const, label: t.kids.nav.backToApp };
+    const normalized = currentPath.replace(/\/$/, "");
+    // Letter detail pages → back to letters grid
+    if (normalized.startsWith("/kids/letters/") && normalized !== "/kids/letters") {
+      return { to: "/kids/letters" as const, label: t.kids.nav.letters };
+    }
+    // Surah detail pages → back to surahs list
+    if (normalized.startsWith("/kids/surahs/") && normalized !== "/kids/surahs") {
+      return { to: "/kids/surahs" as const, label: t.kids.nav.surahs };
+    }
+    // Kids homepage → back to main app
+    if (normalized === "/kids/map") return { to: "/browse" as const, label: t.kids.nav.backToApp };
+    // All other kids pages → back to kids homepage
+    if (normalized.startsWith("/kids")) return { to: "/kids/map" as const, label: t.kids.nav.map };
     return { to: "/browse" as const, label: t.kids.nav.backToApp };
   }, [currentPath, t]);
 
@@ -107,6 +118,10 @@ export function KidsLayout() {
 
   return (
     <div className="kids-zone flex min-h-screen flex-col" style={{ background: "var(--kids-bg, linear-gradient(135deg, #fff7ed, #ecfdf5, #fef3c7))" }}>
+      <AudioProvider />
+      {/* Animated background scenery */}
+      <KidsBackground />
+
       {/* Kids Header */}
       <header className="sticky top-0 z-20 border-b-2 border-emerald-200" style={{ background: "var(--kids-header-bg, rgba(255,255,255,0.92))", backdropFilter: "blur(16px)" }}>
         <div className="flex h-14 items-center justify-between px-4">

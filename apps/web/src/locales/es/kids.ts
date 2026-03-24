@@ -99,6 +99,9 @@ export const kidsMessages = {
       whatIsTheName: "¿cómo se llama esta letra?",
       whichOrder: "¿en qué orden está esta letra?",
       notFound: "Letra no encontrada",
+      tapDot: "Toca el punto",
+      dragStart: "Empieza desde el punto verde",
+      keepGoing: "Sigue trazando",
     },
 
     surahs: {

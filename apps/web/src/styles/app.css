@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Schoolbell&family=Nunito:wght@400;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 /* Only scan src/ for Tailwind classes — skip public/ (24MB JSON data) */
@@ -396,15 +397,30 @@
 
 /* ═══ Kids Zone: Playful theme for /kids/ routes ═══ */
 
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap");
-
 .kids-zone {
-  --font-kids: "Nunito", "Comic Sans MS", "Chalkboard SE", sans-serif;
+  --font-kids: "Schoolbell", "Comic Sans MS", "Chalkboard SE", cursive;
+  --font-kids-body: "Nunito", "Comic Sans MS", sans-serif;
   font-family: var(--font-kids);
 }
 
 .kids-zone * {
   font-family: inherit;
+}
+
+/* Body text uses Nunito for readability, headings use Bubblegum Sans */
+.kids-zone p,
+.kids-zone span,
+.kids-zone input,
+.kids-zone label {
+  font-family: var(--font-kids-body);
+}
+
+.kids-zone h1,
+.kids-zone h2,
+.kids-zone h3,
+.kids-zone button,
+.kids-zone a {
+  font-family: var(--font-kids);
 }
 
 /* Keep Arabic text in Arabic font */
@@ -443,6 +459,138 @@
 .kids-heading {
   animation: kids-wobble 3s ease-in-out infinite;
   display: inline-block;
+}
+
+/* ── Animated background elements ── */
+
+/* Rainbow arc */
+.kids-rainbow {
+  position: absolute;
+  top: -120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  height: 250px;
+  border-radius: 0 0 250px 250px;
+  background: conic-gradient(
+    from 180deg at 50% 0%,
+    #ff6b6b00 0deg,
+    #ff6b6b33 30deg,
+    #ffa50033 60deg,
+    #ffd93d33 90deg,
+    #6bcb7733 120deg,
+    #4ecdc433 150deg,
+    #45b7d133 180deg,
+    #a78bfa33 210deg,
+    #f472b633 240deg,
+    #ff6b6b00 270deg
+  );
+  opacity: 0.6;
+  animation: kids-rainbow-pulse 6s ease-in-out infinite;
+}
+
+@keyframes kids-rainbow-pulse {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.7; transform: translateX(-50%) scale(1.05); }
+}
+
+/* Floating stars */
+.kids-float-star {
+  position: absolute;
+  pointer-events: none;
+  animation: kids-star-float linear infinite;
+  filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.3));
+}
+
+@keyframes kids-star-float {
+  0%   { transform: translateY(0) rotate(0deg) scale(1); }
+  25%  { transform: translateY(-12px) rotate(15deg) scale(1.1); }
+  50%  { transform: translateY(-6px) rotate(-10deg) scale(0.95); }
+  75%  { transform: translateY(-18px) rotate(8deg) scale(1.05); }
+  100% { transform: translateY(0) rotate(0deg) scale(1); }
+}
+
+/* Ground scenery: trees sway */
+.kids-ground-sway {
+  position: absolute;
+  animation: kids-sway ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes kids-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+/* Ground scenery: flowers bounce */
+.kids-ground-bounce {
+  position: absolute;
+  animation: kids-flower-bounce ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes kids-flower-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.08); }
+}
+
+/* Crawling bugs */
+.kids-ground-crawl {
+  position: absolute;
+  animation: kids-crawl linear infinite;
+}
+
+@keyframes kids-crawl {
+  0%   { transform: translateX(0) scaleX(1); }
+  45%  { transform: translateX(30px) scaleX(1); }
+  50%  { transform: translateX(30px) scaleX(-1); }
+  95%  { transform: translateX(0) scaleX(-1); }
+  100% { transform: translateX(0) scaleX(1); }
+}
+
+/* Butterflies / bees */
+.kids-butterfly {
+  position: absolute;
+  animation: kids-flutter ease-in-out infinite;
+}
+
+@keyframes kids-flutter {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(20px, -15px) rotate(8deg); }
+  50%  { transform: translate(5px, -25px) rotate(-5deg); }
+  75%  { transform: translate(-15px, -10px) rotate(3deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* Rocket flying up */
+.kids-rocket {
+  position: absolute;
+  right: 8%;
+  font-size: 28px;
+  animation: kids-rocket-fly 12s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(251, 146, 60, 0.4));
+}
+
+@keyframes kids-rocket-fly {
+  0%   { bottom: -40px; opacity: 0; transform: rotate(-35deg) scale(0.7); }
+  10%  { opacity: 1; transform: rotate(-35deg) scale(1); }
+  70%  { bottom: 90%; opacity: 1; transform: rotate(-35deg) scale(1); }
+  80%  { bottom: 105%; opacity: 0; transform: rotate(-35deg) scale(0.6); }
+  81%  { bottom: -40px; opacity: 0; }
+  100% { bottom: -40px; opacity: 0; }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .kids-float-star,
+  .kids-ground-sway,
+  .kids-ground-bounce,
+  .kids-ground-crawl,
+  .kids-butterfly,
+  .kids-rocket,
+  .kids-rainbow {
+    animation: none !important;
+  }
 }
 
 @font-face {

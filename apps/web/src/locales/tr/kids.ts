@@ -105,6 +105,9 @@ export const kidsMessages = {
       whatIsTheName: "harfinin adı ne?",
       whichOrder: "harfi kaçıncı sırada?",
       notFound: "Harf bulunamadı",
+      tapDot: "Noktaya dokun",
+      dragStart: "Yeşil noktadan başla",
+      keepGoing: "Çizmeye devam et",
     },
 
     // Surahs
