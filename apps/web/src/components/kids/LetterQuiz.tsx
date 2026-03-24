@@ -11,6 +11,7 @@ interface LetterQuizProps {
 interface Question {
   type: "name-to-letter" | "letter-to-name" | "order";
   prompt: string;
+  promptSub?: string;
   options: string[];
   correctIndex: number;
 }
@@ -32,7 +33,7 @@ export function LetterQuiz({ letter, onComplete }: LetterQuizProps) {
     const q1Options = [...q1Distractors.map((l) => l.arabic), letter.arabic].sort(() => Math.random() - 0.5);
     const q1: Question = {
       type: "name-to-letter",
-      prompt: `"${letter.name}" ${t.kids.letters.whichLetter}`,
+      prompt: `${letter.name} ${t.kids.letters.whichLetter}`,
       options: q1Options,
       correctIndex: q1Options.indexOf(letter.arabic),
     };
@@ -42,7 +43,8 @@ export function LetterQuiz({ letter, onComplete }: LetterQuizProps) {
     const q2Options = [...q2Distractors.map((l) => l.name), letter.name].sort(() => Math.random() - 0.5);
     const q2: Question = {
       type: "letter-to-name",
-      prompt: `${letter.arabic} ${t.kids.letters.whatIsTheName}`,
+      prompt: letter.arabic,
+      promptSub: t.kids.letters.whatIsTheName,
       options: q2Options,
       correctIndex: q2Options.indexOf(letter.name),
     };
@@ -57,7 +59,8 @@ export function LetterQuiz({ letter, onComplete }: LetterQuizProps) {
     const q3Options = [...orderOptions].sort(() => Math.random() - 0.5);
     const q3: Question = {
       type: "order",
-      prompt: `${letter.arabic} ${t.kids.letters.whichOrder}`,
+      prompt: letter.arabic,
+      promptSub: t.kids.letters.whichOrder,
       options: q3Options,
       correctIndex: q3Options.indexOf(correctOrder),
     };
@@ -102,14 +105,20 @@ export function LetterQuiz({ letter, onComplete }: LetterQuizProps) {
     <div className="flex flex-col items-center gap-5 py-6">
       <h2 className="text-xl font-bold text-amber-700">{t.kids.letters.quiz}</h2>
 
-      <p className="text-[13px] font-semibold text-amber-500">
+      <p className="font-semibold text-amber-500" style={{ fontSize: "15px" }}>
         {t.kids.quizzes.questionOf} {questionIdx + 1}/{TOTAL}
       </p>
 
-      <div className="rounded-2xl bg-amber-50 px-6 py-4 text-center shadow-sm">
-        <p className="font-arabic text-lg font-bold text-gray-800" dir="rtl">
+      <div className="rounded-2xl bg-amber-50 px-6 py-5 text-center shadow-sm">
+        <p className={`font-bold text-gray-800 ${current.type !== "name-to-letter" ? "font-arabic" : ""}`}
+          style={{ fontSize: current.type !== "name-to-letter" ? "48px" : "24px" }}
+          dir={current.type !== "name-to-letter" ? "rtl" : undefined}
+        >
           {current.prompt}
         </p>
+        {current.promptSub && (
+          <p className="mt-2 text-gray-500" style={{ fontSize: "16px" }}>{current.promptSub}</p>
+        )}
       </div>
 
       <div className="flex w-full max-w-xs flex-col gap-3">
@@ -137,10 +146,11 @@ export function LetterQuiz({ letter, onComplete }: LetterQuizProps) {
               key={idx}
               onClick={() => handleAnswer(idx)}
               disabled={result !== null}
-              className={`rounded-xl border-2 ${border} ${bg} px-5 py-3.5 text-center transition-transform active:scale-95`}
+              className={`rounded-xl border-2 ${border} ${bg} px-5 py-4 text-center transition-transform active:scale-95`}
             >
               <span
-                className={`text-lg font-semibold ${textColor} ${isArabic ? "font-arabic" : ""}`}
+                className={`font-semibold ${textColor} ${isArabic ? "font-arabic" : ""}`}
+                style={{ fontSize: isArabic ? "36px" : "20px" }}
                 dir={isArabic ? "rtl" : undefined}
               >
                 {opt}

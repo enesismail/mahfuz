@@ -88,11 +88,11 @@ export function LetterHunt({ letter, onComplete }: LetterHuntProps) {
 
       {/* Target indicator */}
       <div className="flex items-center gap-3">
-        <p className="text-[14px] text-gray-500">Bul:</p>
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-100">
-          <span className="font-arabic text-3xl text-blue-600" dir="rtl">{letter.arabic}</span>
+        <p className="text-gray-500" style={{ fontSize: "16px" }}>Bul:</p>
+        <div className="flex h-18 w-18 items-center justify-center rounded-xl bg-blue-100">
+          <span className="font-arabic text-blue-600" style={{ fontSize: "40px" }} dir="rtl">{letter.arabic}</span>
         </div>
-        <p className="text-[14px] font-semibold text-blue-500">
+        <p className="font-semibold text-blue-500" style={{ fontSize: "18px" }}>
           {foundCount}/{TARGET_COUNT}
         </p>
       </div>
@@ -113,14 +113,14 @@ export function LetterHunt({ letter, onComplete }: LetterHuntProps) {
               key={cell.id}
               onClick={() => handleTap(cell)}
               disabled={cell.found}
-              className={`flex h-16 w-16 items-center justify-center rounded-xl shadow-sm transition-transform ${bg} ${ring} ${
+              className={`flex h-20 w-20 items-center justify-center rounded-xl shadow-sm transition-transform ${bg} ${ring} ${
                 shakeId === cell.id ? "animate-[shake_0.3s_ease-in-out]" : ""
               } ${cell.found ? "" : "active:scale-90"}`}
             >
               {cell.found ? (
-                <span className="text-2xl">⭐</span>
+                <span style={{ fontSize: "28px" }}>⭐</span>
               ) : (
-                <span className="font-arabic text-2xl text-gray-700" dir="rtl">{cell.arabic}</span>
+                <span className="font-arabic text-gray-700" style={{ fontSize: "36px" }} dir="rtl">{cell.arabic}</span>
               )}
             </button>
           );

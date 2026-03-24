@@ -17,6 +17,8 @@ import type { LocaleConfig, Messages } from "./types";
 const localeLoaders: Record<string, () => Promise<Messages>> = {
   en: () => import("./en").then((m) => m.en),
   es: () => import("./es").then((m) => m.es),
+  fr: () => import("./fr").then((m) => m.fr),
+  ar: () => import("./ar").then((m) => m.ar),
 };
 
 const registry = {
@@ -42,11 +44,11 @@ const registry = {
     complete: true,
   },
   ar: {
-    messages: {},
+    messages: {} as Messages,
     displayName: "العربية",
     dir: "rtl",
     bcp47: "ar",
-    complete: false,
+    complete: true,
   },
   bn: {
     messages: {},
@@ -63,11 +65,11 @@ const registry = {
     complete: false,
   },
   fr: {
-    messages: {},
+    messages: {} as Messages,
     displayName: "Français",
     dir: "ltr",
     bcp47: "fr",
-    complete: false,
+    complete: true,
   },
   id: {
     messages: {},

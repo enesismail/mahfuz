@@ -102,6 +102,12 @@ export const kidsMessages = {
       tapDot: "Toca el punto",
       dragStart: "Empieza desde el punto verde",
       keepGoing: "Sigue trazando",
+      forms: {
+        isolated: "Aislada",
+        initial: "Inicial",
+        medial: "Media",
+        final: "Final",
+      },
     },
 
     surahs: {

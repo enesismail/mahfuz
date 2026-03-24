@@ -261,7 +261,7 @@ function AppLayout() {
           {/* Left: Logo + Chapter/page context */}
           <div className="flex min-w-0 items-center gap-1">
             {/* Logo */}
-            <Link to="/" className="mr-1.5 flex shrink-0 items-center gap-2 sm:mr-3">
+            <Link to="/" className="me-1.5 flex shrink-0 items-center gap-2 sm:me-3">
               <MahfuzLogo className="h-10 w-auto lg:h-11" />
               <span className="hidden text-[17px] font-semibold tracking-tight text-[var(--theme-text)] sm:inline">
                 Mahfuz
@@ -270,7 +270,7 @@ function AppLayout() {
 
             {/* Chapter/page prev/next (surah detail) */}
             {chapter && (
-              <div className="relative flex items-center border-l border-[var(--theme-border)] pl-2 ml-2">
+              <div className="relative flex items-center border-s border-[var(--theme-border)] ps-2 ms-2">
                 <Link
                   to="/$surahId"
                   params={{ surahId: String(Math.max(1, chapter.id - 1)) }}
@@ -342,7 +342,7 @@ function AppLayout() {
 
             {/* Page prev/next (page detail) */}
             {currentPage && !chapter && (
-              <div className="flex items-center gap-1 border-l border-[var(--theme-border)] pl-2 ml-2">
+              <div className="flex items-center gap-1 border-s border-[var(--theme-border)] ps-2 ms-2">
                 {currentPage > 1 && (
                   <Link
                     to="/page/$pageNumber"
@@ -407,7 +407,7 @@ function AppLayout() {
                 >
                   <BookmarkIcon />
                   {verseBookmarks.length > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary-600 text-[8px] font-bold text-white">
+                    <span className="absolute -end-0.5 -top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary-600 text-[8px] font-bold text-white">
                       {verseBookmarks.length > 9 ? "9+" : verseBookmarks.length}
                     </span>
                   )}
@@ -432,7 +432,7 @@ function AppLayout() {
                             params={{ surahId: surah }}
                             search={{ verse: Number(verse) }}
                             onClick={() => setBookmarksOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-[var(--theme-hover-bg)]"
+                            className="flex items-center gap-2.5 px-3 py-2 text-start transition-colors hover:bg-[var(--theme-hover-bg)]"
                           >
                             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary-600/10 text-[10px] font-semibold tabular-nums text-primary-600">
                               {verse}
@@ -526,7 +526,7 @@ function AppLayout() {
                         useI18nStore.getState().setLocale(code);
                         setLangOpen(false);
                       }}
-                      className={`flex w-full items-center justify-between px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--theme-hover-bg)] ${
+                      className={`flex w-full items-center justify-between px-3 py-2 text-start text-[13px] transition-colors hover:bg-[var(--theme-hover-bg)] ${
                         i18nLocale === code
                           ? "font-semibold text-primary-600"
                           : "text-[var(--theme-text-secondary)]"
@@ -606,7 +606,7 @@ function AppLayout() {
           <button
             type="button"
             onClick={() => setPaletteOpen(true)}
-            className="mx-auto flex w-full max-w-[720px] items-center gap-2.5 rounded-xl bg-[var(--theme-input-bg)] px-3.5 py-2 text-left transition-colors hover:bg-[var(--theme-bg-primary)] hover:shadow-[var(--shadow-elevated)] lg:max-w-[960px]"
+            className="mx-auto flex w-full max-w-[720px] items-center gap-2.5 rounded-xl bg-[var(--theme-input-bg)] px-3.5 py-2 text-start transition-colors hover:bg-[var(--theme-bg-primary)] hover:shadow-[var(--shadow-elevated)] lg:max-w-[960px]"
           >
             <svg
               className="h-4 w-4 shrink-0 text-[var(--theme-text-tertiary)]"
@@ -669,7 +669,7 @@ function AppLayout() {
         {showScrollTop && (
           <button
             onClick={scrollToTop}
-            className="fixed bottom-[128px] right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--theme-bg-primary)] shadow-[var(--shadow-elevated)] transition-all hover:shadow-[var(--shadow-modal)] active:scale-95 lg:bottom-6 lg:right-6"
+            className="fixed bottom-[128px] end-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--theme-bg-primary)] shadow-[var(--shadow-elevated)] transition-all hover:shadow-[var(--shadow-modal)] active:scale-95 lg:bottom-6 lg:end-6"
             aria-label={t.nav.scrollToTop}
           >
             <svg className="h-5 w-5 text-[var(--theme-text-secondary)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

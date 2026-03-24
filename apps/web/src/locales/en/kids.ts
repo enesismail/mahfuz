@@ -102,6 +102,12 @@ export const kidsMessages = {
       tapDot: "Tap the dot",
       dragStart: "Start from the green dot",
       keepGoing: "Keep tracing",
+      forms: {
+        isolated: "Isolated",
+        initial: "Initial",
+        medial: "Medial",
+        final: "Final",
+      },
     },
 
     surahs: {

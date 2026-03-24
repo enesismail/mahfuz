@@ -67,6 +67,22 @@ export interface ArabicLetter {
   order: number;
 }
 
+/** Letters that do not connect to the following letter (only have isolated & final forms) */
+const NON_CONNECTORS = new Set(["ا", "د", "ذ", "ر", "ز", "و"]);
+
+const ZWJ = "\u200D"; // Zero Width Joiner
+
+/** Get the four positional forms of an Arabic letter */
+export function getLetterForms(letter: string) {
+  const nc = NON_CONNECTORS.has(letter);
+  return {
+    isolated: letter,
+    initial: nc ? letter : letter + ZWJ,
+    medial: nc ? ZWJ + letter : ZWJ + letter + ZWJ,
+    final: ZWJ + letter,
+  };
+}
+
 export const ARABIC_LETTERS: ArabicLetter[] = [
   { id: "alif", arabic: "ا", name: "Elif", nameAr: "أَلِف", order: 1 },
   { id: "ba", arabic: "ب", name: "Ba", nameAr: "بَاء", order: 2 },

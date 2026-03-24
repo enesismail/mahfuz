@@ -10,6 +10,8 @@ import type { ReactNode } from "react";
 import { getSession } from "~/lib/auth-session";
 import type { Session } from "~/lib/auth";
 import { migrateV1ToV2 } from "~/lib/store-migration";
+import { useI18nStore } from "~/stores/useI18nStore";
+import { getLocaleConfig } from "~/locales/registry";
 import appCss from "~/styles/app.css?url";
 
 /** Inline critical CSS — splash overlay covers FOUC until Tailwind loads */
@@ -62,6 +64,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 });
 
 function RootLayout({ children }: { children: ReactNode }) {
+  const locale = useI18nStore((s) => s.locale);
+  const { dir, bcp47 } = getLocaleConfig(locale);
+
   useEffect(() => {
     const run = () => migrateV1ToV2();
     if ("requestIdleCallback" in window) {
@@ -83,7 +88,7 @@ function RootLayout({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <html lang="tr">
+    <html lang={bcp47} dir={dir}>
       <head suppressHydrationWarning>
         {/* Inline critical CSS: splash overlay covers unstyled content until Tailwind loads */}
         <style dangerouslySetInnerHTML={{ __html: SPLASH_CSS }} />

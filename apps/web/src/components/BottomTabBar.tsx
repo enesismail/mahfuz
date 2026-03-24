@@ -62,7 +62,7 @@ export function BottomTabBar() {
     tab.extraActive || tab.matchPatterns.some((p) => currentPath === p || currentPath.startsWith(p));
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30 border-t border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/80 backdrop-blur-xl backdrop-saturate-150 lg:hidden" role="navigation" aria-label="Main navigation" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+    <nav className="fixed bottom-0 inset-x-0 z-30 border-t border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/80 backdrop-blur-xl backdrop-saturate-150 lg:hidden" role="navigation" aria-label="Main navigation" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
       <div className="flex h-[60px] items-center justify-around px-2">
         {visibleTabs.map((tab) => {
           const active = isActive(tab);

@@ -60,10 +60,10 @@ export function SoundMatch({ letter, onComplete }: SoundMatchProps) {
     <div className="flex flex-col items-center gap-5 py-6">
       <h2 className="text-xl font-bold text-purple-700">{t.kids.letters.soundMatch}</h2>
 
-      <div className="flex flex-col items-center gap-1">
-        <p className="text-sm text-gray-500">{t.kids.letters.findThisLetter}</p>
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-purple-100 shadow-sm">
-          <span className="text-3xl font-bold text-purple-600">{letter.name}</span>
+      <div className="flex flex-col items-center gap-2">
+        <p className="text-gray-500" style={{ fontSize: "16px" }}>{t.kids.letters.findThisLetter}</p>
+        <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-purple-100 shadow-sm">
+          <span className="font-bold text-purple-600" style={{ fontSize: "36px" }}>{letter.name}</span>
         </div>
       </div>
 
@@ -100,12 +100,11 @@ export function SoundMatch({ letter, onComplete }: SoundMatchProps) {
               key={opt.id}
               onClick={() => handleSelect(opt)}
               disabled={result !== null}
-              className={`flex h-24 w-24 flex-col items-center justify-center gap-1 rounded-2xl shadow-sm transition-transform active:scale-90 ${bg} ${ring}`}
+              className={`flex h-32 w-32 flex-col items-center justify-center gap-2 rounded-2xl shadow-sm transition-transform active:scale-90 ${bg} ${ring}`}
             >
-              <span className="font-arabic text-4xl leading-none text-gray-800" dir="rtl">
+              <span className="font-arabic leading-none text-gray-800" style={{ fontSize: "48px" }} dir="rtl">
                 {opt.arabic}
               </span>
-              <span className="text-[11px] font-medium text-gray-400">{opt.name}</span>
             </button>
           );
         })}

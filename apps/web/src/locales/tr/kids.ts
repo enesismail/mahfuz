@@ -101,13 +101,19 @@ export const kidsMessages = {
       nextLetter: "Sonraki Harf",
       allCompleted: "Tüm harfleri öğrendin!",
       findThisLetter: "Bu harfi bul:",
-      whichLetter: "hangi harf?",
-      whatIsTheName: "harfinin adı ne?",
-      whichOrder: "harfi kaçıncı sırada?",
+      whichLetter: "hangi harftir?",
+      whatIsTheName: "Bu harfin adı ne?",
+      whichOrder: "Bu harf kaçıncı sırada?",
       notFound: "Harf bulunamadı",
       tapDot: "Noktaya dokun",
       dragStart: "Yeşil noktadan başla",
       keepGoing: "Çizmeye devam et",
+      forms: {
+        isolated: "Bağımsız",
+        initial: "Başlangıç",
+        medial: "Orta",
+        final: "Son",
+      },
     },
 
     // Surahs

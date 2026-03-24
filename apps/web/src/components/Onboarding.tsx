@@ -121,7 +121,7 @@ export function Onboarding() {
                   <button
                     key={code}
                     onClick={() => setLocale(code)}
-                    className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-left transition-all ${locale === code ? "border-primary-600 bg-primary-600/5" : "border-[var(--theme-border)] hover:border-[var(--theme-text-tertiary)]"}`}
+                    className={`flex w-full items-center gap-3 rounded-xl border-2 px-4 py-3 text-start transition-all ${locale === code ? "border-primary-600 bg-primary-600/5" : "border-[var(--theme-border)] hover:border-[var(--theme-text-tertiary)]"}`}
                   >
                     <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${locale === code ? "border-primary-600" : "border-[var(--theme-divider)]"}`}>
                       {locale === code && <span className="h-2.5 w-2.5 rounded-full bg-primary-600" />}

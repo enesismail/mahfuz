@@ -12,12 +12,16 @@ import type { Chapter } from "@mahfuz/shared/types";
 function getCategoryLabel(cat: TopicCategory, locale: string) {
   if (locale === "en") return cat.labelEn;
   if (locale === "es") return cat.labelEs;
+  if (locale === "fr") return cat.labelFr;
+  if (locale === "ar") return cat.labelAr;
   return cat.label;
 }
 
 function getTopicName(entry: TopicEntry, locale: string) {
   if (locale === "en") return entry.topicEn;
   if (locale === "es") return entry.topicEs;
+  if (locale === "fr") return entry.topicFr;
+  if (locale === "ar") return entry.topicAr;
   return entry.topic;
 }
 
@@ -40,7 +44,9 @@ export function FihristPanel({ initialTopic }: { initialTopic?: string }) {
       topics: cat.topics.filter(
         (entry) =>
           entry.topic.toLowerCase().includes(q) ||
-          entry.topicEn.toLowerCase().includes(q),
+          entry.topicEn.toLowerCase().includes(q) ||
+          entry.topicFr.toLowerCase().includes(q) ||
+          entry.topicAr.includes(q),
       ),
     })).filter((cat) => cat.topics.length > 0);
   }, [search]);

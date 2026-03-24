@@ -35,7 +35,7 @@ export function DesktopSidebar() {
 
   return (
     <aside
-      className={`hidden lg:flex flex-col border-r border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/80 backdrop-blur-xl transition-all duration-300 ${
+      className={`hidden lg:flex flex-col border-e border-[var(--theme-border)] bg-[var(--theme-bg-primary)]/80 backdrop-blur-xl transition-all duration-300 ${
         collapsed ? "w-0 overflow-hidden" : "w-[280px]"
       }`}
     >
