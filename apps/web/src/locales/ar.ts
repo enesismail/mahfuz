@@ -14,6 +14,7 @@ export const ar: Messages = {
     mushafPage: "صفحة المصحف",
     verseList: "قائمة الآيات",
     translation: "الترجمة",
+    wordByWord: "كلمة بكلمة",
     tajweed: "تلوين التجويد",
     fontSize: "حجم الخط",
     fontDefault: "افتراضي",

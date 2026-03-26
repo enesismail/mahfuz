@@ -14,6 +14,7 @@ export const es: Messages = {
     mushafPage: "Página del Mushaf",
     verseList: "Lista de Versículos",
     translation: "Traducción",
+    wordByWord: "Palabra por Palabra",
     tajweed: "Coloración Tajweed",
     fontSize: "Tamaño de Fuente",
     fontDefault: "Predeterminado",

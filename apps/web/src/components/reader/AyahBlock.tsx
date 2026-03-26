@@ -8,6 +8,7 @@ import { useSettingsStore } from "~/stores/settings.store";
 import { useAudioStore } from "~/stores/audio.store";
 import { parseTajweed } from "~/lib/tajweed-parser";
 import { AyahActionMenu } from "./AyahActionMenu";
+import type { WbwWord } from "~/hooks/useWbwData";
 
 interface AyahBlockProps {
   surahId?: number;
@@ -19,6 +20,7 @@ interface AyahBlockProps {
   showTajweed: boolean;
   pageNumber?: number;
   highlight?: boolean;
+  wbwWords?: WbwWord[];
 }
 
 export function AyahBlock({
@@ -31,6 +33,7 @@ export function AyahBlock({
   showTajweed,
   pageNumber,
   highlight,
+  wbwWords,
 }: AyahBlockProps) {
   const blockRef = useRef<HTMLDivElement>(null);
   const [flash, setFlash] = useState(highlight);
@@ -106,31 +109,70 @@ export function AyahBlock({
         </button>
       )}
 
-      {/* Arapça metin — tecvid aktifse renkli, değilse kelime hover */}
-      <div className="leading-[2.8]" dir="rtl" style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, textAlign: "justify" }}>
-        {showTajweed && textTajweed
-          ? parseTajweed(textTajweed, true)
-          : textUthmani.split(/\s+/).map((word, i) => (
-              <span
-                key={i}
-                className={`inline rounded-sm px-[0.06em] transition-colors duration-150 cursor-default ${
-                  wordPosition === i + 1
-                    ? "word-audio-active"
-                    : "hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)]"
-                }`}
-              >
-                {word}{" "}
+      {/* Arapça metin — WBW / tecvid / normal */}
+      {wbwWords && wbwWords.length > 0 ? (
+        /* Kelime kelime mod */
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-3 py-2" dir="rtl">
+          {wbwWords.map((w, i) => (
+            <div
+              key={w.position}
+              className={`flex flex-col items-center min-w-[3rem] rounded-lg px-1.5 py-1 transition-colors duration-150 cursor-default ${
+                wordPosition === w.position
+                  ? "word-audio-active"
+                  : "hover:bg-[var(--color-word-hover)]"
+              }`}
+            >
+              <span style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, lineHeight: 1.8 }}>
+                {w.textUthmani}
               </span>
-            ))}
-        <button
-          onClick={handleBadgeClick}
-          className="inline-flex items-center justify-center mr-1.5 w-8 h-8 rounded-full bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-colors cursor-pointer"
-          style={{ fontFamily: "var(--font-ui)", fontSize: "0.75rem" }}
-          aria-label={`Ayet ${ayahNumber} eylemleri`}
-        >
-          {ayahNumber}
-        </button>
-      </div>
+              {w.translation && (
+                <span
+                  className="text-[var(--color-text-translation)] text-center leading-tight mt-0.5"
+                  style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.65, translationFontSize * 0.75)}rem` }}
+                >
+                  {w.translation}
+                </span>
+              )}
+            </div>
+          ))}
+          <div className="flex items-center">
+            <button
+              onClick={handleBadgeClick}
+              className="w-8 h-8 rounded-full bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-colors cursor-pointer"
+              style={{ fontFamily: "var(--font-ui)", fontSize: "0.75rem" }}
+              aria-label={`Ayet ${ayahNumber} eylemleri`}
+            >
+              {ayahNumber}
+            </button>
+          </div>
+        </div>
+      ) : (
+        /* Normal metin */
+        <div className="leading-[2.8]" dir="rtl" style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, textAlign: "justify" }}>
+          {showTajweed && textTajweed
+            ? parseTajweed(textTajweed, true)
+            : textUthmani.split(/\s+/).map((word, i) => (
+                <span
+                  key={i}
+                  className={`inline rounded-sm px-[0.06em] transition-colors duration-150 cursor-default ${
+                    wordPosition === i + 1
+                      ? "word-audio-active"
+                      : "hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)]"
+                  }`}
+                >
+                  {word}{" "}
+                </span>
+              ))}
+          <button
+            onClick={handleBadgeClick}
+            className="inline-flex items-center justify-center mr-1.5 w-8 h-8 rounded-full bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-colors cursor-pointer"
+            style={{ fontFamily: "var(--font-ui)", fontSize: "0.75rem" }}
+            aria-label={`Ayet ${ayahNumber} eylemleri`}
+          >
+            {ayahNumber}
+          </button>
+        </div>
+      )}
 
       {/* Meal */}
       {showTranslation && translation && (

@@ -9,6 +9,7 @@ interface SettingsState {
   textStyle: TextStyle;
   translationSlug: string;
   showTranslation: boolean;
+  showWbw: boolean;
   showTajweed: boolean;
   readingMode: "page" | "list";
   reciterSlug: string;
@@ -20,6 +21,7 @@ interface SettingsActions {
   setTheme: (theme: Theme) => void;
   setTranslation: (slug: string) => void;
   toggleTranslation: () => void;
+  toggleWbw: () => void;
   toggleTajweed: () => void;
   setReadingMode: (mode: "page" | "list") => void;
   setReciter: (slug: string) => void;
@@ -36,6 +38,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       theme: "papyrus" as Theme,
       translationSlug: "omer-celik",
       showTranslation: true,
+      showWbw: false,
       showTajweed: false,
       textStyle: "uthmani" as TextStyle,
       readingMode: "page",
@@ -50,6 +53,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       },
       setTranslation: (slug) => set({ translationSlug: slug }),
       toggleTranslation: () => set((s) => ({ showTranslation: !s.showTranslation })),
+      toggleWbw: () => set((s) => ({ showWbw: !s.showWbw })),
       toggleTajweed: () => set((s) => ({ showTajweed: !s.showTajweed })),
       setReadingMode: (mode) => set({ readingMode: mode }),
       setReciter: (slug) => set({ reciterSlug: slug }),
@@ -62,6 +66,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
           theme: "papyrus",
           translationSlug: "omer-celik",
           showTranslation: true,
+          showWbw: false,
           showTajweed: false,
           textStyle: "uthmani",
           readingMode: "page",

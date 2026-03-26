@@ -12,6 +12,7 @@ export const tr = {
     mushafPage: "Mushaf Sayfası",
     verseList: "Ayet Listesi",
     translation: "Meal",
+    wordByWord: "Kelime Kelime",
     tajweed: "Tecvid Renklendirmesi",
     fontSize: "Yazı Boyutu",
     fontDefault: "Varsayılan",

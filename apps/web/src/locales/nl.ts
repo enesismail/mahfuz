@@ -14,6 +14,7 @@ export const nl: Messages = {
     mushafPage: "Mushaf Pagina",
     verseList: "Verslijst",
     translation: "Vertaling",
+    wordByWord: "Woord voor Woord",
     tajweed: "Tajweed Kleuring",
     fontSize: "Lettergrootte",
     fontDefault: "Standaard",

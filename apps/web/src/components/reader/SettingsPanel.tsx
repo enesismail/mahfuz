@@ -34,6 +34,8 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
   const {
     showTranslation,
     toggleTranslation,
+    showWbw,
+    toggleWbw,
     showTajweed,
     toggleTajweed,
     readingMode,
@@ -254,14 +256,22 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
               <Toggle checked={showTranslation} onChange={toggleTranslation} />
             </div>
             {showTranslation && (
-              <SearchableSelect
-                options={translationOptions}
-                value={translationSlug}
-                onChange={setTranslation}
-                placeholder={t.settings.select}
-                searchPlaceholder={t.settings.searchTranslation}
-                noResultsText={t.common.noResults}
-              />
+              <>
+                <SearchableSelect
+                  options={translationOptions}
+                  value={translationSlug}
+                  onChange={setTranslation}
+                  placeholder={t.settings.select}
+                  searchPlaceholder={t.settings.searchTranslation}
+                  noResultsText={t.common.noResults}
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <label className="text-[11px] text-[var(--color-text-secondary)]">
+                    {t.settings.wordByWord}
+                  </label>
+                  <Toggle checked={showWbw} onChange={toggleWbw} />
+                </div>
+              </>
             )}
           </div>
 

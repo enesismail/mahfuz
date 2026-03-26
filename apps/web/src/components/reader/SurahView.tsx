@@ -6,6 +6,7 @@
 import { useSettingsStore } from "~/stores/settings.store";
 import { useReadingStore } from "~/stores/reading.store";
 import { useSurahData, useSurahs, useTajweed, useImlaei } from "~/hooks/useQuranQuery";
+import { useWbwData } from "~/hooks/useWbwData";
 import { cleanImlaei } from "~/lib/strip-diacritics";
 import { AyahBlock } from "./AyahBlock";
 import { SurahHeader } from "./SurahHeader";
@@ -26,15 +27,17 @@ interface SurahViewProps {
 export function SurahView({ surahId, highlightAyah }: SurahViewProps) {
   const { locale } = useTranslation();
   const showTranslation = useSettingsStore((s) => s.showTranslation);
+  const showWbw = useSettingsStore((s) => s.showWbw);
   const showTajweed = useSettingsStore((s) => s.showTajweed);
   const translationSlug = useSettingsStore((s) => s.translationSlug);
   const textStyle = useSettingsStore((s) => s.textStyle);
   const useBasic = textStyle === "basic";
-  const effectiveTajweed = showTajweed && !useBasic;
+  const effectiveTajweed = showTajweed && !useBasic && !showWbw;
   const savePosition = useReadingStore((s) => s.savePosition);
   const { data } = useSurahData(surahId, translationSlug);
   const { data: tajweedData } = useTajweed(surahId, effectiveTajweed);
   const { data: imlaeiData } = useImlaei(surahId, useBasic);
+  const { data: wbwData } = useWbwData(surahId, showTranslation && showWbw);
 
   const firstPage = data?.ayahs[0]?.pageNumber ?? 0;
   useReadingTracker(firstPage);
@@ -162,6 +165,7 @@ export function SurahView({ surahId, highlightAyah }: SurahViewProps) {
               showTajweed={showTajweed}
               pageNumber={ayah.pageNumber}
               highlight={highlightAyah === ayah.ayahNumber}
+              wbwWords={showWbw ? wbwData?.get(`${surahId}:${ayah.ayahNumber}`) : undefined}
             />
           </div>
         ))}
@@ -374,13 +378,14 @@ function SurahPicker({ currentSurahId }: { currentSurahId: number }) {
                         {juz}
                       </span>
                       <span className={`text-sm truncate ${isActive ? "font-medium text-[var(--color-accent)]" : ""}`}>
-                        {surah?.nameSimple ?? ""}
+                        {getSurahName(firstSurahId, locale) || surah?.nameSimple || ""}
                       </span>
                     </Link>
                     {/* Sağ %50 — sayfa navigasyonu */}
                     <Link
                       to="/page/$pageNumber"
                       params={{ pageNumber: String(page) }}
+                      search={{ ayah: undefined }}
                       onClick={() => { setOpen(false); setTab("surah"); }}
                       className="flex items-center justify-end w-1/2 px-3 py-2.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
                     >
