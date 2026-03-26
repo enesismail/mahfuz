@@ -136,27 +136,27 @@ export function SurahList({ surahs }: SurahListProps) {
       <div ref={juzPanelRef} className="fixed right-4 bottom-20 sm:bottom-6 z-20">
         {/* Genişleyen cüz paneli — butonun üstünde */}
         {juzOpen && (
-          <div className="absolute right-0 bottom-full mb-2 w-[240px] max-h-[60vh] overflow-y-auto rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xl p-1.5">
+          <div className="absolute right-0 bottom-full mb-2 w-[260px] max-h-[60vh] overflow-y-auto rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-xl py-1">
             {ALL_JUZ.map((juz) => {
               const surahId = JUZ_FIRST_SURAH[juz];
               const surah = surahId ? surahs.find((s) => s.id === surahId) : undefined;
               const page = JUZ_FIRST_PAGE[juz];
               return (
-                <div key={juz} className="flex items-center gap-2 rounded-lg hover:bg-[var(--color-bg)] transition-colors">
+                <div key={juz} className="flex items-center hover:bg-[var(--color-bg)] transition-colors">
                   <button
                     onClick={() => handleJuzSurah(juz)}
-                    className="flex items-center gap-2 flex-1 min-w-0 px-2 py-1.5 text-left"
+                    className="flex items-center gap-2 w-1/2 px-3 py-2 text-left"
                   >
                     <span className="w-5 text-[11px] font-semibold text-[var(--color-text-secondary)] text-right shrink-0">{juz}</span>
-                    <span className="text-xs truncate">{surah?.nameSimple ?? ""}</span>
+                    <span className="text-xs truncate">{getSurahName(surahId!, locale) || surah?.nameSimple || ""}</span>
                   </button>
                   <Link
                     to="/page/$pageNumber"
                     params={{ pageNumber: String(page) }}
                     onClick={() => setJuzOpen(false)}
-                    className="shrink-0 px-2 py-1 mr-1 rounded-md text-[10px] text-[var(--color-text-secondary)] hover:bg-[var(--color-accent)] hover:text-white transition-colors"
+                    className="flex items-center justify-end w-1/2 px-3 py-2 text-[11px] text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] transition-colors"
                   >
-                    s.{page}
+                    {t.common.page} {page}
                   </Link>
                 </div>
               );
