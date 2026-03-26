@@ -75,6 +75,8 @@ export function AyahBlock({
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuAnchor, setMenuAnchor] = useState<DOMRect | null>(null);
 
+  const hasHoverField = wbwTranslation === "hover" || wbwTranslit === "hover";
+
   const handleBadgeClick = useCallback((e: React.MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     setMenuAnchor(rect);
@@ -118,7 +120,9 @@ export function AyahBlock({
           {wbwWords.map((w, i) => (
             <div
               key={w.position}
-              className={`group/wbw flex flex-col items-center min-w-[3rem] rounded-lg px-1.5 py-1 transition-colors duration-150 cursor-default ${
+              className={`group/wbw flex flex-col items-center min-w-[3rem] rounded-lg px-1.5 py-1 transition-colors duration-150 ${
+                hasHoverField ? "cursor-pointer" : "cursor-default"
+              } ${
                 wordPosition === w.position
                   ? "word-audio-active"
                   : "hover:bg-[var(--color-word-hover)]"
@@ -128,24 +132,40 @@ export function AyahBlock({
                 {w.textUthmani}
               </span>
               {w.transliteration && wbwTranslit !== "off" && (
-                <span
-                  className={`text-[var(--color-accent)] text-center leading-tight mt-0.5 italic ${
-                    wbwTranslit === "hover" ? "opacity-0 group-hover/wbw:opacity-100 transition-opacity" : ""
-                  }`}
-                  style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.6, translationFontSize * 0.65)}rem` }}
-                >
-                  {w.transliteration}
-                </span>
+                wbwTranslit === "hover" ? (
+                  <span
+                    className="text-center leading-tight mt-0.5"
+                    style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.6, translationFontSize * 0.65)}rem` }}
+                  >
+                    <span className="group-hover/wbw:hidden text-[var(--color-border)] select-none">{"‒".repeat(Math.min(6, Math.max(2, Math.ceil(w.transliteration.length / 2))))}</span>
+                    <span className="hidden group-hover/wbw:inline text-[var(--color-accent)] italic">{w.transliteration}</span>
+                  </span>
+                ) : (
+                  <span
+                    className="text-[var(--color-accent)] text-center leading-tight mt-0.5 italic"
+                    style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.6, translationFontSize * 0.65)}rem` }}
+                  >
+                    {w.transliteration}
+                  </span>
+                )
               )}
               {w.translation && wbwTranslation !== "off" && (
-                <span
-                  className={`text-[var(--color-text-translation)] text-center leading-tight mt-0.5 ${
-                    wbwTranslation === "hover" ? "opacity-0 group-hover/wbw:opacity-100 transition-opacity" : ""
-                  }`}
-                  style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.65, translationFontSize * 0.75)}rem` }}
-                >
-                  {w.translation}
-                </span>
+                wbwTranslation === "hover" ? (
+                  <span
+                    className="text-center leading-tight mt-0.5"
+                    style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.65, translationFontSize * 0.75)}rem` }}
+                  >
+                    <span className="group-hover/wbw:hidden text-[var(--color-border)] select-none">{"‒".repeat(Math.min(6, Math.max(2, Math.ceil(w.translation.length / 3))))}</span>
+                    <span className="hidden group-hover/wbw:inline text-[var(--color-text-translation)]">{w.translation}</span>
+                  </span>
+                ) : (
+                  <span
+                    className="text-[var(--color-text-translation)] text-center leading-tight mt-0.5"
+                    style={{ fontFamily: "var(--font-ui)", fontSize: `${Math.max(0.65, translationFontSize * 0.75)}rem` }}
+                  >
+                    {w.translation}
+                  </span>
+                )
               )}
             </div>
           ))}
