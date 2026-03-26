@@ -1,52 +1,64 @@
 /**
  * Tecvidli HTML metnini React elementlerine dönüştürür.
  *
- * API formatı: <tajweed class=RULE_NAME>harfler</tajweed>
+ * API formatı: <tajweed class=RULE_NAME>harfler</tajweed>  (iç içe olabilir)
  * Çıktı:       <span className="tajweed-RULE_NAME">harfler</span>
  */
 
 import type { ReactNode } from "react";
 
-// <tajweed class=XYZ>...</tajweed> eşleştirici
-const TAJWEED_RE = /<tajweed class=([a-z_]+)>([^<]*)<\/tajweed>/g;
+const OPEN_TAG = "<tajweed class=";
+const CLOSE_TAG = "</tajweed>";
 
 /**
  * Tecvidli HTML string'ini React elementlerine parse eder.
+ * İç içe (nested) tag'ları destekler.
  * showTajweed=false ise sadece düz metni döner (renksiz).
  */
 export function parseTajweed(html: string, showTajweed: boolean): ReactNode[] {
   if (!showTajweed) {
-    // Tag'ları soyup düz metin döndür
     return [html.replace(/<\/?tajweed[^>]*>/g, "")];
   }
 
-  const parts: ReactNode[] = [];
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
+  let pos = 0;
   let key = 0;
 
-  TAJWEED_RE.lastIndex = 0;
-  while ((match = TAJWEED_RE.exec(html)) !== null) {
-    // Tag'dan önceki düz metin
-    if (match.index > lastIndex) {
-      parts.push(html.slice(lastIndex, match.index));
+  function parseNodes(until?: string): ReactNode[] {
+    const nodes: ReactNode[] = [];
+    let textStart = pos;
+
+    while (pos < html.length) {
+      // Kapanış tag'ı kontrolü
+      if (until && html.startsWith(until, pos)) {
+        if (pos > textStart) nodes.push(html.slice(textStart, pos));
+        pos += until.length;
+        return nodes;
+      }
+
+      // Açılış tag'ı kontrolü
+      if (html.startsWith(OPEN_TAG, pos)) {
+        if (pos > textStart) nodes.push(html.slice(textStart, pos));
+        const classStart = pos + OPEN_TAG.length;
+        const gt = html.indexOf(">", classStart);
+        if (gt === -1) { pos++; continue; }
+        const rule = html.slice(classStart, gt);
+        pos = gt + 1;
+        const children = parseNodes(CLOSE_TAG);
+        nodes.push(
+          <span key={key++} className={`tajweed-${rule}`}>
+            {children}
+          </span>,
+        );
+        textStart = pos;
+        continue;
+      }
+
+      pos++;
     }
 
-    const rule = match[1];
-    const text = match[2];
-    parts.push(
-      <span key={key++} className={`tajweed-${rule}`}>
-        {text}
-      </span>,
-    );
-
-    lastIndex = match.index + match[0].length;
+    if (pos > textStart) nodes.push(html.slice(textStart, pos));
+    return nodes;
   }
 
-  // Kalan düz metin
-  if (lastIndex < html.length) {
-    parts.push(html.slice(lastIndex));
-  }
-
-  return parts;
+  return parseNodes();
 }
