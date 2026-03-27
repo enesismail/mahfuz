@@ -6,6 +6,7 @@ import { createFileRoute, Link, useRouter, redirect } from "@tanstack/react-rout
 import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { signOut } from "~/lib/auth-client";
 import { useTranslation } from "~/hooks/useTranslation";
+import { HifzStatus } from "~/components/profile/HifzStatus";
 
 export const Route = createFileRoute("/profile")({
   beforeLoad: ({ context }) => {
@@ -68,6 +69,9 @@ function ProfilePage() {
           {t.nav.signOut}
         </button>
       </div>
+
+      {/* Ezber durumu */}
+      <HifzStatus />
 
       {/* Yakında gelecek uygulamalar */}
       <section className="mb-8">

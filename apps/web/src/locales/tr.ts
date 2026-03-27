@@ -53,6 +53,21 @@ export const tr = {
     appsComingSoon: "Hatim, ezberleme, elif-ba ve daha fazlası yakında burada olacak.",
     noBookmarks: "Henüz yer imi eklemediniz",
     viewBookmarks: "Yer İmleri",
+    hifz: {
+      title: "Ezber Durumum",
+      empty: "Ezberlediğiniz sure ve ayetleri işaretleyin",
+      completeSurahs: "{n} sure tam",
+      partialSurahs: "{n} sure kısmi",
+      filterByJuz: "Cüz'e göre filtrele",
+      allSurahs: "Tümü",
+      verses: "ayet",
+      selectAll: "Tamamı",
+      allVersesSelected: "tamamı",
+      from: "Başl.",
+      to: "Bitiş",
+      addRange: "Ekle",
+      hint: "Surelere dokunarak ayet detayını açın. Tek ayet, aralık veya tamamını seçebilirsiniz.",
+    },
   },
 
   bookmarks: {

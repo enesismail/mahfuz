@@ -55,6 +55,21 @@ export const en: Messages = {
     appsComingSoon: "Khatm tracking, memorization, Alif-Ba and more coming soon.",
     noBookmarks: "No bookmarks yet",
     viewBookmarks: "Bookmarks",
+    hifz: {
+      title: "My Memorization",
+      empty: "Mark the surahs and verses you have memorized",
+      completeSurahs: "{n} surahs complete",
+      partialSurahs: "{n} surahs partial",
+      filterByJuz: "Filter by juz",
+      allSurahs: "All",
+      verses: "verses",
+      selectAll: "All",
+      allVersesSelected: "all",
+      from: "From",
+      to: "To",
+      addRange: "Add",
+      hint: "Tap a surah to open verse details. You can select individual verses, ranges, or all.",
+    },
   },
 
   bookmarks: {
