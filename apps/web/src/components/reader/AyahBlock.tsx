@@ -7,7 +7,9 @@ import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { useSettingsStore } from "~/stores/settings.store";
 import { useAudioStore } from "~/stores/audio.store";
 import { parseTajweed } from "~/lib/tajweed-parser";
+import { splitWords } from "~/lib/split-words";
 import { AyahActionMenu } from "./AyahActionMenu";
+import { VerseEndMarker } from "~/components/quran/VerseEndMarker";
 import type { WbwWord } from "~/hooks/useWbwData";
 
 interface AyahBlockProps {
@@ -178,14 +180,7 @@ export function AyahBlock({
             </div>
           ))}
           <div className="flex items-center">
-            <button
-              onClick={handleBadgeClick}
-              className="w-8 h-8 rounded-full bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-colors cursor-pointer"
-              style={{ fontFamily: "var(--font-ui)", fontSize: "0.75rem" }}
-              aria-label={`Ayet ${ayahNumber} eylemleri`}
-            >
-              {ayahNumber}
-            </button>
+            <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="block" />
           </div>
         </div>
       ) : (
@@ -193,7 +188,7 @@ export function AyahBlock({
         <div className="leading-[2.8]" dir="rtl" style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, textAlign: "justify" }}>
           {showTajweed && textTajweed
             ? parseTajweed(textTajweed, true)
-            : textUthmani.split(/\s+/).map((word, i) => (
+            : splitWords(textUthmani).map((word, i) => (
                 <span
                   key={i}
                   className={`inline rounded-sm px-[0.06em] transition-colors duration-150 cursor-default ${
@@ -205,14 +200,7 @@ export function AyahBlock({
                   {word}{" "}
                 </span>
               ))}
-          <button
-            onClick={handleBadgeClick}
-            className="inline-flex items-center justify-center mr-1.5 w-8 h-8 rounded-full bg-[var(--color-surface)] text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-colors cursor-pointer"
-            style={{ fontFamily: "var(--font-ui)", fontSize: "0.75rem" }}
-            aria-label={`Ayet ${ayahNumber} eylemleri`}
-          >
-            {ayahNumber}
-          </button>
+          <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="inline" size={32} />
         </div>
       )}
 

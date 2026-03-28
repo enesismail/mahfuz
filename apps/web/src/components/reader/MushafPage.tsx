@@ -11,12 +11,14 @@ import { usePageData, useTajweed, useImlaei, useMushafLines, translationSourcesQ
 import { useQuery } from "@tanstack/react-query";
 import { cleanImlaei } from "~/lib/strip-diacritics";
 import { parseTajweed } from "~/lib/tajweed-parser";
+import { splitWords } from "~/lib/split-words";
 import { SurahHeader } from "./SurahHeader";
 import { MushafLineView } from "./MushafLineView";
 import { PageNav } from "./PageNav";
 import { useReadingTracker } from "~/hooks/useReadingTracker";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { AyahActionMenu } from "./AyahActionMenu";
+import { VerseEndMarker } from "~/components/quran/VerseEndMarker";
 import { useTranslation } from "~/hooks/useTranslation";
 
 interface MushafPageProps {
@@ -254,7 +256,7 @@ function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translatio
       >
         {textTajweed
           ? parseTajweed(textTajweed, true)
-          : textUthmani.split(/\s+/).map((word, i) => (
+          : splitWords(textUthmani).map((word, i) => (
               <span
                 key={i}
                 className={`inline rounded-sm px-[0.06em] transition-colors duration-150 cursor-default ${
@@ -267,15 +269,8 @@ function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translatio
               </span>
             ))}
       </span>
-      {/* Ayet numarası badge */}
-      <button
-        onClick={handleBadgeClick}
-        className="inline-flex items-center justify-center mx-1 w-7 h-7 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] transition-colors cursor-pointer align-middle"
-        style={{ fontFamily: "var(--font-ui)", fontSize: "0.65rem" }}
-        aria-label={`Ayet ${ayahNumber}`}
-      >
-        {ayahNumber}
-      </button>
+      {/* Ayet numarası — dekoratif daire */}
+      <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="inline" />
       {/* Yer imi göstergesi */}
       {isBookmarked && (
         <button
