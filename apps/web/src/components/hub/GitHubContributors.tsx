@@ -73,8 +73,6 @@ export function GitHubContributors() {
   if (isError || !contributors || contributors.length === 0) return null;
 
   const totalCommits = contributors.reduce((s, x) => s + x.contributions, 0);
-  const topContributor = contributors[0];
-  const restContributors = contributors.slice(1);
 
   return (
     <section className="mt-8">
@@ -127,87 +125,56 @@ export function GitHubContributors() {
         </div>
       )}
 
-      {/* En çok katkıda bulunan (hero card) */}
-      <a
-        href={topContributor.html_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)]/40 transition-colors mb-3"
-      >
-        <img
-          src={`${topContributor.avatar_url}&s=96`}
-          alt={topContributor.login}
-          width={44}
-          height={44}
-          loading="lazy"
-          referrerPolicy="no-referrer"
-          className="rounded-full ring-2 ring-[var(--color-accent)]/20"
-        />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
-              {topContributor.login}
-            </span>
-            <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-medium">
-              #1
-            </span>
-          </div>
-          <div className="flex items-center gap-1 mt-0.5">
-            <span className="text-xs text-[var(--color-text-secondary)]">
-              {topContributor.contributions.toLocaleString()} {c.commits}
-            </span>
-            <span className="text-[var(--color-text-secondary)]">·</span>
-            <span className="text-xs text-[var(--color-text-secondary)]">
-              {Math.round((topContributor.contributions / totalCommits) * 100)}%
-            </span>
-          </div>
-          {/* Mini progress bar */}
-          <div className="mt-1.5 h-1 rounded-full bg-[var(--color-border)] overflow-hidden">
-            <div
-              className="h-full rounded-full bg-[var(--color-accent)]"
-              style={{ width: `${Math.round((topContributor.contributions / totalCommits) * 100)}%` }}
-            />
-          </div>
-        </div>
-      </a>
-
-      {/* Diğer katkıda bulunanlar listesi */}
-      {restContributors.length > 0 && (
-        <div className="grid grid-cols-2 gap-2">
-          {restContributors.map((user, i) => (
-            <a
-              key={user.login}
-              href={user.html_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-accent)]/30 hover:bg-[var(--color-accent)]/3 transition-colors"
-            >
-              <div className="relative shrink-0">
-                <img
-                  src={`${user.avatar_url}&s=64`}
-                  alt={user.login}
-                  width={32}
-                  height={32}
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                  className="rounded-full"
-                />
-                <span className="absolute -top-0.5 -right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[8px] font-bold text-[var(--color-text-secondary)] flex items-center justify-center leading-none">
-                  {i + 2}
+      {/* Katkıda bulunanlar listesi */}
+      <div className="space-y-2">
+        {contributors.map((user, i) => (
+          <a
+            key={user.login}
+            href={user.html_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-accent)]/3 transition-colors"
+          >
+            <div className="relative shrink-0">
+              <img
+                src={`${user.avatar_url}&s=80`}
+                alt={user.login}
+                width={i === 0 ? 44 : 36}
+                height={i === 0 ? 44 : 36}
+                loading="lazy"
+                referrerPolicy="no-referrer"
+                className={`rounded-full ${i === 0 ? "ring-2 ring-[var(--color-accent)]/20" : ""}`}
+              />
+              <span className={`absolute -top-0.5 -right-1 min-w-[16px] h-[16px] px-0.5 rounded-full text-[9px] font-bold flex items-center justify-center leading-none ${
+                i === 0
+                  ? "bg-[var(--color-accent)] text-white"
+                  : "bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+              }`}>
+                {i + 1}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className={`font-medium text-[var(--color-text-primary)] truncate ${i === 0 ? "text-sm" : "text-xs"}`}>
+                  {user.login}
                 </span>
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-[var(--color-text-primary)] truncate">
-                  {user.login}
-                </div>
-                <div className="text-[10px] text-[var(--color-text-secondary)]">
-                  {user.contributions.toLocaleString()} {c.commits}
-                </div>
+              <div className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">
+                {user.contributions.toLocaleString()} {c.commits}
+                {" · "}
+                {Math.round((user.contributions / totalCommits) * 100)}%
               </div>
-            </a>
-          ))}
-        </div>
-      )}
+              {/* Progress bar */}
+              <div className="mt-1.5 h-1 rounded-full bg-[var(--color-border)] overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-[var(--color-accent)] transition-all"
+                  style={{ width: `${Math.round((user.contributions / totalCommits) * 100)}%` }}
+                />
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
     </section>
   );
 }

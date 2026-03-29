@@ -63,7 +63,7 @@ function HubPage() {
   const bookmarkCount = useBookmarksStore((s) => s.bookmarks.length);
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-24">
+    <div className="max-w-lg mx-auto px-4 py-6 pb-32">
       <h1 className="text-lg font-semibold mb-5">{t.hub.title}</h1>
 
       <FeatureGuide />
