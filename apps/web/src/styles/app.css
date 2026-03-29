@@ -175,7 +175,7 @@ body {
 
 .word-audio-active {
   background: var(--color-accent);
-  color: var(--color-bg);
+  color: #fff;
   border-radius: 4px;
   transition: background 0.15s ease, color 0.15s ease;
 }
