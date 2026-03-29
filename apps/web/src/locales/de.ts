@@ -9,6 +9,7 @@ export const de: Messages = {
       papyrus: "Papyrus",
       sea: "Meer",
       night: "Nacht",
+      seher: "Dämmerung",
     },
     readingMode: "Lesemodus",
     mushafPage: "Mushaf-Seite",
@@ -35,6 +36,8 @@ export const de: Messages = {
     tajweedOnlyUthmani: "Tajweed ist nur im Uthmani-Textstil verfügbar.",
     select: "Auswählen",
     searchPlaceholder: "Suchen...",
+    labs: "Entdeckungsmodus",
+    labsDesc: "Neue Funktionen ausprobieren, bevor sie fertig sind",
   },
 
   nav: {

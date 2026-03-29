@@ -33,6 +33,9 @@ const SLUG_TO_LANGUAGE: Record<string, string> = {
   "omer-nasuhi-bilmen": "tr",
   "ali-fikri-yavuz": "tr",
   "muhammed-esed": "tr",
+  "dar-al-salam-tr": "tr",
+  "muslim-shahin-tr": "tr",
+  "shaban-britch-tr": "tr",
   "sahih-international": "en",
   "taisirul-quran": "bn",
   "islamhouse-fa": "fa",
@@ -63,13 +66,15 @@ const DEFAULT_SLUG = "omer-celik";
 // --all ile hepsini import et
 const importAll = process.argv.includes("--all");
 const PRIORITY_SLUGS = [
-  "omer-celik", "diyanet", "elmali-yeni", "muhammed-esed", // TR
-  "sahih-international", "pickthall-en",          // EN
-  "isa-garcia",                                   // ES
-  "montada-fr",                                   // FR
-  "muyassar-ar",                                  // AR
-  "bubenheim-de",                                 // DE
-  "abdalsalaam-nl",                               // NL
+  "omer-celik", "diyanet", "elmali-yeni", "muhammed-esed",  // TR
+  "ali-fikri-yavuz", "omer-nasuhi-bilmen",                  // TR (ek)
+  "dar-al-salam-tr", "muslim-shahin-tr", "shaban-britch-tr", // TR (API)
+  "sahih-international", "pickthall-en",                     // EN
+  "isa-garcia",                                              // ES
+  "montada-fr",                                              // FR
+  "muyassar-ar",                                             // AR
+  "bubenheim-de",                                            // DE
+  "abdalsalaam-nl",                                          // NL
 ];
 
 // ── Ana fonksiyon ──────────────────────────────────────

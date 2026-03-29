@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 
 // ── Better Auth tabloları ────────────────────────────────
 // (apps/legacy ile aynı — auth sistemi paylaşılıyor)
@@ -52,6 +52,8 @@ export const userSettings = sqliteTable("user_settings", {
     .references(() => user.id, { onDelete: "cascade" }),
   /** JSON blob — tüm ayarlar tek sütunda */
   data: text("data").notNull().default("{}"),
+  /** Alan bazlı LWW zaman damgaları: { "theme": 1711000000000, ... } */
+  fieldTimestamps: text("field_timestamps").notNull().default("{}"),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
@@ -65,6 +67,40 @@ export const readingPosition = sqliteTable("reading_position", {
   surahId: integer("surah_id").notNull(),
   ayahNumber: integer("ayah_number").notNull(),
   pageNumber: integer("page_number").notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+// ── Yer imleri (satır bazlı, soft-delete ile sync) ───────
+
+export const bookmarks = sqliteTable(
+  "bookmarks",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    surahId: integer("surah_id").notNull(),
+    ayahNumber: integer("ayah_number").notNull(),
+    pageNumber: integer("page_number").notNull(),
+    createdAt: integer("created_at").notNull(), // epoch ms, client-set
+    deletedAt: integer("deleted_at"), // epoch ms — soft delete for sync
+  },
+  (table) => [
+    index("bookmarks_user_idx").on(table.userId),
+    index("bookmarks_user_verse_idx").on(table.userId, table.surahId, table.ayahNumber),
+  ],
+);
+
+// ── Sync metadata (versiyon + alan zaman damgaları) ──────
+
+export const syncMetadata = sqliteTable("sync_metadata", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => user.id, { onDelete: "cascade" }),
+  /** Her push'ta artan versiyon sayacı */
+  version: integer("version").notNull().default(0),
+  /** Alan bazlı zaman damgaları: { "settings.theme": ts, "hifz.36": ts, ... } */
+  fieldTimestamps: text("field_timestamps").notNull().default("{}"),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 

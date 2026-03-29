@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as HifzRouteImport } from './routes/hifz'
 import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
@@ -33,6 +34,11 @@ const SearchRoute = SearchRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HifzRoute = HifzRouteImport.update({
+  id: '/hifz',
+  path: '/hifz',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DiscoverRoute = DiscoverRouteImport.update({
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
   '/discover': typeof DiscoverRoute
+  '/hifz': typeof HifzRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
@@ -125,6 +132,7 @@ export interface FileRoutesByTo {
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
   '/discover': typeof DiscoverRoute
+  '/hifz': typeof HifzRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
   '/discover': typeof DiscoverRoute
+  '/hifz': typeof HifzRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/changelog'
     | '/discover'
+    | '/hifz'
     | '/profile'
     | '/search'
     | '/$surahId/$verseNum'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/changelog'
     | '/discover'
+    | '/hifz'
     | '/profile'
     | '/search'
     | '/$surahId/$verseNum'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/bookmarks'
     | '/changelog'
     | '/discover'
+    | '/hifz'
     | '/profile'
     | '/search'
     | '/$surahId/$verseNum'
@@ -214,6 +226,7 @@ export interface RootRouteChildren {
   BookmarksRoute: typeof BookmarksRoute
   ChangelogRoute: typeof ChangelogRoute
   DiscoverRoute: typeof DiscoverRoute
+  HifzRoute: typeof HifzRoute
   ProfileRoute: typeof ProfileRoute
   SearchRoute: typeof SearchRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -238,6 +251,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hifz': {
+      id: '/hifz'
+      path: '/hifz'
+      fullPath: '/hifz'
+      preLoaderRoute: typeof HifzRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/discover': {
@@ -352,6 +372,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookmarksRoute: BookmarksRoute,
   ChangelogRoute: ChangelogRoute,
   DiscoverRoute: DiscoverRoute,
+  HifzRoute: HifzRoute,
   ProfileRoute: ProfileRoute,
   SearchRoute: SearchRoute,
   AuthCallbackRoute: AuthCallbackRoute,

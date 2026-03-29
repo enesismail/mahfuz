@@ -19,20 +19,6 @@ function AlifbaPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-5">
-        <Link
-          to="/hub"
-          className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
-          aria-label={t.nav.back}
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5L7 10L12 15" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-semibold">{t.hub.alifba}</h1>
-      </div>
-
       {selected ? (
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
           <div className="flex items-center justify-between mb-2">

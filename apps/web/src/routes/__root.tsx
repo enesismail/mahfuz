@@ -15,8 +15,7 @@ import { SettingsPanel } from "~/components/reader/SettingsPanel";
 import { MahfuzLogo } from "~/components/icons/MahfuzLogo";
 import { Link, useNavigate, useRouteContext, useRouterState } from "@tanstack/react-router";
 import { getSession } from "~/lib/auth-session";
-import { useReadingSync } from "~/hooks/useReadingSync";
-import { useSettingsSync } from "~/hooks/useSettingsSync";
+import { useSyncEngine } from "~/hooks/useSyncEngine";
 import type { Session } from "~/lib/auth";
 import appCss from "~/styles/app.css?url";
 
@@ -232,9 +231,8 @@ function RootDocument({ children }: { children: ReactNode }) {
   const locale = useLocaleStore((s) => s.locale);
   const { session } = useRouteContext({ from: "__root__" });
 
-  // Sync reading positions and settings with DB when logged in
-  useReadingSync(session);
-  useSettingsSync(session);
+  // Unified cross-device sync
+  useSyncEngine(session);
 
   // Tema uygula + FOUC engelle
   const theme = useSettingsStore((s) => s.theme);

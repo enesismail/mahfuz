@@ -21,6 +21,9 @@
   --logo-g4: #6b4c00;
   --logo-hl: #f0d590;
 
+  /* Üst bant — altın yaldız tezhip şeridi */
+  --header-band: linear-gradient(90deg, transparent, #6b4c00, #b8860b, #d4a24e, #f0d590, #d4a24e, #b8860b, #6b4c00, transparent);
+
   /* Tipografi */
   --font-arabic: "Scheherazade New", serif;
   --font-ui: system-ui, -apple-system, sans-serif;
@@ -49,6 +52,9 @@
   --logo-g3: #0d9488;
   --logo-g4: #0d7377;
   --logo-hl: #99f6e4;
+
+  /* Üst bant — okyanus yüzeyi, dalgalanan teal */
+  --header-band: linear-gradient(90deg, #065a5e, #0d9488, #14b8a6, #2dd4bf, #99f6e4, #2dd4bf, #0d9488, #065a5e);
 }
 
 /* ── Tema: Gece ──────────────────────────────────────── */
@@ -70,6 +76,51 @@
   --logo-g3: #5a8c2a;
   --logo-g4: #3d6b14;
   --logo-hl: #d4f0a8;
+
+  /* Üst bant — kuzey ışıkları, karanlıkta yeşil fısıltı */
+  --header-band: linear-gradient(90deg, #0f0e0c, #1a2010, #2a3818, #3d6b14, #5a8c2a, #3d6b14, #2a3818, #1a2010, #0f0e0c);
+}
+
+/* ── Tema: Seher (سحر — şafak öncesi) ────────────────── */
+/* Gündüz: sıcak gül kremi  ·  Gece: derin mürdüm       */
+
+[data-theme="seher"] {
+  /* Light (gündüz — sabah aydınlığı) */
+  --color-bg: #f5ede8;
+  --color-surface: #ebe0d8;
+  --color-text-primary: #2a1a20;
+  --color-text-secondary: #8a7078;
+  --color-text-translation: #5c4850;
+  --color-border: #d8c8c0;
+  --color-accent: #c47a5a;
+  --color-word-hover: rgba(196, 122, 90, 0.12);
+  --color-word-hover-text: #a05830;
+
+  /* Logo — gül altını gradient */
+  --logo-g1: #e0a080;
+  --logo-g2: #c47a5a;
+  --logo-g3: #a45a3a;
+  --logo-g4: #843a1a;
+  --logo-hl: #f0c8b0;
+
+  /* Üst bant — şafak ufku, geceden aydınlığa */
+  --header-band: linear-gradient(90deg, #3a1520, #843a1a, #c47a5a, #f0c8b0, #c47a5a, #843a1a, #3a1520);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="seher"] {
+    /* Dark (gece — şafak öncesi karanlık) */
+    --color-bg: #1a1018;
+    --color-surface: #241c22;
+    --color-text-primary: #f0e6e8;
+    --color-text-secondary: #9a8890;
+    --color-text-translation: #c4b8be;
+    --color-border: #362a32;
+    --color-word-hover: rgba(196, 122, 90, 0.15);
+    --color-word-hover-text: #e0a080;
+
+    --logo-hl: #f0c8b0;
+  }
 }
 
 /* Sistem karanlık modu → tema seçilmediyse gece teması */
@@ -128,38 +179,47 @@
 
 /* ── Tecvid karanlık tema ────────────────────────────── */
 
-[data-theme="night"] .tajweed-madda_normal,
-:root:not([data-theme]) .tajweed-madda_normal { color: #5ab0e0; }
-[data-theme="night"] .tajweed-madda_permissible,
-:root:not([data-theme]) .tajweed-madda_permissible { color: #7ac4e8; }
-[data-theme="night"] .tajweed-madda_necessary,
-:root:not([data-theme]) .tajweed-madda_necessary { color: #3a8fc0; }
-[data-theme="night"] .tajweed-madda_obligatory,
-:root:not([data-theme]) .tajweed-madda_obligatory { color: #4a90d0; }
-[data-theme="night"] .tajweed-qalaqah,
-:root:not([data-theme]) .tajweed-qalaqah { color: #e0aa30; }
-[data-theme="night"] .tajweed-ikhafa,
-:root:not([data-theme]) .tajweed-ikhafa { color: #4ebd6a; }
-[data-theme="night"] .tajweed-ikhafa_shafawi,
-:root:not([data-theme]) .tajweed-ikhafa_shafawi { color: #60c880; }
-[data-theme="night"] .tajweed-idgham_ghunnah,
-:root:not([data-theme]) .tajweed-idgham_ghunnah { color: #3a9c5a; }
-[data-theme="night"] .tajweed-idgham_wo_ghunnah,
-:root:not([data-theme]) .tajweed-idgham_wo_ghunnah { color: #b07a50; }
-[data-theme="night"] .tajweed-idgham_shafawi,
-:root:not([data-theme]) .tajweed-idgham_shafawi { color: #50b870; }
-[data-theme="night"] .tajweed-idgham_mutajanisayn,
-:root:not([data-theme]) .tajweed-idgham_mutajanisayn { color: #90a050; }
-[data-theme="night"] .tajweed-iqlab,
-:root:not([data-theme]) .tajweed-iqlab { color: #b04aa0; }
-[data-theme="night"] .tajweed-ghunnah,
-:root:not([data-theme]) .tajweed-ghunnah { color: #e04040; }
-[data-theme="night"] .tajweed-ham_wasl,
-:root:not([data-theme]) .tajweed-ham_wasl { color: #aaaaaa; }
-[data-theme="night"] .tajweed-laam_shamsiyah,
-:root:not([data-theme]) .tajweed-laam_shamsiyah { color: #aaaaaa; }
-[data-theme="night"] .tajweed-slnt,
-:root:not([data-theme]) .tajweed-slnt { color: #aaaaaa; opacity: 0.5; }
+/* Night + sistem karanlık → her zaman dark tecvid */
+:is([data-theme="night"], :root:not([data-theme])) {
+  & .tajweed-madda_normal { color: #5ab0e0; }
+  & .tajweed-madda_permissible { color: #7ac4e8; }
+  & .tajweed-madda_necessary { color: #3a8fc0; }
+  & .tajweed-madda_obligatory { color: #4a90d0; }
+  & .tajweed-qalaqah { color: #e0aa30; }
+  & .tajweed-ikhafa { color: #4ebd6a; }
+  & .tajweed-ikhafa_shafawi { color: #60c880; }
+  & .tajweed-idgham_ghunnah { color: #3a9c5a; }
+  & .tajweed-idgham_wo_ghunnah { color: #b07a50; }
+  & .tajweed-idgham_shafawi { color: #50b870; }
+  & .tajweed-idgham_mutajanisayn { color: #90a050; }
+  & .tajweed-iqlab { color: #b04aa0; }
+  & .tajweed-ghunnah { color: #e04040; }
+  & .tajweed-ham_wasl { color: #aaaaaa; }
+  & .tajweed-laam_shamsiyah { color: #aaaaaa; }
+  & .tajweed-slnt { color: #aaaaaa; opacity: 0.5; }
+}
+
+/* Seher → sadece sistem karanlıkken dark tecvid */
+@media (prefers-color-scheme: dark) {
+  [data-theme="seher"] {
+    & .tajweed-madda_normal { color: #5ab0e0; }
+    & .tajweed-madda_permissible { color: #7ac4e8; }
+    & .tajweed-madda_necessary { color: #3a8fc0; }
+    & .tajweed-madda_obligatory { color: #4a90d0; }
+    & .tajweed-qalaqah { color: #e0aa30; }
+    & .tajweed-ikhafa { color: #4ebd6a; }
+    & .tajweed-ikhafa_shafawi { color: #60c880; }
+    & .tajweed-idgham_ghunnah { color: #3a9c5a; }
+    & .tajweed-idgham_wo_ghunnah { color: #b07a50; }
+    & .tajweed-idgham_shafawi { color: #50b870; }
+    & .tajweed-idgham_mutajanisayn { color: #90a050; }
+    & .tajweed-iqlab { color: #b04aa0; }
+    & .tajweed-ghunnah { color: #e04040; }
+    & .tajweed-ham_wasl { color: #aaaaaa; }
+    & .tajweed-laam_shamsiyah { color: #aaaaaa; }
+    & .tajweed-slnt { color: #aaaaaa; opacity: 0.5; }
+  }
+}
 
 /* ── Base ─────────────────────────────────────────────── */
 

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type Theme = "papyrus" | "sea" | "night";
+export type Theme = "papyrus" | "sea" | "night" | "seher";
 export type TextStyle = "uthmani" | "basic";
 export type WbwDisplay = "off" | "hover" | "on";
 export type SurahListFilter = "all" | "makkah" | "madinah" | "nuzul";
@@ -20,6 +20,7 @@ interface SettingsState {
   reciterSlug: string;
   arabicFontSize: number; // rem
   translationFontSize: number; // rem
+  labsEnabled: boolean;
 }
 
 interface SettingsActions {
@@ -41,6 +42,7 @@ interface SettingsActions {
   setTextStyle: (style: TextStyle) => void;
   setArabicFontSize: (size: number) => void;
   setTranslationFontSize: (size: number) => void;
+  setLabsEnabled: (enabled: boolean) => void;
   resetToDefaults: () => void;
 }
 
@@ -61,6 +63,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       reciterSlug: "mishary-rashid-alafasy",
       arabicFontSize: 1.8,
       translationFontSize: 0.95,
+      labsEnabled: false,
 
       // Actions
       setTheme: (theme) => {
@@ -99,6 +102,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       setTextStyle: (style) => set({ textStyle: style }),
       setArabicFontSize: (size) => set({ arabicFontSize: Math.max(1.2, Math.min(5.0, size)) }),
       setTranslationFontSize: (size) => set({ translationFontSize: Math.max(0.75, Math.min(2.0, size)) }),
+      setLabsEnabled: (enabled) => set({ labsEnabled: enabled }),
       resetToDefaults: () => {
         document.documentElement.setAttribute("data-theme", "papyrus");
         set({
@@ -115,6 +119,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
           reciterSlug: "mishary-rashid-alafasy",
           arabicFontSize: 1.8,
           translationFontSize: 0.95,
+          labsEnabled: false,
         });
       },
     }),

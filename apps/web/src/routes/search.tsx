@@ -45,22 +45,6 @@ function SearchPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20">
-      {/* Başlık + geri */}
-      <div className="flex items-center gap-3 mb-4">
-        <Link
-          to="/"
-          className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
-          aria-label={t.nav.back}
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5L7 10L12 15" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-medium">{t.search.title}</h1>
-        <div className="flex-1" />
-        <SettingsButton />
-      </div>
-
       {/* Arama kutusu */}
       <div className="relative mb-6">
         <svg

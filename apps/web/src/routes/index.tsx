@@ -60,61 +60,6 @@ function HomePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20">
-      {/* Başlık + arama */}
-      <div className="flex items-center gap-3 mb-4">
-        <h1 className="flex items-center gap-2 text-xl font-semibold">
-          <MahfuzLogo size={28} />
-          Mahfuz
-        </h1>
-        <div className="flex-1" />
-        <Link
-          to="/search"
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--color-surface)] border border-[var(--color-border)] transition-colors shrink-0"
-          aria-label={t.nav.search}
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <circle cx="7" cy="7" r="5" />
-            <path d="M11 11L14 14" />
-          </svg>
-          <span className="text-xs text-[var(--color-text-secondary)] hidden sm:inline">{t.nav.search}</span>
-          <kbd className="hidden sm:inline text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-secondary)]">
-            &#8984;K
-          </kbd>
-        </Link>
-
-        <SettingsButton />
-
-        {/* Auth */}
-        {session ? (
-          <Link
-            to="/profile"
-            className="flex items-center gap-1.5 shrink-0 rounded-lg px-2.5 py-1.5 text-xs hover:bg-[var(--color-surface)] transition-colors"
-            title={t.nav.profile}
-          >
-            {session.user.image ? (
-              <img
-                src={session.user.image}
-                alt={session.user.name || ""}
-                className="h-6 w-6 rounded-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-            ) : (
-              <span className="h-6 w-6 rounded-full bg-[var(--color-accent)] flex items-center justify-center text-[11px] font-medium text-white">
-                {session.user.name?.[0]?.toUpperCase() || "?"}
-              </span>
-            )}
-          </Link>
-        ) : (
-          <Link
-            to="/auth/login"
-            search={{ redirect: "" }}
-            className="shrink-0 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-surface)] transition-colors"
-          >
-            {t.nav.login}
-          </Link>
-        )}
-      </div>
-
       {/* Yer imleri */}
       {bookmarks.length > 0 && (() => {
         const surahMap = new Map(surahs.map((s) => [s.id, s]));

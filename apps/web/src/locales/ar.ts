@@ -9,6 +9,7 @@ export const ar: Messages = {
       papyrus: "بردية",
       sea: "بحر",
       night: "ليل",
+      seher: "سحر",
     },
     readingMode: "وضع القراءة",
     mushafPage: "صفحة المصحف",
@@ -35,6 +36,8 @@ export const ar: Messages = {
     tajweedOnlyUthmani: "التجويد متاح فقط مع نمط النص العثماني.",
     select: "اختر",
     searchPlaceholder: "...بحث",
+    labs: "وضع الاكتشاف",
+    labsDesc: "جرّب الميزات الجديدة قبل اكتمالها",
   },
 
   nav: {

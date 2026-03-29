@@ -51,33 +51,20 @@ function BookmarksPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6 pb-20">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <Link
-          to="/"
-          className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
-          aria-label={t.nav.back}
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 5L7 10L12 15" />
-          </svg>
-        </Link>
-        <h1 className="text-lg font-medium">{t.nav.bookmarks}</h1>
-        {bookmarks.length > 0 && (
+      {/* Sort kontrol */}
+      {bookmarks.length > 0 && (
+        <div className="flex items-center justify-between mb-4">
           <span className="text-xs text-[var(--color-text-secondary)]">
-            {bookmarks.length}
+            {bookmarks.length} {t.nav.bookmarks.toLowerCase()}
           </span>
-        )}
-        <div className="flex-1" />
-        {bookmarks.length > 0 && (
           <button
             onClick={() => setSort(sort === "surah" ? "recent" : "surah")}
             className="text-xs px-2.5 py-1 rounded-md bg-[var(--color-surface)] hover:bg-[var(--color-surface)]/80 text-[var(--color-text-secondary)] transition-colors"
           >
             {sort === "surah" ? t.bookmarks.sortByRecent : t.bookmarks.sortBySurah}
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       {bookmarks.length === 0 ? (
         <div className="text-center py-16">

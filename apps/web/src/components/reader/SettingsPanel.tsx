@@ -2,7 +2,7 @@
  * Ayar paneli — sağdan açılır sheet.
  */
 
-import { useMemo, useEffect, useRef } from "react";
+import { useMemo, useEffect, useRef, useState as useLocalState } from "react";
 import { useSettingsStore, type Theme, type TextStyle, type WbwDisplay } from "~/stores/settings.store";
 import { useQuery } from "@tanstack/react-query";
 import { recitersQueryOptions, translationSourcesQueryOptions } from "~/hooks/useQuranQuery";
@@ -23,18 +23,22 @@ const LANG_LABELS: Record<string, string> = {
   zh: "中文", ms: "Melayu", sw: "Kiswahili", vi: "Tiếng Việt",
 };
 
-const THEMES: {
+interface ThemeDef {
   id: Theme;
   labelKey: "papyrus" | "sea" | "night" | "seher";
   bg: string;
-  surface: string;
   text: string;
   accent: string;
-}[] = [
-  { id: "papyrus", labelKey: "papyrus", bg: "#f5efe0", surface: "#ece4d0", text: "#2c2416", accent: "#8b6914" },
-  { id: "sea",     labelKey: "sea",     bg: "#eef3f2", surface: "#e0eae6", text: "#1a2c28", accent: "#0d7377" },
-  { id: "night",   labelKey: "night",   bg: "#0f0e0c", surface: "#1a1814", text: "#f0ece4", accent: "#7aad4a" },
-  { id: "seher",   labelKey: "seher",   bg: "#1a1018", surface: "#241c22", text: "#f0e6e8", accent: "#c47a5a" },
+  /** Diagonal split: top-right light + bottom-left dark */
+  split?: { bg2: string; text2: string };
+}
+
+const THEMES: ThemeDef[] = [
+  { id: "papyrus", labelKey: "papyrus", bg: "#f5efe0", text: "#2c2416", accent: "#8b6914" },
+  { id: "sea",     labelKey: "sea",     bg: "#eef3f2", text: "#1a2c28", accent: "#0d7377" },
+  { id: "night",   labelKey: "night",   bg: "#0f0e0c", text: "#f0ece4", accent: "#7aad4a" },
+  { id: "seher",   labelKey: "seher",   bg: "#f5ede8", text: "#2a1a20", accent: "#c47a5a",
+    split: { bg2: "#1a1018", text2: "#f0e6e8" } },
 ];
 
 interface SettingsPanelProps {
@@ -152,7 +156,7 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
       <div className="fixed inset-0 z-40 bg-black/30" onClick={handleClose} />
 
       <div className="fixed right-0 top-0 bottom-0 z-50 w-80 max-w-[85vw] bg-[var(--color-bg)] border-l border-[var(--color-border)] shadow-xl overflow-y-auto">
-        <div className="p-4">
+        <div className="flex flex-col min-h-full p-4">
           {/* Başlık */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-medium">{t.settings.title}</h2>
@@ -193,31 +197,53 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
                     className="group relative flex flex-col items-center gap-1 focus:outline-none"
                     aria-label={t.settings.themes[item.labelKey]}
                   >
-                    {/* Mini preview card */}
                     <div
-                      className="w-full aspect-[3/4] rounded-lg overflow-hidden transition-all"
+                      className="w-full aspect-[3/4] rounded-lg overflow-hidden transition-all relative"
                       style={{
-                        background: item.bg,
+                        background: item.split
+                          ? `linear-gradient(135deg, ${item.bg} 50%, ${item.split.bg2} 50%)`
+                          : item.bg,
                         boxShadow: active
                           ? `0 0 0 2px ${item.accent}`
                           : "0 0 0 1px rgba(128,128,128,0.15)",
                       }}
                     >
-                      {/* Simulated content lines */}
-                      <div className="flex flex-col items-center justify-center h-full gap-1 px-1.5">
-                        <span
-                          className="text-[11px] leading-none"
-                          style={{ color: item.text, fontFamily: "var(--font-arabic)" }}
-                        >
-                          بسم
-                        </span>
-                        <div className="flex flex-col gap-[3px] w-full items-center">
-                          <span className="block rounded-full h-[2px] w-[70%]" style={{ background: item.text, opacity: 0.2 }} />
-                          <span className="block rounded-full h-[2px] w-[50%]" style={{ background: item.text, opacity: 0.12 }} />
+                      {item.split ? (
+                        /* ── Seher: diagonal split — light top-left, dark bottom-right ── */
+                        <div className="flex flex-col items-center justify-center h-full gap-1 px-1.5">
+                          {/* Light half sample text */}
+                          <span
+                            className="text-[11px] leading-none"
+                            style={{ color: item.text, fontFamily: "var(--font-arabic)" }}
+                          >
+                            بسم
+                          </span>
+                          {/* Accent strip at center */}
+                          <span className="block rounded-full h-[3px] w-[40%]" style={{ background: item.accent }} />
+                          {/* Dark half sample text */}
+                          <span
+                            className="text-[9px] leading-none"
+                            style={{ color: item.split.text2, fontFamily: "var(--font-arabic)" }}
+                          >
+                            الله
+                          </span>
                         </div>
-                        {/* Accent strip */}
-                        <span className="block rounded-full h-[3px] w-[40%] mt-0.5" style={{ background: item.accent }} />
-                      </div>
+                      ) : (
+                        /* ── Standard theme preview ── */
+                        <div className="flex flex-col items-center justify-center h-full gap-1 px-1.5">
+                          <span
+                            className="text-[11px] leading-none"
+                            style={{ color: item.text, fontFamily: "var(--font-arabic)" }}
+                          >
+                            بسم
+                          </span>
+                          <div className="flex flex-col gap-[3px] w-full items-center">
+                            <span className="block rounded-full h-[2px] w-[70%]" style={{ background: item.text, opacity: 0.2 }} />
+                            <span className="block rounded-full h-[2px] w-[50%]" style={{ background: item.text, opacity: 0.12 }} />
+                          </div>
+                          <span className="block rounded-full h-[3px] w-[40%] mt-0.5" style={{ background: item.accent }} />
+                        </div>
+                      )}
                     </div>
                     {/* Label */}
                     <span
@@ -233,10 +259,7 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
           </div>
 
           {/* ── Okuma Modu ── */}
-          <div className="mb-3 pb-3 border-b border-[var(--color-border)]">
-            <label className="text-[11px] font-medium text-[var(--color-text-secondary)] mb-1.5 block">
-              {t.settings.readingMode}
-            </label>
+          <Section title={t.settings.readingMode}>
             <SegmentedControl
               options={[
                 { value: "page", label: t.settings.mushafPage },
@@ -245,16 +268,10 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
               value={readingMode}
               onChange={(v) => handleModeChange(v as "page" | "list")}
             />
-          </div>
+          </Section>
 
           {/* ── Meal + WBW ── */}
-          <div className="mb-3 pb-3 border-b border-[var(--color-border)]">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[11px] font-medium text-[var(--color-text-secondary)]">
-                {t.settings.translation}
-              </label>
-              <Toggle checked={showTranslation} onChange={toggleTranslation} />
-            </div>
+          <Section title={t.settings.translation} right={<Toggle checked={showTranslation} onChange={toggleTranslation} />}>
             {showTranslation && (
               <>
                 <GroupedMultiSelect
@@ -266,7 +283,6 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
                   noResultsText={t.common.noResults}
                   groupOrder={groupOrder}
                 />
-                {/* Seçili meallerin sıralama listesi */}
                 {translationSlugs.length > 1 && (
                   <div className="mt-2 space-y-0.5">
                     {translationSlugs.map((slug, i) => {
@@ -333,18 +349,13 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
                 )}
               </>
             )}
-          </div>
+          </Section>
 
           {/* ── Metin Stili + Tecvid ── */}
-          <div className="mb-3 pb-3 border-b border-[var(--color-border)]">
+          <Section title={t.settings.textStyle} defaultClosed>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[11px] font-medium text-[var(--color-text-secondary)]">
-                {t.settings.textStyle}
-              </label>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-[var(--color-text-secondary)]">{t.settings.tajweed}</span>
-                <Toggle checked={showTajweed} onChange={toggleTajweed} disabled={textStyle === "basic"} />
-              </div>
+              <span className="text-[11px] text-[var(--color-text-secondary)]">{t.settings.tajweed}</span>
+              <Toggle checked={showTajweed} onChange={toggleTajweed} disabled={textStyle === "basic"} />
             </div>
             <SegmentedControl
               options={[
@@ -354,21 +365,21 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
               value={textStyle}
               onChange={(v) => setTextStyle(v as TextStyle)}
             />
-          </div>
+          </Section>
 
           {/* ── Yazı Boyutu ── */}
-          <div className="mb-3 pb-3 border-b border-[var(--color-border)]">
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-[11px] font-medium text-[var(--color-text-secondary)]">
-                {t.settings.fontSize}
-              </label>
+          <Section
+            title={t.settings.fontSize}
+            right={
               <button
                 onClick={() => { setArabicFontSize(1.8); setTranslationFontSize(0.95); }}
                 className="text-[11px] text-[var(--color-accent)] hover:underline"
               >
                 {t.settings.fontDefault}
               </button>
-            </div>
+            }
+            defaultClosed
+          >
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] text-[var(--color-text-secondary)] w-12 shrink-0">{t.settings.arabic}</span>
@@ -383,14 +394,11 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
                 <span className="text-[11px] tabular-nums text-[var(--color-text-secondary)] w-7 text-right">{translationFontSize.toFixed(2)}</span>
               </div>
             </div>
-          </div>
+          </Section>
 
           {/* ── Kari ── */}
           {reciterOptions.length > 0 && (
-            <div className="mb-3 pb-3 border-b border-[var(--color-border)]">
-              <label className="text-[11px] font-medium text-[var(--color-text-secondary)] mb-1.5 block">
-                {t.settings.reciter}
-              </label>
+            <Section title={t.settings.reciter} defaultClosed>
               <SearchableSelect
                 options={reciterOptions}
                 value={reciterSlug}
@@ -399,7 +407,7 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
                 searchPlaceholder={t.settings.searchReciter}
                 noResultsText={t.common.noResults}
               />
-            </div>
+            </Section>
           )}
 
           {/* ── Keşif Modu (Labs) ── */}
@@ -430,6 +438,16 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
           >
             {t.settings.resetAll}
           </button>
+
+          {/* ── Lâ gâlibe illallah ── */}
+          <div className="flex-1" />
+          <p
+            className="text-center text-[var(--color-text-secondary)] select-none mb-[5px]"
+            style={{ fontFamily: "var(--font-arabic)", fontSize: "1.1rem", opacity: 0.70, lineHeight: 1.8 }}
+            dir="rtl"
+          >
+            لَا غَالِبَ إِلَّا ٱللّٰهُ
+          </p>
         </div>
       </div>
     </>
@@ -521,6 +539,43 @@ function WbwDisplayControl({ label, value, onChange, t }: {
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ── Collapsible Section ─────────────────────────────────
+
+function Section({ title, right, defaultClosed, children }: {
+  title: string;
+  right?: React.ReactNode;
+  defaultClosed?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useLocalState(!defaultClosed);
+  return (
+    <div className="mb-3">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center justify-between w-full px-2.5 py-2 -mx-0.5 rounded-lg bg-[var(--color-surface)]/50 hover:bg-[var(--color-surface)] transition-colors"
+      >
+        <span className="text-xs font-semibold text-[var(--color-text-primary)]">{title}</span>
+        <div className="flex items-center gap-2">
+          {right && <span onClick={(e) => e.stopPropagation()}>{right}</span>}
+          <svg
+            width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+            className={`text-[var(--color-text-secondary)] transition-transform ${open ? "rotate-180" : ""}`}
+          >
+            <path d="M3 5l3 3 3-3" />
+          </svg>
+        </div>
+      </button>
+      {open && (
+        <div className="mt-2 pb-3 border-b border-[var(--color-border)]">
+          {children}
+        </div>
+      )}
+      {!open && <div className="border-b border-[var(--color-border)]" />}
     </div>
   );
 }

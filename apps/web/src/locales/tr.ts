@@ -72,6 +72,8 @@ export const tr = {
     title: "Keşfet",
     bookmarks: "Yer İmleri",
     bookmarksDesc: "Kaydettiğin ayetlere hızlıca ulaş",
+    hifz: "Ezber Takibi",
+    hifzDesc: "Ezberlediğin sure ve ayetleri takip et",
     alifba: "Elifba Öğren",
     alifbaDesc: "Arap harflerini tanı ve yazı alıştırması yap",
     listenMemorize: "Dinleyerek Ezberle",

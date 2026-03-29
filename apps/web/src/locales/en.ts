@@ -74,6 +74,8 @@ export const en: Messages = {
     title: "Explore",
     bookmarks: "Bookmarks",
     bookmarksDesc: "Quick access to your saved verses",
+    hifz: "Hifz Tracker",
+    hifzDesc: "Track your memorized surahs and verses",
     alifba: "Learn Alifba",
     alifbaDesc: "Recognize Arabic letters and practice writing",
     listenMemorize: "Listen & Memorize",
