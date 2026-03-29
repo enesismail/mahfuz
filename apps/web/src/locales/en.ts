@@ -159,6 +159,7 @@ export const en: Messages = {
     juz: "Juz",
     results: "results",
     searching: "Searching...",
+    viewAll: "View All",
   },
 
   home: {

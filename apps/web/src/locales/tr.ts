@@ -157,6 +157,7 @@ export const tr = {
     juz: "Cüz",
     results: "sonuç",
     searching: "Aranıyor...",
+    viewAll: "Tümünü Gör",
   },
 
   home: {
