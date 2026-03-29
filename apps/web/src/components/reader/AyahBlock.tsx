@@ -96,8 +96,8 @@ export function AyahBlock({
   return (
     <div
       ref={blockRef}
-      className={`group py-3 border-b border-[var(--color-border)] last:border-b-0 relative transition-colors duration-1000 ${
-        flash ? "bg-[var(--color-accent)]/10 rounded-lg" : ""
+      className={`group py-3 border-b border-[var(--color-border)] last:border-b-0 relative transition-colors duration-500 rounded-lg ${
+        flash ? "bg-[var(--color-accent)]/10" : isPlaying ? "bg-[var(--color-accent)]/6" : ""
       }`}
     >
       {/* Yer imi butonu — hover'da görünür */}
