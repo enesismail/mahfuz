@@ -367,7 +367,7 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 136.2, y: 22.2 },
+          { x: 127.4, y: 36 },
         ],
       },
     ],
@@ -562,19 +562,19 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 206.5, y: 87.8 },
+          { x: 199.1, y: 36.2 },
         ],
       },
       {
         type: "dot",
         points: [
-          { x: 184.8, y: 57.5 },
+          { x: 175, y: 36.2 },
         ],
       },
       {
         type: "dot",
         points: [
-          { x: 163.1, y: 87.8 },
+          { x: 151, y: 36.2 },
         ],
       },
     ],
@@ -690,7 +690,7 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 187.2, y: 43.8 },
+          { x: 186.1, y: 62.5 },
         ],
       },
     ],
@@ -866,7 +866,7 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 130.9, y: 22.9 },
+          { x: 94.7, y: 34.6 },
         ],
       },
     ],
@@ -902,7 +902,7 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 210.3, y: 57 },
+          { x: 220, y: 136 },
         ],
       },
     ],
@@ -938,13 +938,13 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 203.8, y: 61.9 },
+          { x: 195, y: 75 },
         ],
       },
       {
         type: "dot",
         points: [
-          { x: 167.6, y: 61.9 },
+          { x: 170, y: 75 },
         ],
       },
     ],
