@@ -4,7 +4,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate, useRouteContext } from "@tanstack/react-router";
-import { useBookmarksStore } from "~/stores/bookmarks.store";
+
 import { useReadingStore } from "~/stores/reading.store";
 import { useTranslation } from "~/hooks/useTranslation";
 import { getSurahName } from "~/lib/surah-names-i18n";
@@ -16,7 +16,6 @@ export function BottomNav() {
   const { t, locale } = useTranslation();
   const lastPosition = useReadingStore((s) => s.lastPosition);
   const recentPositions = useReadingStore((s) => s.recentPositions);
-  const bookmarkCount = useBookmarksStore((s) => s.bookmarks.length);
   const { session } = useRouteContext({ from: "__root__" });
 
   const user = session?.user;
@@ -83,11 +82,6 @@ export function BottomNav() {
             <circle cx="12" cy="12" r="10" />
             <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" stroke="none" />
           </svg>
-          {bookmarkCount > 0 && (
-            <span className="absolute top-0 right-1.5 w-4 h-4 rounded-full bg-[var(--color-accent)] text-white text-[8px] flex items-center justify-center">
-              {bookmarkCount > 9 ? "9+" : bookmarkCount}
-            </span>
-          )}
           <span className="text-[10px]">{t.nav.hub}</span>
         </Link>
 
