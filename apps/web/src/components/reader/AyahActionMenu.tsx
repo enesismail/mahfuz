@@ -3,7 +3,7 @@
  * Ayet numarasına tıklayınca açılır.
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from "react";
 import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { useAudioStore } from "~/stores/audio.store";
 import { useSettingsStore } from "~/stores/settings.store";
@@ -112,32 +112,46 @@ export function AyahActionMenu({
     onClose();
   }
 
-  // Position menu near the cursor / anchor point
-  const style: React.CSSProperties = {};
-  if (anchorRect) {
-    const menuW = 176; // w-44 = 11rem ≈ 176px
-    const menuH = 280; // approximate menu height
+  // Position menu at cursor — measure after render for accurate placement
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (!open || !anchorRect || !menuRef.current) {
+      setPos(null);
+      return;
+    }
+
+    const menu = menuRef.current;
+    const menuW = menu.offsetWidth;
+    const menuH = menu.offsetHeight;
     const pad = 8;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
-    // Horizontal: prefer right of cursor, flip left if overflows
-    let left = anchorRect.left + anchorRect.width / 2;
-    if (left + menuW + pad > window.innerWidth) {
-      left = anchorRect.left - menuW;
+    // Cursor center point
+    const cx = anchorRect.left + anchorRect.width / 2;
+    const cy = anchorRect.top + anchorRect.height / 2;
+
+    // Horizontal: center on cursor, clamp to viewport
+    let left = cx - menuW / 2;
+    left = Math.max(pad, Math.min(left, vw - menuW - pad));
+
+    // Vertical: prefer just above cursor, fall below if no space
+    let top = cy - menuH - 8;
+    if (top < pad) {
+      top = cy + 8;
     }
-    left = Math.max(pad, Math.min(left, window.innerWidth - menuW - pad));
+    top = Math.max(pad, Math.min(top, vh - menuH - pad));
 
-    // Vertical: prefer below cursor, flip above if overflows
-    let top = anchorRect.top + anchorRect.height / 2;
-    if (top + menuH + pad > window.innerHeight) {
-      top = anchorRect.top - menuH;
-    }
-    top = Math.max(pad, Math.min(top, window.innerHeight - menuH - pad));
+    setPos({ top, left });
+  }, [open, anchorRect]);
 
-    style.position = "fixed";
-    style.top = top;
-    style.left = left;
-    style.zIndex = 50;
-  }
+  const style: React.CSSProperties = {
+    position: "fixed",
+    zIndex: 50,
+    // Start invisible, position after measurement
+    ...(pos ? { top: pos.top, left: pos.left, opacity: 1 } : { top: 0, left: -9999, opacity: 0 }),
+  };
 
   return (
     <div
