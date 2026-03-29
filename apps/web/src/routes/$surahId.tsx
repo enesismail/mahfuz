@@ -2,16 +2,20 @@
  * Shorthand surah route — /33 → /surah/al-ahzab
  */
 
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, notFound } from "@tanstack/react-router";
 import { surahSlug } from "~/lib/surah-slugs";
 
 export const Route = createFileRoute("/$surahId")({
   beforeLoad: ({ params }) => {
+    // Only handle pure numeric IDs (1-114)
+    if (!/^\d+$/.test(params.surahId)) {
+      throw notFound();
+    }
+
     const surahId = parseInt(params.surahId, 10);
 
-    if (isNaN(surahId) || surahId < 1 || surahId > 114) {
-      // Not a valid surah number — let it 404
-      throw redirect({ to: "/" });
+    if (surahId < 1 || surahId > 114) {
+      throw notFound();
     }
 
     throw redirect({
