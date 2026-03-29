@@ -300,7 +300,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
         >
           {/* ── Font-derived filled guide ── */}
           {guideData && (
-            <path d={guideData.guidePath} fill="var(--color-border)" stroke="none" />
+            <path d={guideData.guidePath} fill="var(--color-border)" stroke="none" opacity="0.4" />
           )}
 
           {/* ── Fallback dashed guides (no font guide) ── */}
