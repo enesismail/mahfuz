@@ -283,8 +283,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
       </p>
 
       <div
-        className="rounded-2xl bg-[var(--color-surface)] shadow-sm"
-        style={{ maxWidth: 300, width: "100%", aspectRatio: "1/1" }}
+        className="rounded-2xl bg-[var(--color-surface)] shadow-sm w-full"
       >
         <svg
           ref={svgRef}
