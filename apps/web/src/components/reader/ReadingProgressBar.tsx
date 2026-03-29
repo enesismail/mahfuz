@@ -2,14 +2,13 @@
  * Okuma ilerleme çubuğu — sayfa/sure okuma görünümlerinde
  * kullanıcının ne kadar kaydırdığını gösteren ince çubuk.
  *
- * Sayfanın üstünde sabit, 100px kaydırıldıktan sonra görünür.
+ * Sayfanın üstünde sabit, scroll başladığında görünür.
  */
 
 import { useEffect, useState, useRef } from "react";
 
 export function ReadingProgressBar() {
   const [progress, setProgress] = useState(0);
-  const [visible, setVisible] = useState(false);
   const rafRef = useRef<number>(0);
 
   useEffect(() => {
@@ -27,13 +26,11 @@ export function ReadingProgressBar() {
           setProgress(0);
         }
 
-        setVisible(scrollTop > 100);
         rafRef.current = 0;
       });
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    // Initial check
     onScroll();
 
     return () => {
@@ -42,13 +39,12 @@ export function ReadingProgressBar() {
     };
   }, []);
 
+  if (progress === 0) return null;
+
   return (
-    <div
-      className="fixed top-0 left-0 right-0 z-50 pointer-events-none transition-opacity duration-300"
-      style={{ opacity: visible ? 1 : 0 }}
-    >
+    <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
       <div
-        className="h-[2.5px] bg-[var(--color-accent)] transition-[width] duration-75 ease-linear"
+        className="h-[3px] bg-[var(--color-accent)] transition-[width] duration-100 ease-linear rounded-r-full"
         style={{ width: `${progress}%` }}
       />
     </div>

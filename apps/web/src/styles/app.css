@@ -171,6 +171,14 @@ body {
   font-family: var(--font-ui);
 }
 
+/* ── Long press focus — dim other verses ─────────────── */
+
+[data-longpress="true"] ~ div:not([data-longpress="true"]),
+div:has(~ [data-longpress="true"]):not([data-longpress="true"]) {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
 /* ── Audio word highlight ────────────────────────────── */
 
 .word-audio-active {

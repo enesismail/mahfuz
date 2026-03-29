@@ -99,10 +99,15 @@ export function AyahBlock({
   // Long press gesture for opening action menu
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [longPressActive, setLongPressActive] = useState(false);
+
   const openMenuAt = useCallback((x: number, y: number) => {
     const rect = new DOMRect(x - 1, y - 1, 2, 2);
     setMenuAnchor(rect);
     setMenuOpen(true);
+    setLongPressActive(false);
+    // Haptic feedback
+    if (navigator.vibrate) navigator.vibrate(30);
   }, []);
 
   const handleContextMenu = useCallback(
@@ -114,12 +119,20 @@ export function AyahBlock({
     [surahId, openMenuAt],
   );
 
+  const longPressHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (!surahId) return;
       const touch = e.touches[0];
       const x = touch.clientX;
       const y = touch.clientY;
+      // 200ms: visual hint (highlight + subtle vibrate)
+      longPressHintTimer.current = setTimeout(() => {
+        setLongPressActive(true);
+        if (navigator.vibrate) navigator.vibrate(15);
+      }, 200);
+      // 500ms: open menu
       longPressTimer.current = setTimeout(() => {
         longPressTimer.current = null;
         openMenuAt(x, y);
@@ -133,20 +146,29 @@ export function AyahBlock({
       clearTimeout(longPressTimer.current);
       longPressTimer.current = null;
     }
+    if (longPressHintTimer.current) {
+      clearTimeout(longPressHintTimer.current);
+      longPressHintTimer.current = null;
+    }
+    setLongPressActive(false);
   }, []);
 
-  // Cleanup timer on unmount
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (longPressTimer.current) clearTimeout(longPressTimer.current);
+      if (longPressHintTimer.current) clearTimeout(longPressHintTimer.current);
     };
   }, []);
 
   return (
     <div
       ref={blockRef}
-      className={`group py-3 border-b border-[var(--color-border)] last:border-b-0 relative transition-colors duration-500 rounded-lg ${
-        flash ? "bg-[var(--color-accent)]/10" : isPlaying ? "bg-[var(--color-accent)]/6" : ""
+      data-longpress={longPressActive || menuOpen ? "true" : undefined}
+      className={`group py-3 border-b border-[var(--color-border)] last:border-b-0 relative transition-all duration-300 rounded-lg ${
+        longPressActive || menuOpen
+          ? "bg-[var(--color-accent)]/10 scale-[0.98] shadow-lg ring-1 ring-[var(--color-accent)]/20"
+          : flash ? "bg-[var(--color-accent)]/10" : isPlaying ? "bg-[var(--color-accent)]/6" : ""
       }`}
       onContextMenu={handleContextMenu}
       onTouchStart={handleTouchStart}
