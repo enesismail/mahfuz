@@ -3,7 +3,6 @@
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useReadingStore } from "~/stores/reading.store";
 import { useSettingsStore } from "~/stores/settings.store";
 import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { useSurahs, surahsQueryOptions } from "~/hooks/useQuranQuery";
@@ -56,8 +55,6 @@ function HomePageSkeleton() {
 function HomePage() {
   const { session } = Route.useRouteContext();
   const { t, locale } = useTranslation();
-  const recentPositions = useReadingStore((s) => s.recentPositions);
-  const lastPosition = recentPositions[0] ?? null;
   const readingMode = useSettingsStore((s) => s.readingMode);
   const bookmarks = useBookmarksStore((s) => s.bookmarks);
   const { data: surahs } = useSurahs();
@@ -118,64 +115,6 @@ function HomePage() {
           </Link>
         )}
       </div>
-
-      {/* Devam et kartı */}
-      {lastPosition && (() => {
-        const surah = surahs.find((s) => s.id === lastPosition.surahId);
-        const cls = "flex items-center gap-2.5 mb-4 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors";
-        const inner = (
-          <>
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)] shrink-0">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-                <path d="M6 3l7 5-7 5V3z" />
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-[var(--color-text-secondary)]">{t.home.continueReading}</p>
-              <p className="text-sm font-medium truncate">
-                {getSurahName(lastPosition.surahId, locale) || surah?.nameSimple || `${t.common.surah} ${lastPosition.surahId}`}
-                <span className="text-[var(--color-text-secondary)] font-normal text-xs"> · {t.common.verse} {lastPosition.ayahNumber}</span>
-              </p>
-            </div>
-            {surah && (
-              <span className="text-lg shrink-0 leading-none" dir="rtl" style={{ fontFamily: "var(--font-arabic)" }}>
-                {surah.nameArabic}
-              </span>
-            )}
-          </>
-        );
-        return readingMode === "list" ? (
-          <Link to="/surah/$surahSlug" params={{ surahSlug: surahSlug(lastPosition.surahId) }} search={{ ayah: lastPosition.ayahNumber }} className={cls}>
-            {inner}
-          </Link>
-        ) : (
-          <Link to="/page/$pageNumber" params={{ pageNumber: String(lastPosition.pageNumber) }} search={{ ayah: undefined }} className={cls}>
-            {inner}
-          </Link>
-        );
-      })()}
-
-      {/* Diğer son okunanlar — pill'ler */}
-      {recentPositions.length > 1 && (
-        <div className="flex items-center gap-1.5 mb-4 -mt-2.5 flex-wrap">
-          {recentPositions.slice(1).map((pos) => {
-            const surah = surahs.find((s) => s.id === pos.surahId);
-            const name = getSurahName(pos.surahId, locale) || surah?.nameSimple || `${pos.surahId}`;
-            const linkProps = readingMode === "list"
-              ? { to: "/surah/$surahSlug" as const, params: { surahSlug: surahSlug(pos.surahId) }, search: { ayah: pos.ayahNumber } }
-              : { to: "/page/$pageNumber" as const, params: { pageNumber: String(pos.pageNumber) }, search: { ayah: undefined } };
-            return (
-              <Link
-                key={pos.surahId}
-                {...linkProps}
-                className="px-2.5 py-1 rounded-md bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--color-accent)] text-xs transition-colors"
-              >
-                {name} <span className="text-[var(--color-text-secondary)]">{pos.ayahNumber}</span>
-              </Link>
-            );
-          })}
-        </div>
-      )}
 
       {/* Yer imleri */}
       {bookmarks.length > 0 && (() => {

@@ -40,11 +40,24 @@ export const tr = {
     continueReading: "Devam Et",
     read: "Oku",
     bookmarks: "İmler",
+    hub: "Keşfet",
     search: "Ara",
     back: "Geri",
     login: "Giriş",
     signOut: "Çıkış yap",
     profile: "Profil",
+  },
+
+  hub: {
+    title: "Keşfet",
+    bookmarks: "Yer İmleri",
+    bookmarksDesc: "Kaydettiğin ayetlere hızlıca ulaş",
+    alifba: "Elifba Öğren",
+    alifbaDesc: "Arap harflerini tanı ve yazı alıştırması yap",
+    listenMemorize: "Dinleyerek Ezberle",
+    listenMemorizeDesc: "Tekrar tekrar dinle, ayetleri hafızana yerleştir",
+    apps: "Uygulamalar",
+    appsDesc: "Hatim, tefsir ve daha fazlası",
   },
 
   profile: {

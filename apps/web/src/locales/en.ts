@@ -42,11 +42,24 @@ export const en: Messages = {
     continueReading: "Continue",
     read: "Read",
     bookmarks: "Bookmarks",
+    hub: "Explore",
     search: "Search",
     back: "Back",
     login: "Login",
     signOut: "Sign out",
     profile: "Profile",
+  },
+
+  hub: {
+    title: "Explore",
+    bookmarks: "Bookmarks",
+    bookmarksDesc: "Quick access to your saved verses",
+    alifba: "Learn Alifba",
+    alifbaDesc: "Recognize Arabic letters and practice writing",
+    listenMemorize: "Listen & Memorize",
+    listenMemorizeDesc: "Repeat and embed verses in your memory",
+    apps: "Apps",
+    appsDesc: "Khatm, tafsir and more",
   },
 
   profile: {
