@@ -11,8 +11,9 @@ import { useLocaleStore } from "~/stores/locale.store";
 import { AudioProvider } from "~/components/reader/AudioProvider";
 import { BottomNav } from "~/components/BottomNav";
 import { useSettingsStore } from "~/stores/settings.store";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
 import { getSession } from "~/lib/auth-session";
+import { useReadingSync } from "~/hooks/useReadingSync";
 import type { Session } from "~/lib/auth";
 import appCss from "~/styles/app.css?url";
 
@@ -91,6 +92,10 @@ function RootComponent() {
 function RootDocument({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const locale = useLocaleStore((s) => s.locale);
+  const { session } = useRouteContext({ from: "__root__" });
+
+  // Sync reading positions with DB when logged in
+  useReadingSync(session);
 
   // Tema uygula
   const theme = useSettingsStore((s) => s.theme);

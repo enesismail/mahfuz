@@ -44,6 +44,19 @@ export const account = sqliteTable("account", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+// ── Okuma konumu ─────────────────────────────────────────
+
+export const readingPosition = sqliteTable("reading_position", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  surahId: integer("surah_id").notNull(),
+  ayahNumber: integer("ayah_number").notNull(),
+  pageNumber: integer("page_number").notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 export const verification = sqliteTable("verification", {
   id: text("id").primaryKey(),
   identifier: text("identifier").notNull(),
