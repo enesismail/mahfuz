@@ -189,6 +189,7 @@ export const tr = {
     genericDesc: "Sayfa yüklenirken beklenmeyen bir hata oluştu.",
     retry: "Tekrar Dene",
     goHome: "Ana Sayfa",
+    report: "Bildir",
   },
 
   surahList: {

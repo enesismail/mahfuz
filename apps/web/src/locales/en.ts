@@ -191,6 +191,7 @@ export const en: Messages = {
     genericDesc: "An unexpected error occurred while loading the page.",
     retry: "Try Again",
     goHome: "Home",
+    report: "Report",
   },
 
   surahList: {

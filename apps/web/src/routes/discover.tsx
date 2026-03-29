@@ -1,18 +1,18 @@
 /**
- * Keşfet hub'ı — /hub
- * Yer imleri, Elifba, Ezberle, Uygulamalar gibi modüllerin giriş noktası.
+ * Keşfet — /discover
+ * Elifba, Ezberle, Uygulamalar gibi modüllerin giriş noktası.
  */
 
 import { useState, useRef, useEffect } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useBookmarksStore } from "~/stores/bookmarks.store";
+import { useSettingsStore } from "~/stores/settings.store";
 import { useTranslation } from "~/hooks/useTranslation";
 import { useLocaleStore } from "~/stores/locale.store";
 import { getAllLocaleConfigs, loadLocaleMessages, type Locale } from "~/locales/registry";
 import { GitHubContributors } from "~/components/hub/GitHubContributors";
 import { Credits } from "~/components/hub/Credits";
 
-export const Route = createFileRoute("/hub")({
+export const Route = createFileRoute("/discover")({
   component: HubPage,
 });
 
@@ -23,15 +23,18 @@ interface HubCardProps {
   description: string;
   badge?: number;
   disabled?: boolean;
+  labs?: boolean;
 }
 
-function HubCard({ to, icon, title, description, badge, disabled }: HubCardProps) {
+function HubCard({ to, icon, title, description, badge, disabled, labs }: HubCardProps) {
   const content = (
     <div
       className={`relative flex flex-col items-center gap-2 p-5 rounded-2xl border transition-colors h-full ${
         disabled
           ? "border-[var(--color-border)] opacity-50 cursor-default"
-          : "border-[var(--color-border)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-surface)] cursor-pointer"
+          : labs
+            ? "border-dashed border-[var(--color-accent)]/30 hover:border-[var(--color-accent)]/60 hover:bg-[var(--color-surface)] cursor-pointer"
+            : "border-[var(--color-border)] hover:border-[var(--color-accent)]/40 hover:bg-[var(--color-surface)] cursor-pointer"
       }`}
     >
       <div className="w-11 h-11 rounded-xl bg-[var(--color-surface)] flex items-center justify-center text-[var(--color-accent)]">
@@ -49,6 +52,11 @@ function HubCard({ to, icon, title, description, badge, disabled }: HubCardProps
           Yakında
         </span>
       )}
+      {labs && !disabled && (
+        <span className="absolute top-3 right-3 text-[9px] px-1.5 py-0.5 rounded bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-medium">
+          Keşif
+        </span>
+      )}
     </div>
   );
 
@@ -63,15 +71,10 @@ function HubCard({ to, icon, title, description, badge, disabled }: HubCardProps
 
 function HubPage() {
   const { t } = useTranslation();
-  const bookmarkCount = useBookmarksStore((s) => s.bookmarks.length);
+  const labsEnabled = useSettingsStore((s) => s.labsEnabled);
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-32">
-      <div className="flex items-center justify-between mb-4">
-        <h1 className="text-lg font-semibold">{t.hub.title}</h1>
-        <LanguagePicker />
-      </div>
-
       {/* Yeni ne var bandı */}
       <Link
         to="/changelog"
@@ -87,19 +90,6 @@ function HubPage() {
       </Link>
 
       <div className="grid grid-cols-2 gap-3">
-        {/* Yer İmleri */}
-        <HubCard
-          to="/bookmarks"
-          badge={bookmarkCount}
-          title={t.hub.bookmarks}
-          description={t.hub.bookmarksDesc}
-          icon={
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M5 3H19A1 1 0 0120 4V21L12.5 16L5 21V4A1 1 0 015 3Z" />
-            </svg>
-          }
-        />
-
         {/* Elifba Öğren */}
         <HubCard
           to="/alifba"
@@ -112,10 +102,11 @@ function HubPage() {
 
         {/* Dinleyerek Ezberle */}
         <HubCard
-          to="/hub"
-          disabled
+          to="/discover"
+          disabled={!labsEnabled}
           title={t.hub.listenMemorize}
           description={t.hub.listenMemorizeDesc}
+          labs={labsEnabled}
           icon={
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 18V12A9 9 0 0121 12V18" />
@@ -127,10 +118,11 @@ function HubPage() {
 
         {/* Kuran Uygulamaları */}
         <HubCard
-          to="/hub"
-          disabled
+          to="/discover"
+          disabled={!labsEnabled}
           title={t.hub.apps}
           description={t.hub.appsDesc}
+          labs={labsEnabled}
           icon={
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="7" height="7" rx="1.5" />

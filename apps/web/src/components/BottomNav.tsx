@@ -74,9 +74,9 @@ export function BottomNav() {
 
         {/* 2. Keşfet */}
         <Link
-          to="/hub"
+          to="/discover"
           className={`flex flex-col items-center gap-0.5 px-3 py-1 relative ${
-            pathname === "/hub" || pathname === "/bookmarks" ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
+            pathname === "/discover" ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
           }`}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">

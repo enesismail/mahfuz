@@ -5,13 +5,15 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "~/hooks/useTranslation";
 import { useLocaleStore } from "~/stores/locale.store";
 import { AudioProvider } from "~/components/reader/AudioProvider";
 import { BottomNav } from "~/components/BottomNav";
 import { useSettingsStore } from "~/stores/settings.store";
-import { Link, useNavigate, useRouteContext } from "@tanstack/react-router";
+import { SettingsPanel } from "~/components/reader/SettingsPanel";
+import { MahfuzLogo } from "~/components/icons/MahfuzLogo";
+import { Link, useNavigate, useRouteContext, useRouterState } from "@tanstack/react-router";
 import { getSession } from "~/lib/auth-session";
 import { useReadingSync } from "~/hooks/useReadingSync";
 import { useSettingsSync } from "~/hooks/useSettingsSync";
@@ -90,6 +92,141 @@ function RootComponent() {
   );
 }
 
+function AppHeader() {
+  const labsEnabled = useSettingsStore((s) => s.labsEnabled);
+  const { t } = useTranslation();
+  const routerState = useRouterState();
+  const navigate = useNavigate();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [labsMenuOpen, setLabsMenuOpen] = useState(false);
+  const { session } = useRouteContext({ from: "__root__" });
+  const labsMenuRef = useRef<HTMLDivElement>(null);
+
+  const path = routerState.location.pathname;
+  const isHome = path === "/";
+  const isAuth = path.startsWith("/auth");
+  if (isAuth) return null;
+
+  // Sayfa başlığı
+  const title = isHome ? null
+    : path === "/discover" ? t.hub.title
+    : path === "/search" ? t.nav.search
+    : path === "/profile" ? t.nav.profile
+    : path === "/bookmarks" ? t.hub.bookmarks
+    : path === "/alifba" ? t.hub.alifba
+    : path.startsWith("/changelog") ? t.changelog.banner
+    : path.startsWith("/surah/") ? decodeURIComponent(path.split("/surah/")[1] || "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+    : path.startsWith("/page/") ? `${t.settings.mushafPage} ${path.split("/page/")[1]}`
+    : null;
+
+  return (
+    <>
+      <div className="sticky top-0 z-40">
+        {/* Tema bandı */}
+        <div className="h-[3px]" style={{ background: "var(--header-band)" }} />
+
+        {/* Main header */}
+        <header className="flex items-center h-11 bg-[var(--color-bg)]/95 backdrop-blur-sm border-b border-[var(--color-border)]">
+        <div className="flex items-center gap-1.5 w-full max-w-3xl mx-auto px-4">
+          {/* Left: logo or back */}
+          {isHome ? (
+            <div className="flex items-center gap-1.5 shrink-0">
+              <MahfuzLogo size={22} />
+              <span className="text-sm font-semibold">Mahfuz</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => navigate({ to: "/" })}
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
+              aria-label={t.nav.back}
+            >
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M13 4L7 10L13 16" />
+              </svg>
+            </button>
+          )}
+
+          {/* Center: title */}
+          {title && (
+            <span className="text-sm font-medium truncate">{title}</span>
+          )}
+
+          <div className="flex-1" />
+
+          {/* Labs menu — sadece keşif modunda */}
+          {labsEnabled && (
+            <div className="relative" ref={labsMenuRef}>
+              <button
+                onClick={() => setLabsMenuOpen((v) => !v)}
+                className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
+                aria-label="Labs"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 3H15V8L19 14V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V14L9 8V3Z" />
+                  <path d="M9 3H15" />
+                  <path d="M12 11V15" />
+                  <path d="M10 13H14" />
+                </svg>
+              </button>
+              {labsMenuOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setLabsMenuOpen(false)} />
+                  <div className="absolute right-0 top-full mt-1.5 w-48 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] shadow-xl z-50 py-1 overflow-hidden">
+                    {[
+                      { to: "/discover", label: t.hub.listenMemorize, icon: "🎧" },
+                      { to: "/discover", label: t.hub.apps, icon: "📦" },
+                      { to: "/alifba", label: t.hub.alifba, icon: "ا ب" },
+                    ].map((item) => (
+                      <Link
+                        key={item.label}
+                        to={item.to}
+                        onClick={() => setLabsMenuOpen(false)}
+                        className="flex items-center gap-2.5 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-surface)] transition-colors"
+                      >
+                        <span className="w-5 text-center text-xs">{item.icon}</span>
+                        <span>{item.label}</span>
+                        <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded bg-[var(--color-accent)]/10 text-[var(--color-accent)] font-medium">Keşif</span>
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Search */}
+          <Link
+            to="/search"
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
+            aria-label={t.nav.search}
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <circle cx="7" cy="7" r="5" />
+              <path d="M11 11L14 14" />
+            </svg>
+          </Link>
+
+          {/* Settings */}
+          <button
+            onClick={() => setSettingsOpen(true)}
+            className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
+            aria-label={t.settings.title}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+
+        </div>
+        </header>
+      </div>
+
+      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+    </>
+  );
+}
+
 function RootDocument({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const locale = useLocaleStore((s) => s.locale);
@@ -134,6 +271,7 @@ function RootDocument({ children }: { children: ReactNode }) {
         <style dangerouslySetInnerHTML={{ __html: `.loading{opacity:0}.loaded{opacity:1;transition:opacity .15s ease}` }} />
       </head>
       <body className="bg-[var(--color-bg)] text-[var(--color-text-primary)] antialiased overflow-x-hidden">
+        <AppHeader />
         <AudioProvider />
         {children}
         <BottomNav />

@@ -273,7 +273,7 @@ function ChangelogPage() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         <Link
-          to="/hub"
+          to="/discover"
           className="p-2 rounded-lg hover:bg-[var(--color-surface)] transition-colors"
           aria-label={t.nav.back}
         >

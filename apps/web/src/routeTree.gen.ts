@@ -11,7 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as HubRouteImport } from './routes/hub'
+import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as AlifbaRouteImport } from './routes/alifba'
@@ -35,9 +35,9 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HubRoute = HubRouteImport.update({
-  id: '/hub',
-  path: '/hub',
+const DiscoverRoute = DiscoverRouteImport.update({
+  id: '/discover',
+  path: '/discover',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChangelogRoute = ChangelogRouteImport.update({
@@ -107,7 +107,7 @@ export interface FileRoutesByFullPath {
   '/alifba': typeof AlifbaRoute
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
-  '/hub': typeof HubRoute
+  '/discover': typeof DiscoverRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
@@ -124,7 +124,7 @@ export interface FileRoutesByTo {
   '/alifba': typeof AlifbaRoute
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
-  '/hub': typeof HubRoute
+  '/discover': typeof DiscoverRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
@@ -142,7 +142,7 @@ export interface FileRoutesById {
   '/alifba': typeof AlifbaRoute
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
-  '/hub': typeof HubRoute
+  '/discover': typeof DiscoverRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
   '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
@@ -161,7 +161,7 @@ export interface FileRouteTypes {
     | '/alifba'
     | '/bookmarks'
     | '/changelog'
-    | '/hub'
+    | '/discover'
     | '/profile'
     | '/search'
     | '/$surahId/$verseNum'
@@ -178,7 +178,7 @@ export interface FileRouteTypes {
     | '/alifba'
     | '/bookmarks'
     | '/changelog'
-    | '/hub'
+    | '/discover'
     | '/profile'
     | '/search'
     | '/$surahId/$verseNum'
@@ -195,7 +195,7 @@ export interface FileRouteTypes {
     | '/alifba'
     | '/bookmarks'
     | '/changelog'
-    | '/hub'
+    | '/discover'
     | '/profile'
     | '/search'
     | '/$surahId/$verseNum'
@@ -213,7 +213,7 @@ export interface RootRouteChildren {
   AlifbaRoute: typeof AlifbaRoute
   BookmarksRoute: typeof BookmarksRoute
   ChangelogRoute: typeof ChangelogRoute
-  HubRoute: typeof HubRoute
+  DiscoverRoute: typeof DiscoverRoute
   ProfileRoute: typeof ProfileRoute
   SearchRoute: typeof SearchRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
@@ -240,11 +240,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/hub': {
-      id: '/hub'
-      path: '/hub'
-      fullPath: '/hub'
-      preLoaderRoute: typeof HubRouteImport
+    '/discover': {
+      id: '/discover'
+      path: '/discover'
+      fullPath: '/discover'
+      preLoaderRoute: typeof DiscoverRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/changelog': {
@@ -351,7 +351,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlifbaRoute: AlifbaRoute,
   BookmarksRoute: BookmarksRoute,
   ChangelogRoute: ChangelogRoute,
-  HubRoute: HubRoute,
+  DiscoverRoute: DiscoverRoute,
   ProfileRoute: ProfileRoute,
   SearchRoute: SearchRoute,
   AuthCallbackRoute: AuthCallbackRoute,
