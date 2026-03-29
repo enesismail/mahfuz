@@ -113,6 +113,7 @@ export const de: Messages = {
     bookmark: "Lesezeichen hinzufügen",
     removeBookmark: "Lesezeichen entfernen",
     verseActions: "Vers {n} Aktionen",
+    sajdah: "Sajdah-Vers",
   },
 
   error: {
@@ -127,5 +128,8 @@ export const de: Messages = {
     goToJuz: "Zum Dschuz",
     juzGoSurah: "Geht zur ersten Sure des Dschuz",
     juzGoPage: "Geht zur ersten Seite des Dschuz",
+    filterAll: "Alle",
+    filterMakki: "Mekkanisch",
+    filterMadani: "Medinensisch",
   },
 } as const;

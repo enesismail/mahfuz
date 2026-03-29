@@ -113,6 +113,7 @@ export const ar: Messages = {
     bookmark: "إضافة إشارة مرجعية",
     removeBookmark: "إزالة الإشارة المرجعية",
     verseActions: "إجراءات الآية {n}",
+    sajdah: "آية سجدة",
   },
 
   error: {
@@ -127,5 +128,8 @@ export const ar: Messages = {
     goToJuz: "انتقل إلى الجزء",
     juzGoSurah: "ينتقل إلى أول سورة في الجزء",
     juzGoPage: "ينتقل إلى أول صفحة في الجزء",
+    filterAll: "الكل",
+    filterMakki: "مكي",
+    filterMadani: "مدني",
   },
 } as const;

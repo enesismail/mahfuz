@@ -113,6 +113,7 @@ export const nl: Messages = {
     bookmark: "Bladwijzer toevoegen",
     removeBookmark: "Bladwijzer verwijderen",
     verseActions: "Vers {n} acties",
+    sajdah: "Sajdah vers",
   },
 
   error: {
@@ -127,5 +128,8 @@ export const nl: Messages = {
     goToJuz: "Ga naar Juz",
     juzGoSurah: "Gaat naar de eerste soera van de juz",
     juzGoPage: "Gaat naar de eerste pagina van de juz",
+    filterAll: "Alle",
+    filterMakki: "Mekkaans",
+    filterMadani: "Medinens",
   },
 } as const;

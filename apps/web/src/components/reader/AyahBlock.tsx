@@ -90,66 +90,48 @@ export function AyahBlock({
 
   const hasHoverField = wbwTranslation === "hover" || wbwTranslit === "hover";
 
-  const handleBadgeClick = useCallback((e: React.MouseEvent) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setMenuAnchor(rect);
-    setMenuOpen(true);
-  }, []);
-
-  // Long press gesture for opening action menu
-  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
+  // Tek menü açma fonksiyonu — her zaman ayetin rect'ini kullanır
   const [longPressActive, setLongPressActive] = useState(false);
 
-  const openMenuAt = useCallback((cursorX: number, cursorY: number) => {
-    // Cursor noktası + ayet rect'i birleştirilir:
-    // menü cursor'a yakın, ayet bloğunun üzerinde açılır
-    const blockRect = blockRef.current?.getBoundingClientRect();
-    const rect = new DOMRect(
-      cursorX,
-      cursorY,
-      0,
-      0,
-    );
-    setMenuAnchor(blockRect ?? rect);
-    // Cursor Y'sini ayrıca sakla — menü dikey pozisyonu için
-    cursorYRef.current = cursorY;
+  const openMenu = useCallback(() => {
+    const rect = blockRef.current?.getBoundingClientRect();
+    if (rect) setMenuAnchor(rect);
     setMenuOpen(true);
     setLongPressActive(false);
     if (navigator.vibrate) navigator.vibrate(30);
   }, []);
 
-  const cursorYRef = useRef<number>(0);
+  const handleBadgeClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    openMenu();
+  }, [openMenu]);
 
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
       if (!surahId) return;
       e.preventDefault();
-      openMenuAt(e.clientX, e.clientY);
+      openMenu();
     },
-    [surahId, openMenuAt],
+    [surahId, openMenu],
   );
 
+  // Long press gesture
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressHintTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
       if (!surahId) return;
-      const touch = e.touches[0];
-      const x = touch.clientX;
-      const y = touch.clientY;
-      // 200ms: visual hint (highlight + subtle vibrate)
       longPressHintTimer.current = setTimeout(() => {
         setLongPressActive(true);
         if (navigator.vibrate) navigator.vibrate(15);
       }, 200);
-      // 500ms: open menu
       longPressTimer.current = setTimeout(() => {
         longPressTimer.current = null;
-        openMenuAt(x, y);
+        openMenu();
       }, 500);
     },
-    [surahId, openMenuAt],
+    [surahId, openMenu],
   );
 
   const cancelLongPress = useCallback(() => {

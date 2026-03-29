@@ -113,6 +113,7 @@ export const fr: Messages = {
     bookmark: "Ajouter un signet",
     removeBookmark: "Supprimer le signet",
     verseActions: "Actions du verset {n}",
+    sajdah: "Verset de sajda",
   },
 
   error: {
@@ -127,5 +128,8 @@ export const fr: Messages = {
     goToJuz: "Aller au Juz",
     juzGoSurah: "Va à la première sourate du juz",
     juzGoPage: "Va à la première page du juz",
+    filterAll: "Tous",
+    filterMakki: "Mecquois",
+    filterMadani: "Médinois",
   },
 } as const;
