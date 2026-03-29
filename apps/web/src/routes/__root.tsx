@@ -3,6 +3,7 @@ import {
   HeadContent,
   Scripts,
   createRootRouteWithContext,
+  redirect,
 } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
 import { type ReactNode, useEffect, useRef, useState } from "react";
@@ -16,6 +17,7 @@ import { MahfuzLogo } from "~/components/icons/MahfuzLogo";
 import { Link, useNavigate, useRouteContext, useRouterState } from "@tanstack/react-router";
 import { getSession } from "~/lib/auth-session";
 import { useSyncEngine } from "~/hooks/useSyncEngine";
+import { surahSlug } from "~/lib/surah-slugs";
 import type { Session } from "~/lib/auth";
 import appCss from "~/styles/app.css?url";
 
@@ -25,8 +27,23 @@ export interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const session = await getSession();
+
+    // Numeric shorthand: /33 → /surah/al-ahzab, /33/5 → /surah/al-ahzab?ayah=5
+    const numMatch = location.pathname.match(/^\/(\d+)(?:\/(\d+))?$/);
+    if (numMatch) {
+      const id = parseInt(numMatch[1], 10);
+      if (id >= 1 && id <= 114) {
+        const ayah = numMatch[2] ? parseInt(numMatch[2], 10) : undefined;
+        throw redirect({
+          to: "/surah/$surahSlug",
+          params: { surahSlug: surahSlug(id) },
+          search: { ayah },
+        });
+      }
+    }
+
     return { session };
   },
   notFoundComponent: NotFound,

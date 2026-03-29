@@ -56,6 +56,28 @@ const SLUG_TO_LANGUAGE: Record<string, string> = {
   "muyassar-ar": "ar",
   "bubenheim-de": "de",
   "pickthall-en": "en",
+  // Büyük Müslüman nüfus dilleri
+  "junagarhi-ur": "ur",
+  "azizul-haque-hi": "hi",
+  "zakaria-bn": "bn",
+  "kfqpc-id-v2": "id",
+  "karakunnu-ml": "ml",
+  // Komşu diller
+  "musayev-az": "az",
+  "korkut-bs": "bs",
+  "kuliev-ru-v2": "ru",
+  "korean-ko": "ko",
+  "mita-ja": "ja",
+  "bernstrom-sv": "sv",
+  "norwegian-no": "no",
+  "bielawski-pl": "pl",
+  "yaqubovic-uk": "uk",
+  // İngilizce popüler
+  "haleem-en": "en",
+  "yusufali-en": "en",
+  "usmani-en": "en",
+  "bridges-en": "en",
+  "hilali-khan-en": "en",
 };
 
 const DEFAULT_SLUG = "omer-celik";
@@ -70,11 +92,26 @@ const PRIORITY_SLUGS = [
   "ali-fikri-yavuz", "omer-nasuhi-bilmen",                  // TR (ek)
   "dar-al-salam-tr", "muslim-shahin-tr", "shaban-britch-tr", // TR (API)
   "sahih-international", "pickthall-en",                     // EN
+  "haleem-en", "yusufali-en", "usmani-en", "bridges-en", "hilali-khan-en", // EN (popüler)
   "isa-garcia",                                              // ES
   "montada-fr",                                              // FR
   "muyassar-ar",                                             // AR
   "bubenheim-de",                                            // DE
   "abdalsalaam-nl",                                          // NL
+  "junagarhi-ur",                                            // UR
+  "azizul-haque-hi",                                         // HI
+  "zakaria-bn",                                              // BN
+  "kfqpc-id-v2",                                             // ID
+  "karakunnu-ml",                                            // ML
+  "musayev-az",                                              // AZ
+  "korkut-bs",                                               // BS
+  "kuliev-ru-v2",                                            // RU
+  "korean-ko",                                               // KO
+  "mita-ja",                                                 // JA
+  "bernstrom-sv",                                            // SV
+  "norwegian-no",                                            // NO
+  "bielawski-pl",                                            // PL
+  "yaqubovic-uk",                                            // UK
 ];
 
 // ── Ana fonksiyon ──────────────────────────────────────

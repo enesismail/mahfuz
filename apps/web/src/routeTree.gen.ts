@@ -16,14 +16,12 @@ import { Route as DiscoverRouteImport } from './routes/discover'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as BookmarksRouteImport } from './routes/bookmarks'
 import { Route as AlifbaRouteImport } from './routes/alifba'
-import { Route as SurahIdRouteImport } from './routes/$surahId'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SurahSurahSlugRouteImport } from './routes/surah/$surahSlug'
 import { Route as PagePageNumberRouteImport } from './routes/page/$pageNumber'
 import { Route as JuzJuzIdRouteImport } from './routes/juz/$juzId'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
-import { Route as SurahIdVerseNumRouteImport } from './routes/$surahId.$verseNum'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const SearchRoute = SearchRouteImport.update({
@@ -61,11 +59,6 @@ const AlifbaRoute = AlifbaRouteImport.update({
   path: '/alifba',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SurahIdRoute = SurahIdRouteImport.update({
-  id: '/$surahId',
-  path: '/$surahId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -96,11 +89,6 @@ const AuthCallbackRoute = AuthCallbackRouteImport.update({
   path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SurahIdVerseNumRoute = SurahIdVerseNumRouteImport.update({
-  id: '/$verseNum',
-  path: '/$verseNum',
-  getParentRoute: () => SurahIdRoute,
-} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -109,7 +97,6 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$surahId': typeof SurahIdRouteWithChildren
   '/alifba': typeof AlifbaRoute
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
@@ -117,7 +104,6 @@ export interface FileRoutesByFullPath {
   '/hifz': typeof HifzRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
-  '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/juz/$juzId': typeof JuzJuzIdRoute
@@ -127,7 +113,6 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/$surahId': typeof SurahIdRouteWithChildren
   '/alifba': typeof AlifbaRoute
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
@@ -135,7 +120,6 @@ export interface FileRoutesByTo {
   '/hifz': typeof HifzRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
-  '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/juz/$juzId': typeof JuzJuzIdRoute
@@ -146,7 +130,6 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$surahId': typeof SurahIdRouteWithChildren
   '/alifba': typeof AlifbaRoute
   '/bookmarks': typeof BookmarksRoute
   '/changelog': typeof ChangelogRoute
@@ -154,7 +137,6 @@ export interface FileRoutesById {
   '/hifz': typeof HifzRoute
   '/profile': typeof ProfileRoute
   '/search': typeof SearchRoute
-  '/$surahId/$verseNum': typeof SurahIdVerseNumRoute
   '/auth/callback': typeof AuthCallbackRoute
   '/auth/login': typeof AuthLoginRoute
   '/juz/$juzId': typeof JuzJuzIdRoute
@@ -166,7 +148,6 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$surahId'
     | '/alifba'
     | '/bookmarks'
     | '/changelog'
@@ -174,7 +155,6 @@ export interface FileRouteTypes {
     | '/hifz'
     | '/profile'
     | '/search'
-    | '/$surahId/$verseNum'
     | '/auth/callback'
     | '/auth/login'
     | '/juz/$juzId'
@@ -184,7 +164,6 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/$surahId'
     | '/alifba'
     | '/bookmarks'
     | '/changelog'
@@ -192,7 +171,6 @@ export interface FileRouteTypes {
     | '/hifz'
     | '/profile'
     | '/search'
-    | '/$surahId/$verseNum'
     | '/auth/callback'
     | '/auth/login'
     | '/juz/$juzId'
@@ -202,7 +180,6 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/$surahId'
     | '/alifba'
     | '/bookmarks'
     | '/changelog'
@@ -210,7 +187,6 @@ export interface FileRouteTypes {
     | '/hifz'
     | '/profile'
     | '/search'
-    | '/$surahId/$verseNum'
     | '/auth/callback'
     | '/auth/login'
     | '/juz/$juzId'
@@ -221,7 +197,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  SurahIdRoute: typeof SurahIdRouteWithChildren
   AlifbaRoute: typeof AlifbaRoute
   BookmarksRoute: typeof BookmarksRoute
   ChangelogRoute: typeof ChangelogRoute
@@ -288,13 +263,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlifbaRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$surahId': {
-      id: '/$surahId'
-      path: '/$surahId'
-      fullPath: '/$surahId'
-      preLoaderRoute: typeof SurahIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -337,13 +305,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$surahId/$verseNum': {
-      id: '/$surahId/$verseNum'
-      path: '/$verseNum'
-      fullPath: '/$surahId/$verseNum'
-      preLoaderRoute: typeof SurahIdVerseNumRouteImport
-      parentRoute: typeof SurahIdRoute
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -354,20 +315,8 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface SurahIdRouteChildren {
-  SurahIdVerseNumRoute: typeof SurahIdVerseNumRoute
-}
-
-const SurahIdRouteChildren: SurahIdRouteChildren = {
-  SurahIdVerseNumRoute: SurahIdVerseNumRoute,
-}
-
-const SurahIdRouteWithChildren =
-  SurahIdRoute._addFileChildren(SurahIdRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  SurahIdRoute: SurahIdRouteWithChildren,
   AlifbaRoute: AlifbaRoute,
   BookmarksRoute: BookmarksRoute,
   ChangelogRoute: ChangelogRoute,
