@@ -113,6 +113,7 @@ function AppHeader() {
     : path === "/profile" ? t.nav.profile
     : path === "/bookmarks" ? t.hub.bookmarks
     : path === "/alifba" ? t.hub.alifba
+    : path === "/hifz" ? t.hub.hifz
     : path.startsWith("/changelog") ? t.changelog.banner
     : path.startsWith("/surah/") ? decodeURIComponent(path.split("/surah/")[1] || "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : path.startsWith("/page/") ? `${t.settings.mushafPage} ${path.split("/page/")[1]}`
