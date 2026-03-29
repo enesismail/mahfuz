@@ -45,7 +45,7 @@ function ProgressRing({ percentage, size = 120, strokeWidth }: { percentage: num
 function CheckIcon({ state }: { state: "none" | "partial" | "complete" }) {
   if (state === "complete") {
     return (
-      <span className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center shrink-0">
+      <span className="w-5 h-5 rounded bg-[var(--color-accent)] flex items-center justify-center shrink-0">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M2.5 6l2.5 2.5 4.5-4.5" />
         </svg>
@@ -54,7 +54,7 @@ function CheckIcon({ state }: { state: "none" | "partial" | "complete" }) {
   }
   if (state === "partial") {
     return (
-      <span className="w-5 h-5 rounded bg-amber-500 flex items-center justify-center shrink-0">
+      <span className="w-5 h-5 rounded bg-[var(--color-text-secondary)] flex items-center justify-center shrink-0">
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
           <path d="M3 6h6" />
         </svg>
@@ -118,9 +118,9 @@ function SurahCard({
     <div
       className={`relative rounded-xl border transition-all cursor-pointer group ${
         state === "complete"
-          ? "bg-emerald-500/8 border-emerald-500/25 hover:border-emerald-500/40"
+          ? "bg-[var(--color-accent)]/8 border-[var(--color-accent)]/25 hover:border-[var(--color-accent)]/40"
           : state === "partial"
-            ? "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/35"
+            ? "bg-[var(--color-text-secondary)]/5 border-[var(--color-text-secondary)]/20 hover:border-[var(--color-text-secondary)]/35"
             : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-accent)]/30"
       }`}
     >
@@ -136,8 +136,8 @@ function SurahCard({
             {surahId}
           </span>
           <span className={`text-sm font-medium truncate ${
-            state === "complete" ? "text-emerald-700 dark:text-emerald-400"
-              : state === "partial" ? "text-amber-700 dark:text-amber-400" : ""
+            state === "complete" ? "text-[var(--color-accent)] dark:text-[var(--color-accent)]"
+              : state === "partial" ? "text-[var(--color-text-secondary)] " : ""
           }`}>
             {name}
           </span>
@@ -147,7 +147,7 @@ function SurahCard({
         <div className="h-1.5 rounded-full bg-[var(--color-border)] overflow-hidden mb-1.5">
           <div
             className={`h-full rounded-full transition-all duration-500 ${
-              state === "complete" ? "bg-emerald-500" : state === "partial" ? "bg-amber-500" : "bg-transparent"
+              state === "complete" ? "bg-[var(--color-accent)]" : state === "partial" ? "bg-[var(--color-text-secondary)]" : "bg-transparent"
             }`}
             style={{ width: `${pct}%` }}
           />
@@ -160,7 +160,7 @@ function SurahCard({
           </span>
           {count > 0 && (
             <span className={`text-[0.6rem] font-bold ${
-              state === "complete" ? "text-emerald-500" : "text-amber-500"
+              state === "complete" ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
             }`}>
               %{pct}
             </span>
@@ -311,8 +311,8 @@ function VerseDetailSheet({
                 onClick={() => toggleVerse(surahId, v)}
                 className={`h-8 text-[0.65rem] font-medium rounded-lg transition-colors ${
                   memorizedSet.has(v)
-                    ? "bg-emerald-500 text-white shadow-sm"
-                    : "bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-emerald-500/15"
+                    ? "bg-[var(--color-accent)] text-white shadow-sm"
+                    : "bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-accent)]/15"
                 }`}
               >
                 {v}
@@ -409,13 +409,13 @@ export function HifzStatus() {
             <div className="flex-1 space-y-1.5">
               {stats.completeSurahs > 0 && (
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-accent)] shrink-0" />
                   <span className="text-xs">{h.completeSurahs.replace("{n}", String(stats.completeSurahs))}</span>
                 </div>
               )}
               {stats.activeSurahs > stats.completeSurahs && (
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--color-text-secondary)] shrink-0" />
                   <span className="text-xs">{h.partialSurahs.replace("{n}", String(stats.activeSurahs - stats.completeSurahs))}</span>
                 </div>
               )}
@@ -461,9 +461,9 @@ export function HifzStatus() {
                       selectedJuz === juz
                         ? "bg-[var(--color-accent)] text-white"
                         : allComplete
-                          ? "bg-emerald-500/15 text-emerald-600"
+                          ? "bg-[var(--color-accent)]/15 text-[var(--color-accent)]"
                           : hasAny
-                            ? "bg-amber-500/10 text-amber-600"
+                            ? "bg-[var(--color-text-secondary)]/10 text-[var(--color-text-secondary)]"
                             : "bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:bg-[var(--color-border)]"
                     }`}
                   >

@@ -79,9 +79,9 @@ function useRepoInfo() {
 
 /** Rank rozeti renkleri */
 const RANK_STYLES = [
-  "bg-amber-500 text-white",       // 1 — altın
-  "bg-gray-400 text-white",        // 2 — gümüş
-  "bg-amber-700 text-white",       // 3 — bronz
+  "bg-[var(--color-accent)] text-white",              // 1 — altın
+  "bg-[var(--color-text-secondary)] text-white",      // 2 — gümüş
+  "bg-[var(--color-text-secondary)]/60 text-white",   // 3 — bronz
 ] as const;
 
 function getRankStyle(i: number) {

@@ -34,12 +34,12 @@ export function LetterTrace({ letter, onComplete }: LetterTraceProps) {
   if (!LETTER_STROKES[letter.id]) {
     return (
       <div className="flex flex-col items-center gap-4 py-4">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-[var(--color-text-secondary)]">
           &quot;{letter.id}&quot; için çizim verisi bulunamadı.
         </p>
         <button
           onClick={onComplete}
-          className="rounded-xl bg-emerald-500 px-8 py-3 text-[14px] font-bold text-white shadow-md active:scale-95"
+          className="rounded-xl bg-[var(--color-accent)] px-8 py-3 text-[14px] font-bold text-white shadow-md active:scale-95"
         >
           Sonraki →
         </button>
@@ -274,8 +274,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
 
   return (
     <div className="flex flex-col items-center gap-4 py-4">
-      <h2 className="text-xl font-bold text-blue-700">Harfi çiz</h2>
-      <p className="text-[14px] text-gray-500">
+      <p className="text-[14px] text-[var(--color-text-secondary)]">
         <span className="font-arabic text-lg" dir="rtl">
           {letter.arabic}
         </span>
@@ -283,10 +282,32 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
         {letter.name}
       </p>
 
-      <div
-        className="rounded-2xl bg-white shadow-sm"
-        style={{ maxWidth: 300, width: "100%", aspectRatio: "1/1" }}
-      >
+      {/* Kılavuz (sol) + Kanvas (sağ) — yan yana, mobilde üst üste */}
+      <div className="flex flex-row items-stretch gap-3 w-full" style={{ maxWidth: 520 }}>
+        {/* Kılavuz — salt okunur referans */}
+        <div
+          className="hidden sm:block rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shrink-0 opacity-60"
+          style={{ width: 140, aspectRatio: "1/1" }}
+        >
+          <svg viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} className="h-full w-full">
+            {guideData && (
+              <path d={guideData.guidePath} fill="var(--color-text-secondary)" stroke="none" opacity="0.3" />
+            )}
+            {!guideData && strokeData.strokes.map((s, i) =>
+              s.type === "dot" ? (
+                <circle key={i} cx={s.points[0].x} cy={s.points[0].y} r={STROKE_W / 2} fill="var(--color-text-secondary)" opacity="0.3" />
+              ) : (
+                <path key={i} d={smoothPaths[i]} stroke="var(--color-text-secondary)" {...thickStrokeProps} opacity="0.3" />
+              ),
+            )}
+          </svg>
+        </div>
+
+        {/* Kanvas — çizim alanı */}
+        <div
+          className="rounded-2xl bg-[var(--color-surface)] shadow-sm flex-1"
+          style={{ maxWidth: 300, aspectRatio: "1/1" }}
+        >
         <svg
           ref={svgRef}
           viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
@@ -301,7 +322,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
         >
           {/* ── Font-derived filled guide ── */}
           {guideData && (
-            <path d={guideData.guidePath} fill="#e5e7eb" stroke="none" />
+            <path d={guideData.guidePath} fill="var(--color-border)" stroke="none" />
           )}
 
           {/* ── Fallback dashed guides (no font guide) ── */}
@@ -315,7 +336,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                     cy={s.points[0].y}
                     r={STROKE_W / 2}
                     fill="none"
-                    stroke="#d1d5db"
+                    stroke="var(--color-border)"
                     strokeWidth={2.5}
                     strokeDasharray="4 4"
                   />
@@ -325,7 +346,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                 <path
                   key={`guide-${i}`}
                   d={smoothPaths[i]}
-                  stroke="#d1d5db"
+                  stroke="var(--color-border)"
                   {...thickStrokeProps}
                   strokeDasharray="1 20"
                 />
@@ -343,7 +364,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                   cy={s.points[0].y}
                   r={STROKE_W / 2}
                   fill="none"
-                  stroke="#d1d5db"
+                  stroke="var(--color-border)"
                   strokeWidth={2.5}
                   strokeDasharray="4 4"
                 />
@@ -372,7 +393,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                   cx={s.points[0].x}
                   cy={s.points[0].y}
                   r={STROKE_W / 2.5}
-                  fill="#10B981"
+                  fill="var(--color-accent)"
                 />
               );
             }
@@ -380,7 +401,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
               <path
                 key={`done-${i}`}
                 d={smoothPaths[i]}
-                stroke="#10B981"
+                stroke="var(--color-accent)"
                 {...thickStrokeProps}
               />
             );
@@ -390,7 +411,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
           {!done && currentStroke?.type === "path" && progress > 0 && (
             <path
               d={currentSvgPath}
-              stroke="#10B981"
+              stroke="var(--color-accent)"
               {...thickStrokeProps}
               pathLength={1}
               strokeDasharray="1 1"
@@ -404,7 +425,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
               cx={strokeData.strokes[dotPop].points[0].x}
               cy={strokeData.strokes[dotPop].points[0].y}
               r={STROKE_W / 2.5}
-              fill="#10B981"
+              fill="var(--color-accent)"
             >
               <animate
                 attributeName="r"
@@ -425,7 +446,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                   cy={currentStroke.points[0].y}
                   r={14}
                   fill="none"
-                  stroke="#10B981"
+                  stroke="var(--color-accent)"
                   strokeWidth={2.5}
                   opacity={0.4}
                 >
@@ -446,11 +467,11 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                   cx={currentStroke.points[0].x}
                   cy={currentStroke.points[0].y}
                   r={9}
-                  fill="#10B981"
+                  fill="var(--color-accent)"
                 />
                 <polygon
                   points="-3.5,-3 4.5,0 -3.5,3"
-                  fill="white"
+                  fill="var(--color-bg)"
                   transform={`translate(${currentStroke.points[0].x},${currentStroke.points[0].y}) rotate(${startAngle})`}
                 />
               </g>
@@ -466,14 +487,14 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                   cx={penTip.x}
                   cy={penTip.y}
                   r={11}
-                  fill="rgba(16,185,129,0.15)"
+                  fill="var(--color-accent)" opacity="0.15"
                 />
                 <circle
                   cx={penTip.x}
                   cy={penTip.y}
                   r={6}
-                  fill="#10B981"
-                  stroke="white"
+                  fill="var(--color-accent)"
+                  stroke="var(--color-bg)"
                   strokeWidth={2}
                 />
               </g>
@@ -491,7 +512,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                   cy={e.y}
                   r={7}
                   fill="none"
-                  stroke="rgba(16,185,129,0.35)"
+                  stroke="var(--color-accent)" opacity="0.35"
                   strokeWidth={2}
                   strokeDasharray="3 3"
                 />
@@ -506,7 +527,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                 cy={currentStroke!.points[0].y}
                 r={12}
                 fill="none"
-                stroke="#10B981"
+                stroke="var(--color-accent)"
                 strokeWidth={2.5}
                 opacity={0.4}
               >
@@ -527,14 +548,15 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
                 cx={currentStroke!.points[0].x}
                 cy={currentStroke!.points[0].y}
                 r={7}
-                fill="rgba(16,185,129,0.2)"
-                stroke="#10B981"
+                fill="var(--color-accent)" opacity="0.2"
+                stroke="var(--color-accent)"
                 strokeWidth={2}
                 strokeDasharray="3 3"
               />
             </g>
           )}
         </svg>
+        </div>
       </div>
 
       {/* Stroke progress indicators */}
@@ -544,10 +566,10 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
             key={i}
             className={`flex items-center justify-center rounded-full transition-all duration-200 ${
               completedStrokes[i]
-                ? "h-6 w-6 bg-emerald-400 text-white"
+                ? "h-6 w-6 bg-[var(--color-accent)] text-white"
                 : i === strokeIdx
-                  ? "h-6 w-6 bg-emerald-500 text-white ring-2 ring-emerald-200 ring-offset-1"
-                  : "h-4 w-4 bg-gray-200"
+                  ? "h-6 w-6 bg-[var(--color-accent)] text-white ring-2 ring-[var(--color-accent)]/30 ring-offset-1"
+                  : "h-4 w-4 bg-[var(--color-border)]"
             }`}
           >
             {completedStrokes[i] ? (
@@ -572,7 +594,7 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
       </div>
 
       {!done && currentStroke && (
-        <p className="text-[13px] font-medium text-gray-400">
+        <p className="text-[13px] font-medium text-[var(--color-text-secondary)]">
           {isCurrentDot
             ? "Noktaya dokun"
             : progress === 0
@@ -584,14 +606,14 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
       <div className="flex gap-3">
         <button
           onClick={handleReset}
-          className="rounded-xl border border-gray-200 px-6 py-3 text-[14px] font-semibold text-gray-500 active:scale-95"
+          className="rounded-xl border border-[var(--color-border)] px-6 py-3 text-[14px] font-semibold text-[var(--color-text-secondary)] active:scale-95"
         >
           Tekrar dene
         </button>
         {done && (
           <button
             onClick={onComplete}
-            className="rounded-xl bg-emerald-500 px-8 py-3 text-[14px] font-bold text-white shadow-md active:scale-95"
+            className="rounded-xl bg-[var(--color-accent)] px-8 py-3 text-[14px] font-bold text-white shadow-md active:scale-95"
           >
             Sonraki →
           </button>
