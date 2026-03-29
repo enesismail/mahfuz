@@ -7,8 +7,8 @@ import { useSettingsStore } from "~/stores/settings.store";
 import { useReadingStore } from "~/stores/reading.store";
 import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { useAudioStore } from "~/stores/audio.store";
-import { usePageData, useTajweed, useImlaei, useMushafLines, translationSourcesQueryOptions } from "~/hooks/useQuranQuery";
-import { useQuery } from "@tanstack/react-query";
+import { usePageData, useTajweed, useImlaei, useMushafLines, translationSourcesQueryOptions, mushafLinesQueryOptions, pageDataQueryOptions } from "~/hooks/useQuranQuery";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { cleanImlaei } from "~/lib/strip-diacritics";
 import { parseTajweed } from "~/lib/tajweed-parser";
 import { splitWords } from "~/lib/split-words";
@@ -18,6 +18,7 @@ import { useReadingTracker } from "~/hooks/useReadingTracker";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { AyahActionMenu } from "./AyahActionMenu";
 import { VerseEndMarker } from "~/components/quran/VerseEndMarker";
+import { SajdahMarker } from "~/components/quran/SajdahMarker";
 
 interface MushafPageProps {
   pageNumber: number;
@@ -80,6 +81,19 @@ export function MushafPage({ pageNumber, highlightAyah }: MushafPageProps) {
   }, [translationSourceList]);
 
   useReadingTracker(pageNumber);
+
+  // Prefetch adjacent pages for instant navigation
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (pageNumber > 1) {
+      queryClient.prefetchQuery(mushafLinesQueryOptions(pageNumber - 1));
+      queryClient.prefetchQuery(pageDataQueryOptions(pageNumber - 1, translationSlugs));
+    }
+    if (pageNumber < 604) {
+      queryClient.prefetchQuery(mushafLinesQueryOptions(pageNumber + 1));
+      queryClient.prefetchQuery(pageDataQueryOptions(pageNumber + 1, translationSlugs));
+    }
+  }, [pageNumber, translationSlugs, queryClient]);
 
   useEffect(() => {
     if (pageData && pageData.surahGroups.length > 0) {
@@ -161,6 +175,7 @@ export function MushafPage({ pageNumber, highlightAyah }: MushafPageProps) {
                       translation={ayah.translation}
                       pageNumber={pageNumber}
                       highlight={highlightAyah === vk}
+                      sajdah={ayah.sajdah}
                     />
                   );
                 })}
@@ -188,9 +203,10 @@ interface MushafVerseProps {
   translation: string | null;
   pageNumber: number;
   highlight?: boolean;
+  sajdah?: boolean;
 }
 
-function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translation, pageNumber, highlight }: MushafVerseProps) {
+function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translation, pageNumber, highlight, sajdah }: MushafVerseProps) {
   const isBookmarked = useBookmarksStore((s) => s.isBookmarked(surahId, ayahNumber));
   const toggleBookmark = useBookmarksStore((s) => s.toggleBookmark);
   const verseRef = useRef<HTMLSpanElement>(null);
@@ -260,6 +276,7 @@ function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translatio
       </span>
       {/* Ayet numarası — dekoratif daire */}
       <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="inline" />
+      {sajdah && <SajdahMarker />}
       {/* Yer imi göstergesi */}
       {isBookmarked && (
         <button

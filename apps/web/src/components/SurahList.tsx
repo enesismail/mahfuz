@@ -5,7 +5,7 @@
  * Butona basınca panel açılır, cüz seçince ilgili sureye scroll eder.
  */
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useSettingsStore } from "~/stores/settings.store";
 import { useReadingStore } from "~/stores/reading.store";
@@ -45,11 +45,20 @@ interface SurahListProps {
   surahs: Surah[];
 }
 
+type RevelationFilter = "all" | "makkah" | "madinah";
+
 export function SurahList({ surahs }: SurahListProps) {
   const readingMode = useSettingsStore((s) => s.readingMode);
   const lastSurahId = useReadingStore((s) => s.lastPosition?.surahId ?? null);
   const { t, locale } = useTranslation();
   const itemRefs = useRef<Map<number, HTMLElement>>(new Map());
+
+  // Revelation filter state
+  const [revelationFilter, setRevelationFilter] = useState<RevelationFilter>("all");
+  const filteredSurahs = useMemo(
+    () => revelationFilter === "all" ? surahs : surahs.filter((s) => s.revelation === revelationFilter),
+    [surahs, revelationFilter],
+  );
 
   // Cüz picker state
   const [juzOpen, setJuzOpen] = useState(false);
@@ -81,11 +90,34 @@ export function SurahList({ surahs }: SurahListProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [juzOpen]);
 
+  const filterChips: Array<{ key: RevelationFilter; label: string }> = [
+    { key: "all", label: t.surahList.filterAll },
+    { key: "makkah", label: t.surahList.filterMakki },
+    { key: "madinah", label: t.surahList.filterMadani },
+  ];
+
   return (
     <div className="relative">
+      {/* Filtre chip'leri */}
+      <div className="flex items-center gap-2 mb-3">
+        {filterChips.map((chip) => (
+          <button
+            key={chip.key}
+            onClick={() => setRevelationFilter(chip.key)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              revelationFilter === chip.key
+                ? "bg-[var(--color-accent)] text-white"
+                : "border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
+            }`}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
+
       {/* Sure listesi */}
       <div className="space-y-0.5">
-        {surahs.map((surah) => (
+        {filteredSurahs.map((surah) => (
           <Link
             key={surah.id}
             ref={(el: HTMLAnchorElement | null) => {

@@ -13,6 +13,7 @@ import { useSettingsStore } from "~/stores/settings.store";
 import { ScrollToTop } from "~/components/ScrollToTop";
 import { FontSizeControl } from "~/components/reader/FontSizeControl";
 import { surahIdFromSlug, surahSlug } from "~/lib/surah-slugs";
+import { ReadingProgressBar } from "~/components/reader/ReadingProgressBar";
 
 const TOTAL_CHAPTERS = 114;
 
@@ -53,6 +54,7 @@ function SurahRoute() {
 
   return (
     <div className="min-h-screen relative pb-20">
+      <ReadingProgressBar />
       <ReadingHeader settingsContext={{ surahId: id, pageNumber: firstPageNumber }}>
         {/* Önceki sure */}
         {id > 1 ? (

@@ -146,6 +146,7 @@ export function SurahView({ surahId, highlightAyah }: SurahViewProps) {
               pageNumber={ayah.pageNumber}
               highlight={highlightAyah === ayah.ayahNumber}
               wbwWords={showWbw ? wbwData?.get(`${surahId}:${ayah.ayahNumber}`) : undefined}
+              sajdah={!!ayah.sajdah}
             />
           </div>
         ))}

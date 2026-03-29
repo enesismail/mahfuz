@@ -167,6 +167,7 @@ export const getPageData = createServerFn({ method: "GET" })
         translations: Record<string, string>;
         juzNumber: number;
         hizbNumber: number;
+        sajdah: boolean;
       }>;
       isStart: boolean;
     }> = [];
@@ -202,6 +203,7 @@ export const getPageData = createServerFn({ method: "GET" })
         translations: allTranslations,
         juzNumber: ayah.juzNumber,
         hizbNumber: ayah.hizbNumber,
+        sajdah: !!ayah.sajdah,
       });
     }
 

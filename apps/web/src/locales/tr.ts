@@ -176,6 +176,7 @@ export const tr = {
     bookmark: "Yer imine ekle",
     removeBookmark: "Yer imini kaldır",
     verseActions: "Ayet {n} eylemleri",
+    sajdah: "Secde ayeti",
   },
 
   error: {
@@ -190,5 +191,8 @@ export const tr = {
     goToJuz: "Cüze Git",
     juzGoSurah: "Cüzün ilk suresine gider",
     juzGoPage: "Cüzün ilk sayfasına gider",
+    filterAll: "Tümü",
+    filterMakki: "Mekki",
+    filterMadani: "Medeni",
   },
 } as const;

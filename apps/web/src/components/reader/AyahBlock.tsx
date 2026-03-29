@@ -10,6 +10,7 @@ import { parseTajweed } from "~/lib/tajweed-parser";
 import { splitWords } from "~/lib/split-words";
 import { AyahActionMenu } from "./AyahActionMenu";
 import { VerseEndMarker } from "~/components/quran/VerseEndMarker";
+import { SajdahMarker } from "~/components/quran/SajdahMarker";
 import type { WbwWord } from "~/hooks/useWbwData";
 
 interface AyahBlockProps {
@@ -27,6 +28,7 @@ interface AyahBlockProps {
   pageNumber?: number;
   highlight?: boolean;
   wbwWords?: WbwWord[];
+  sajdah?: boolean;
 }
 
 export function AyahBlock({
@@ -42,6 +44,7 @@ export function AyahBlock({
   pageNumber,
   highlight,
   wbwWords,
+  sajdah,
 }: AyahBlockProps) {
   const blockRef = useRef<HTMLDivElement>(null);
   const [flash, setFlash] = useState(highlight);
@@ -93,12 +96,62 @@ export function AyahBlock({
     setMenuOpen(true);
   }, []);
 
+  // Long press gesture for opening action menu
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const openMenuAt = useCallback((x: number, y: number) => {
+    const rect = new DOMRect(x - 1, y - 1, 2, 2);
+    setMenuAnchor(rect);
+    setMenuOpen(true);
+  }, []);
+
+  const handleContextMenu = useCallback(
+    (e: React.MouseEvent) => {
+      if (!surahId) return;
+      e.preventDefault();
+      openMenuAt(e.clientX, e.clientY);
+    },
+    [surahId, openMenuAt],
+  );
+
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!surahId) return;
+      const touch = e.touches[0];
+      const x = touch.clientX;
+      const y = touch.clientY;
+      longPressTimer.current = setTimeout(() => {
+        longPressTimer.current = null;
+        openMenuAt(x, y);
+      }, 500);
+    },
+    [surahId, openMenuAt],
+  );
+
+  const cancelLongPress = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) clearTimeout(longPressTimer.current);
+    };
+  }, []);
+
   return (
     <div
       ref={blockRef}
       className={`group py-3 border-b border-[var(--color-border)] last:border-b-0 relative transition-colors duration-500 rounded-lg ${
         flash ? "bg-[var(--color-accent)]/10" : isPlaying ? "bg-[var(--color-accent)]/6" : ""
       }`}
+      onContextMenu={handleContextMenu}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={cancelLongPress}
+      onTouchMove={cancelLongPress}
     >
       {/* Yer imi butonu — hover'da görünür */}
       {surahId && (
@@ -179,8 +232,9 @@ export function AyahBlock({
               )}
             </div>
           ))}
-          <div className="flex items-center">
+          <div className="flex items-center gap-1">
             <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="block" />
+            {sajdah && <SajdahMarker />}
           </div>
         </div>
       ) : (
@@ -201,6 +255,7 @@ export function AyahBlock({
                 </span>
               ))}
           <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="inline" size={32} />
+          {sajdah && <SajdahMarker />}
         </div>
       )}
 

@@ -178,6 +178,7 @@ export const en: Messages = {
     bookmark: "Add bookmark",
     removeBookmark: "Remove bookmark",
     verseActions: "Verse {n} actions",
+    sajdah: "Sajdah verse",
   },
 
   error: {
@@ -192,5 +193,8 @@ export const en: Messages = {
     goToJuz: "Go to Juz",
     juzGoSurah: "Goes to the first surah of the juz",
     juzGoPage: "Goes to the first page of the juz",
+    filterAll: "All",
+    filterMakki: "Makki",
+    filterMadani: "Madani",
   },
 } as const;

@@ -162,6 +162,7 @@ export const es: Messages = {
     bookmark: "Añadir marcador",
     removeBookmark: "Quitar marcador",
     verseActions: "Acciones del versículo {n}",
+    sajdah: "Verso de sajda",
   },
 
   error: {
@@ -176,5 +177,8 @@ export const es: Messages = {
     goToJuz: "Ir al Yuz",
     juzGoSurah: "Va a la primera sura del yuz",
     juzGoPage: "Va a la primera página del yuz",
+    filterAll: "Todos",
+    filterMakki: "Mequí",
+    filterMadani: "Medinés",
   },
 } as const;

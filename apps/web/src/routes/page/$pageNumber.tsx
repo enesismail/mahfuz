@@ -14,6 +14,7 @@ import { ScrollToTop } from "~/components/ScrollToTop";
 import { FontSizeControl } from "~/components/reader/FontSizeControl";
 import { useSwipeNav } from "~/hooks/useSwipeNav";
 import { useTranslation } from "~/hooks/useTranslation";
+import { ReadingProgressBar } from "~/components/reader/ReadingProgressBar";
 
 const TOTAL_PAGES = 604;
 
@@ -64,6 +65,7 @@ function PageRoute() {
 
   return (
     <div className="min-h-screen relative pb-20">
+      <ReadingProgressBar />
       <ReadingHeader settingsContext={{ surahId: firstSurahId, pageNumber: page }}>
         {/* Önceki sayfa */}
         {page > 1 ? (
