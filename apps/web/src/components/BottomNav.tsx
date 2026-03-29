@@ -1,8 +1,8 @@
 /**
- * Alt navigasyon çubuğu — mobilde ana sayfa, arama, yer imleri erişimi.
+ * Alt navigasyon çubuğu — mobilde ana sayfa, okuma, arama, yer imleri, profil.
  */
 
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link, useLocation, useRouteContext } from "@tanstack/react-router";
 import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { useReadingStore } from "~/stores/reading.store";
 import { useTranslation } from "~/hooks/useTranslation";
@@ -12,11 +12,14 @@ export function BottomNav() {
   const { t } = useTranslation();
   const lastPosition = useReadingStore((s) => s.lastPosition);
   const bookmarkCount = useBookmarksStore((s) => s.bookmarks.length);
+  const { session } = useRouteContext({ from: "__root__" });
+
+  const user = session?.user;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-30 bg-[var(--color-bg)] border-t border-[var(--color-border)] pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around h-14">
-        {/* Ana sayfa */}
+        {/* 1. Ana sayfa */}
         <Link
           to="/"
           className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
@@ -30,52 +33,7 @@ export function BottomNav() {
           <span className="text-[10px]">{t.nav.home}</span>
         </Link>
 
-        {/* Devam et */}
-        {lastPosition ? (
-          <Link
-            to="/page/$pageNumber"
-            params={{ pageNumber: String(lastPosition.pageNumber) }}
-            search={{ ayah: undefined }}
-            className="flex flex-col items-center gap-0.5 px-3 py-1 text-[var(--color-text-secondary)]"
-          >
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4H14A4 4 0 0118 8V18H8A4 4 0 014 14V4Z" />
-              <path d="M4 10H18" />
-              <path d="M11 4V18" />
-            </svg>
-            <span className="text-[10px]">{t.nav.continueReading}</span>
-          </Link>
-        ) : (
-          <Link
-            to="/page/$pageNumber"
-            params={{ pageNumber: "1" }}
-            search={{ ayah: undefined }}
-            className="flex flex-col items-center gap-0.5 px-3 py-1 text-[var(--color-text-secondary)]"
-          >
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4H14A4 4 0 0118 8V18H8A4 4 0 014 14V4Z" />
-              <path d="M4 10H18" />
-              <path d="M11 4V18" />
-            </svg>
-            <span className="text-[10px]">{t.nav.read}</span>
-          </Link>
-        )}
-
-        {/* Ara */}
-        <Link
-          to="/search"
-          className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
-            pathname === "/search" ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
-          }`}
-        >
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <circle cx="10" cy="10" r="6.5" />
-            <path d="M15 15L20 20" />
-          </svg>
-          <span className="text-[10px]">{t.nav.search}</span>
-        </Link>
-
-        {/* Yer İmleri */}
+        {/* 2. Yer İmleri */}
         <Link
           to="/bookmarks"
           className={`flex flex-col items-center gap-0.5 px-3 py-1 relative ${
@@ -91,6 +49,60 @@ export function BottomNav() {
             </span>
           )}
           <span className="text-[10px]">{t.nav.bookmarks}</span>
+        </Link>
+
+        {/* 3. Devam et / Oku */}
+        <Link
+          to="/page/$pageNumber"
+          params={{ pageNumber: lastPosition ? String(lastPosition.pageNumber) : "1" }}
+          search={{ ayah: undefined }}
+          className="flex flex-col items-center gap-0.5 px-3 py-1 text-[var(--color-text-secondary)]"
+        >
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 4H14A4 4 0 0118 8V18H8A4 4 0 014 14V4Z" />
+            <path d="M4 10H18" />
+            <path d="M11 4V18" />
+          </svg>
+          <span className="text-[10px]">{lastPosition ? t.nav.continueReading : t.nav.read}</span>
+        </Link>
+
+        {/* 4. Ara */}
+        <Link
+          to="/search"
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
+            pathname === "/search" ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
+          }`}
+        >
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <circle cx="10" cy="10" r="6.5" />
+            <path d="M15 15L20 20" />
+          </svg>
+          <span className="text-[10px]">{t.nav.search}</span>
+        </Link>
+
+        {/* 5. Profil */}
+        <Link
+          to={user ? "/profile" : "/auth/login"}
+          className={`flex flex-col items-center gap-0.5 px-3 py-1 ${
+            pathname === "/profile" ? "text-[var(--color-accent)]" : "text-[var(--color-text-secondary)]"
+          }`}
+        >
+          {user?.image ? (
+            <img
+              src={user.image}
+              alt=""
+              className={`w-[22px] h-[22px] rounded-full object-cover ${
+                pathname === "/profile" ? "ring-1.5 ring-[var(--color-accent)]" : ""
+              }`}
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="8" r="4" />
+              <path d="M4 19C4 15.134 7.134 12 11 12C14.866 12 18 15.134 18 19" />
+            </svg>
+          )}
+          <span className="text-[10px]">{t.nav.profile}</span>
         </Link>
       </div>
     </nav>
