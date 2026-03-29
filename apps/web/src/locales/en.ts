@@ -203,9 +203,12 @@ export const en: Messages = {
     title: "What's New?",
     lastUpdated: "Last updated",
     banner: "See what's new",
+    filterAll: "All",
+    filterNew: "New",
     tags: {
       new: "New",
       improved: "Improved",
+      fix: "Fix",
       coming: "Soon",
     },
     sections: {

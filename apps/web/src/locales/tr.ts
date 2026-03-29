@@ -200,10 +200,13 @@ export const tr = {
   changelog: {
     title: "Yeni Ne Var?",
     lastUpdated: "Son güncelleme",
-    banner: "Yenilikleri keşfet",
+    banner: "Yeni ne var?",
+    filterAll: "Tümü",
+    filterNew: "Yeni",
     tags: {
       new: "Yeni",
       improved: "Geliştirildi",
+      fix: "Düzeltme",
       coming: "Yakında",
     },
     sections: {
