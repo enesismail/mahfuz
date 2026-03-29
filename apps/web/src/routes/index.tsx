@@ -11,7 +11,6 @@ import { MahfuzLogo } from "~/components/icons/MahfuzLogo";
 import { SettingsButton } from "~/components/SettingsButton";
 import { useTranslation } from "~/hooks/useTranslation";
 import { surahSlug } from "~/lib/surah-slugs";
-import { getSurahName } from "~/lib/surah-names-i18n";
 
 export const Route = createFileRoute("/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(surahsQueryOptions()),
@@ -54,7 +53,7 @@ function HomePageSkeleton() {
 
 function HomePage() {
   const { session } = Route.useRouteContext();
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const readingMode = useSettingsStore((s) => s.readingMode);
   const bookmarks = useBookmarksStore((s) => s.bookmarks);
   const { data: surahs } = useSurahs();
@@ -131,7 +130,7 @@ function HomePage() {
               </span>
               {visible.map((bm) => {
                 const surah = surahMap.get(bm.surahId);
-                const name = getSurahName(bm.surahId, locale) || surah?.nameSimple || String(bm.surahId);
+                const name = surah?.nameSimple || String(bm.surahId);
                 const label = `${name} ${bm.ayahNumber}`;
                 const linkProps = readingMode === "list"
                   ? { to: "/surah/$surahSlug" as const, params: { surahSlug: surahSlug(bm.surahId) }, search: { ayah: bm.ayahNumber } }

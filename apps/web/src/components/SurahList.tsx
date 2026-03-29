@@ -37,6 +37,7 @@ interface Surah {
   nameSimple: string;
   nameTranslation: string;
   revelation: string;
+  revelationOrder: number;
   ayahCount: number;
   pageStart: number;
 }
@@ -45,20 +46,22 @@ interface SurahListProps {
   surahs: Surah[];
 }
 
-type RevelationFilter = "all" | "makkah" | "madinah";
-
 export function SurahList({ surahs }: SurahListProps) {
   const readingMode = useSettingsStore((s) => s.readingMode);
+  const surahListFilter = useSettingsStore((s) => s.surahListFilter);
+  const setSurahListFilter = useSettingsStore((s) => s.setSurahListFilter);
   const lastSurahId = useReadingStore((s) => s.lastPosition?.surahId ?? null);
   const { t, locale } = useTranslation();
   const itemRefs = useRef<Map<number, HTMLElement>>(new Map());
 
-  // Revelation filter state
-  const [revelationFilter, setRevelationFilter] = useState<RevelationFilter>("all");
-  const filteredSurahs = useMemo(
-    () => revelationFilter === "all" ? surahs : surahs.filter((s) => s.revelation === revelationFilter),
-    [surahs, revelationFilter],
-  );
+  // Filter + sort
+  const filteredSurahs = useMemo(() => {
+    if (surahListFilter === "nuzul") {
+      return [...surahs].sort((a, b) => a.revelationOrder - b.revelationOrder);
+    }
+    if (surahListFilter === "all") return surahs;
+    return surahs.filter((s) => s.revelation === surahListFilter);
+  }, [surahs, surahListFilter]);
 
   // Cüz picker state
   const [juzOpen, setJuzOpen] = useState(false);
@@ -90,10 +93,11 @@ export function SurahList({ surahs }: SurahListProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [juzOpen]);
 
-  const filterChips: Array<{ key: RevelationFilter; label: string }> = [
+  const filterChips: Array<{ key: typeof surahListFilter; label: string }> = [
     { key: "all", label: t.surahList.filterAll },
     { key: "makkah", label: t.surahList.filterMakki },
     { key: "madinah", label: t.surahList.filterMadani },
+    { key: "nuzul", label: t.surahList.filterNuzul },
   ];
 
   return (
@@ -103,9 +107,9 @@ export function SurahList({ surahs }: SurahListProps) {
         {filterChips.map((chip) => (
           <button
             key={chip.key}
-            onClick={() => setRevelationFilter(chip.key)}
+            onClick={() => setSurahListFilter(chip.key)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-              revelationFilter === chip.key
+              surahListFilter === chip.key
                 ? "bg-[var(--color-accent)] text-white"
                 : "border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]"
             }`}
@@ -149,7 +153,7 @@ export function SurahList({ surahs }: SurahListProps) {
             <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium truncate">
-                  <span className="mr-1.5">{surah.id}.</span>{surah.nameSimple}</span>
+                  <span className="mr-1.5">{surahListFilter === "nuzul" ? surah.revelationOrder : surah.id}.</span>{surah.nameSimple}</span>
                 <span className="text-base shrink-0" dir="rtl" style={{ fontFamily: "var(--font-arabic)" }}>
                   {surah.nameArabic}
                 </span>

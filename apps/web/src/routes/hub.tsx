@@ -65,7 +65,19 @@ function HubPage() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-32">
-      <h1 className="text-lg font-semibold mb-5">{t.hub.title}</h1>
+      <h1 className="text-lg font-semibold mb-4">{t.hub.title}</h1>
+
+      {/* Yeni ne var bandı */}
+      <Link
+        to="/changelog"
+        className="flex items-center gap-3 px-4 py-3 mb-4 rounded-xl bg-[var(--color-accent)]/8 border border-[var(--color-accent)]/20 hover:bg-[var(--color-accent)]/15 transition-colors"
+      >
+        <span className="text-base">🎉</span>
+        <span className="flex-1 text-sm font-medium text-[var(--color-accent)]">{t.changelog.banner}</span>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round" className="shrink-0">
+          <path d="M6 4l4 4-4 4" />
+        </svg>
+      </Link>
 
       <FeatureGuide />
 

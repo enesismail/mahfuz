@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 export type Theme = "papyrus" | "sea" | "night";
 export type TextStyle = "uthmani" | "basic";
 export type WbwDisplay = "off" | "hover" | "on";
+export type SurahListFilter = "all" | "makkah" | "madinah" | "nuzul";
 
 interface SettingsState {
   theme: Theme;
@@ -15,6 +16,7 @@ interface SettingsState {
   wbwTranslit: WbwDisplay;
   showTajweed: boolean;
   readingMode: "page" | "list";
+  surahListFilter: SurahListFilter;
   reciterSlug: string;
   arabicFontSize: number; // rem
   translationFontSize: number; // rem
@@ -34,6 +36,7 @@ interface SettingsActions {
   setWbwTranslit: (mode: WbwDisplay) => void;
   toggleTajweed: () => void;
   setReadingMode: (mode: "page" | "list") => void;
+  setSurahListFilter: (filter: SurahListFilter) => void;
   setReciter: (slug: string) => void;
   setTextStyle: (style: TextStyle) => void;
   setArabicFontSize: (size: number) => void;
@@ -54,6 +57,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       showTajweed: false,
       textStyle: "uthmani" as TextStyle,
       readingMode: "page",
+      surahListFilter: "all" as SurahListFilter,
       reciterSlug: "mishary-rashid-alafasy",
       arabicFontSize: 1.8,
       translationFontSize: 0.95,
@@ -90,6 +94,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
       setWbwTranslit: (mode) => set({ wbwTranslit: mode }),
       toggleTajweed: () => set((s) => ({ showTajweed: !s.showTajweed })),
       setReadingMode: (mode) => set({ readingMode: mode }),
+      setSurahListFilter: (filter) => set({ surahListFilter: filter }),
       setReciter: (slug) => set({ reciterSlug: slug }),
       setTextStyle: (style) => set({ textStyle: style }),
       setArabicFontSize: (size) => set({ arabicFontSize: Math.max(1.2, Math.min(5.0, size)) }),
@@ -106,6 +111,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
           showTajweed: false,
           textStyle: "uthmani",
           readingMode: "page",
+          surahListFilter: "all",
           reciterSlug: "mishary-rashid-alafasy",
           arabicFontSize: 1.8,
           translationFontSize: 0.95,
