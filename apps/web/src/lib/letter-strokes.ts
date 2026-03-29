@@ -301,7 +301,7 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 159.1, y: 151.6 },
+          { x: 139, y: 147 },
         ],
       },
     ],
@@ -902,7 +902,7 @@ export const LETTER_STROKES: Record<string, LetterStrokeData> = {
       {
         type: "dot",
         points: [
-          { x: 207.9, y: 92.2 },
+          { x: 180, y: 57 },
         ],
       },
     ],

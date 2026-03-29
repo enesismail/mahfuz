@@ -282,32 +282,10 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
         {letter.name}
       </p>
 
-      {/* Kılavuz (sol) + Kanvas (sağ) — yan yana, mobilde üst üste */}
-      <div className="flex flex-row items-stretch gap-3 w-full" style={{ maxWidth: 520 }}>
-        {/* Kılavuz — salt okunur referans */}
-        <div
-          className="hidden sm:block rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shrink-0 opacity-60"
-          style={{ width: 140, aspectRatio: "1/1" }}
-        >
-          <svg viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`} className="h-full w-full">
-            {guideData && (
-              <path d={guideData.guidePath} fill="var(--color-text-secondary)" stroke="none" opacity="0.3" />
-            )}
-            {!guideData && strokeData.strokes.map((s, i) =>
-              s.type === "dot" ? (
-                <circle key={i} cx={s.points[0].x} cy={s.points[0].y} r={STROKE_W / 2} fill="var(--color-text-secondary)" opacity="0.3" />
-              ) : (
-                <path key={i} d={smoothPaths[i]} stroke="var(--color-text-secondary)" {...thickStrokeProps} opacity="0.3" />
-              ),
-            )}
-          </svg>
-        </div>
-
-        {/* Kanvas — çizim alanı */}
-        <div
-          className="rounded-2xl bg-[var(--color-surface)] shadow-sm flex-1"
-          style={{ maxWidth: 300, aspectRatio: "1/1" }}
-        >
+      <div
+        className="rounded-2xl bg-[var(--color-surface)] shadow-sm"
+        style={{ maxWidth: 300, width: "100%", aspectRatio: "1/1" }}
+      >
         <svg
           ref={svgRef}
           viewBox={`0 0 ${VIEWBOX} ${VIEWBOX}`}
@@ -556,7 +534,6 @@ function LetterTraceInner({ letter, onComplete }: LetterTraceProps) {
             </g>
           )}
         </svg>
-        </div>
       </div>
 
       {/* Stroke progress indicators */}
