@@ -32,6 +32,7 @@ export const tr = {
     textStyleUthmani: "Medine mushafı",
     textStyleBasic: "Sade imlâ",
     tajweedOnlyUthmani: "Tecvid yalnızca Uthmani metin stilinde kullanılabilir.",
+    wbwOnlyList: "Kelime kelime yalnızca ayet listesi modunda kullanılabilir.",
     colorize: "Kelime Renklendirme",
     select: "Seçiniz",
     searchPlaceholder: "Ara...",

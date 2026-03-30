@@ -3,7 +3,7 @@
  */
 
 import { useMemo, useEffect, useRef, useState as useLocalState } from "react";
-import { useSettingsStore, type Theme, type TextStyle, type WbwDisplay } from "~/stores/settings.store";
+import { useSettingsStore, COLOR_PALETTES, type Theme, type TextStyle, type WbwDisplay, type ColorPaletteId } from "~/stores/settings.store";
 import { useQuery } from "@tanstack/react-query";
 import { recitersQueryOptions, translationSourcesQueryOptions } from "~/hooks/useQuranQuery";
 import { useNavigate, useRouterState } from "@tanstack/react-router";
@@ -61,6 +61,8 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
     translationFontSize, setTranslationFontSize,
     reciterSlug, setReciter,
     textStyle, setTextStyle,
+    colorizeWords, setColorizeWords,
+    colorPaletteId, setColorPaletteId,
     theme, setTheme,
     resetToDefaults,
   } = useSettingsStore();
@@ -127,25 +129,22 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
 
   const handleModeChange = (mode: "page" | "list") => {
     setReadingMode(mode);
-    // Defer navigation to panel close so user can keep adjusting settings
     const isOnPage = currentPath.startsWith("/page/");
     const isOnSurah = currentPath.startsWith("/surah/");
-    if ((mode === "list" && isOnPage) || (mode === "page" && isOnSurah)) {
-      modeChangedRef.current = { mode };
+
+    if (mode === "list" && isOnPage && context?.surahId) {
+      onClose();
+      navigate({ to: "/surah/$surahSlug", params: { surahSlug: surahSlug(context.surahId) }, search: { ayah: undefined } });
+    } else if (mode === "page" && isOnSurah) {
+      // pageNumber context'ten veya sure'nin ilk sayfasından al
+      const page = context?.pageNumber || 1;
+      onClose();
+      navigate({ to: "/page/$pageNumber", params: { pageNumber: String(page) }, search: { ayah: undefined } });
     }
   };
 
   const handleClose = () => {
-    const pending = modeChangedRef.current;
-    modeChangedRef.current = null;
     onClose();
-    if (pending) {
-      if (pending.mode === "list" && context?.surahId) {
-        navigate({ to: "/surah/$surahSlug", params: { surahSlug: surahSlug(context.surahId) }, search: { ayah: undefined } });
-      } else if (pending.mode === "page" && context?.pageNumber) {
-        navigate({ to: "/page/$pageNumber", params: { pageNumber: String(context.pageNumber) }, search: { ayah: undefined } });
-      }
-    }
   };
 
   const arabicMin = 1.2, arabicMax = 5.0;
@@ -339,9 +338,12 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
                   <label className="text-[11px] text-[var(--color-text-secondary)]">
                     {t.settings.wordByWord}
                   </label>
-                  <Toggle checked={showWbw} onChange={toggleWbw} />
+                  <Toggle checked={showWbw && readingMode !== "page"} onChange={toggleWbw} disabled={readingMode === "page"} />
                 </div>
-                {showWbw && (
+                {readingMode === "page" && (
+                  <p className="text-[10px] text-[var(--color-text-secondary)] mt-1 opacity-70">{t.settings.wbwOnlyList}</p>
+                )}
+                {showWbw && readingMode !== "page" && (
                   <div className="mt-2 space-y-1.5 pl-1">
                     <WbwDisplayControl label={t.settings.wbwTranslation} value={wbwTranslation} onChange={setWbwTranslation} t={t} />
                     <WbwDisplayControl label={t.settings.wbwTransliteration} value={wbwTranslit} onChange={setWbwTranslit} t={t} />
@@ -353,10 +355,6 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
 
           {/* ── Metin Stili + Tecvid ── */}
           <Section title={t.settings.textStyle} defaultClosed>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-[11px] text-[var(--color-text-secondary)]">{t.settings.tajweed}</span>
-              <Toggle checked={showTajweed} onChange={toggleTajweed} disabled={textStyle === "basic"} />
-            </div>
             <SegmentedControl
               options={[
                 { value: "uthmani", label: "Uthmani" },
@@ -365,6 +363,38 @@ export function SettingsPanel({ open, onClose, context }: SettingsPanelProps) {
               value={textStyle}
               onChange={(v) => setTextStyle(v as TextStyle)}
             />
+            <div className="flex items-center justify-between mt-2">
+              <span className="text-[11px] text-[var(--color-text-secondary)]">{t.settings.tajweed}</span>
+              <Toggle checked={showTajweed} onChange={toggleTajweed} disabled={textStyle === "basic" || colorizeWords} />
+            </div>
+          </Section>
+
+          {/* ── Kelime Renklendirme ── */}
+          <Section title={t.settings.colorize} right={<Toggle checked={colorizeWords} onChange={() => setColorizeWords(!colorizeWords)} />}>
+            {colorizeWords && (
+              <div className="grid grid-cols-2 gap-1.5">
+                {(Object.entries(COLOR_PALETTES) as [ColorPaletteId, typeof COLOR_PALETTES[ColorPaletteId]][]).map(([id, palette]) => (
+                  <button
+                    key={id}
+                    onClick={() => setColorPaletteId(id)}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-lg border transition-colors"
+                    style={{
+                      borderColor: colorPaletteId === id ? "var(--color-accent)" : "var(--color-border)",
+                      background: colorPaletteId === id ? "var(--color-accent)" : "transparent",
+                    }}
+                  >
+                    <div className="flex gap-[2px]">
+                      {palette.colors.slice(0, 5).map((c, i) => (
+                        <span key={i} className="w-2.5 h-2.5 rounded-full" style={{ background: c }} />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-medium" style={{ color: colorPaletteId === id ? "white" : "var(--color-text-secondary)" }}>
+                      {palette.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </Section>
 
           {/* ── Yazı Boyutu ── */}

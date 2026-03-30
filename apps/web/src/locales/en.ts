@@ -34,6 +34,7 @@ export const en: Messages = {
     textStyleUthmani: "Medina mushaf",
     textStyleBasic: "Simple script",
     tajweedOnlyUthmani: "Tajweed is only available with Uthmani text style.",
+    wbwOnlyList: "Word by word is only available in verse list mode.",
     colorize: "Word Coloring",
     select: "Select",
     searchPlaceholder: "Search...",
