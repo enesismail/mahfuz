@@ -74,21 +74,7 @@ function HubPage() {
   const labsEnabled = useSettingsStore((s) => s.labsEnabled);
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-32">
-      {/* Yeni ne var bandı */}
-      <Link
-        to="/changelog"
-        className="flex items-center gap-3 px-3.5 py-2.5 mb-4 rounded-xl border border-[var(--color-border)] hover:bg-[var(--color-surface)] transition-colors"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
-          <path d="M12 2L15 8.5L22 9.5L17 14.5L18 21.5L12 18L6 21.5L7 14.5L2 9.5L9 8.5L12 2Z" />
-        </svg>
-        <span className="flex-1 text-sm font-medium text-[var(--color-text-primary)]">{t.changelog.banner}</span>
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="shrink-0 text-[var(--color-text-secondary)]">
-          <path d="M6 4l4 4-4 4" />
-        </svg>
-      </Link>
-
+    <div className="max-w-lg mx-auto px-4 py-4 pb-32">
       <div className="grid grid-cols-2 gap-3">
         {/* Ezber Takibi */}
         <HubCard

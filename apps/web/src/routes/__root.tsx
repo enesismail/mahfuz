@@ -12,12 +12,14 @@ import { useLocaleStore } from "~/stores/locale.store";
 import { AudioProvider } from "~/components/reader/AudioProvider";
 import { BottomNav } from "~/components/BottomNav";
 import { useSettingsStore } from "~/stores/settings.store";
+import { useReadingStore } from "~/stores/reading.store";
 import { SettingsPanel } from "~/components/reader/SettingsPanel";
+import { SurahPicker } from "~/components/reader/SurahPicker";
 import { MahfuzLogo } from "~/components/icons/MahfuzLogo";
 import { Link, useNavigate, useRouteContext, useRouterState } from "@tanstack/react-router";
 import { getSession } from "~/lib/auth-session";
 import { useSyncEngine } from "~/hooks/useSyncEngine";
-import { surahSlug } from "~/lib/surah-slugs";
+import { surahSlug, surahIdFromSlug } from "~/lib/surah-slugs";
 import type { Session } from "~/lib/auth";
 import appCss from "~/styles/app.css?url";
 
@@ -123,8 +125,22 @@ function AppHeader() {
   const isAuth = path.startsWith("/auth");
   if (isAuth) return null;
 
-  // Sayfa başlığı
-  const title = isHome ? null
+  // Reading route detection
+  const surahSlugMatch = path.match(/^\/surah\/(.+)$/);
+  const pageNumMatch = path.match(/^\/page\/(\d+)$/);
+  const isReadingRoute = !!(surahSlugMatch || pageNumMatch);
+
+  // Current surah ID for reading routes
+  const lastPosition = useReadingStore((s) => s.lastPosition);
+  const currentSurahId = surahSlugMatch
+    ? undefined // will be resolved by SurahPicker from slug
+    : pageNumMatch
+      ? lastPosition?.surahId ?? 1
+      : undefined;
+  const currentPage = pageNumMatch ? parseInt(pageNumMatch[1], 10) : undefined;
+
+  // Sayfa başlığı (non-reading routes only)
+  const title = isHome || isReadingRoute ? null
     : path === "/discover" ? t.hub.title
     : path === "/search" ? t.nav.search
     : path === "/profile" ? t.nav.profile
@@ -132,8 +148,6 @@ function AppHeader() {
     : path === "/alifba" ? t.hub.alifba
     : path === "/hifz" ? t.hub.hifz
     : path.startsWith("/changelog") ? t.changelog.banner
-    : path.startsWith("/surah/") ? decodeURIComponent(path.split("/surah/")[1] || "").replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-    : path.startsWith("/page/") ? `${t.settings.mushafPage} ${path.split("/page/")[1]}`
     : null;
 
   return (
@@ -163,12 +177,36 @@ function AppHeader() {
             </button>
           )}
 
-          {/* Center: title */}
-          {title && (
-            <span className="text-sm font-medium truncate">{title}</span>
+          {/* Center: title or reading nav */}
+          {isReadingRoute ? (
+            <div className="flex items-center gap-1 flex-1 justify-center min-w-0">
+              {surahSlugMatch ? (
+                <SurahPickerNav surahSlug={surahSlugMatch[1]} />
+              ) : pageNumMatch ? (
+                <PagePickerNav page={currentPage!} surahId={currentSurahId ?? 1} />
+              ) : null}
+            </div>
+          ) : title ? (
+            <>
+              <span className="text-sm font-medium truncate">{title}</span>
+              <div className="flex-1" />
+            </>
+          ) : (
+            <div className="flex-1" />
           )}
 
-          <div className="flex-1" />
+          {/* Changelog — sadece discover sayfasında */}
+          {path === "/discover" && (
+            <Link
+              to="/changelog"
+              className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
+              aria-label={t.changelog.banner}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2L15 8.5L22 9.5L17 14.5L18 21.5L12 18L6 21.5L7 14.5L2 9.5L9 8.5L12 2Z" />
+              </svg>
+            </Link>
+          )}
 
           {/* Labs menu — sadece keşif modunda */}
           {labsEnabled && (
@@ -240,6 +278,52 @@ function AppHeader() {
       </div>
 
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+    </>
+  );
+}
+
+// ── Reading route nav helpers ────────────────────────────
+
+const TOTAL_CHAPTERS = 114;
+const TOTAL_PAGES = 604;
+
+function SurahPickerNav({ surahSlug: slug }: { surahSlug: string }) {
+  const id = surahIdFromSlug(slug) ?? 1;
+  return (
+    <>
+      {id > 1 ? (
+        <Link to="/surah/$surahSlug" params={{ surahSlug: surahSlug(id - 1) }} search={{ ayah: undefined }}
+          className="p-1 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M12 5L7 10L12 15" /></svg>
+        </Link>
+      ) : <div className="w-6" />}
+      <SurahPicker currentSurahId={id} />
+      {id < TOTAL_CHAPTERS ? (
+        <Link to="/surah/$surahSlug" params={{ surahSlug: surahSlug(id + 1) }} search={{ ayah: undefined }}
+          className="p-1 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M8 5L13 10L8 15" /></svg>
+        </Link>
+      ) : <div className="w-6" />}
+    </>
+  );
+}
+
+function PagePickerNav({ page, surahId }: { page: number; surahId: number }) {
+  return (
+    <>
+      {page > 1 ? (
+        <Link to="/page/$pageNumber" params={{ pageNumber: String(page - 1) }} search={{ ayah: undefined }}
+          className="p-1 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M12 5L7 10L12 15" /></svg>
+        </Link>
+      ) : <div className="w-6" />}
+      <SurahPicker currentSurahId={surahId} mode="page" currentPage={page} totalPages={TOTAL_PAGES} />
+      {page < TOTAL_PAGES ? (
+        <Link to="/page/$pageNumber" params={{ pageNumber: String(page + 1) }} search={{ ayah: undefined }}
+          className="p-1 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"><path d="M8 5L13 10L8 15" /></svg>
+        </Link>
+      ) : <div className="w-6" />}
     </>
   );
 }
