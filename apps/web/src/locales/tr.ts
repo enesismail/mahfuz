@@ -32,6 +32,7 @@ export const tr = {
     textStyleUthmani: "Medine mushafı",
     textStyleBasic: "Sade imlâ",
     tajweedOnlyUthmani: "Tecvid yalnızca Uthmani metin stilinde kullanılabilir.",
+    colorize: "Kelime Renklendirme",
     select: "Seçiniz",
     searchPlaceholder: "Ara...",
     labs: "Keşif Modu",
@@ -169,6 +170,8 @@ export const tr = {
   search: {
     title: "Ara",
     placeholder: "Ayet veya meal ara...",
+    popularSurahs: "Çok okunan sureler",
+    suggestedKeywords: "Kuran'da ara",
   },
 
   reader: {

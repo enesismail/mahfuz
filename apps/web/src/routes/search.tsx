@@ -64,6 +64,9 @@ function SearchPage() {
         />
       </div>
 
+      {/* Öneriler — arama boşken */}
+      {!query && <SearchSuggestions onSelect={handleInput} locale={locale} t={t} />}
+
       {/* Sonuçlar */}
       {isLoading && debouncedQuery.length >= 2 && (
         <p className="text-sm text-[var(--color-text-secondary)] text-center py-4">
@@ -131,6 +134,71 @@ function SearchPage() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Popüler sureler ve sık aranan kelimeler ──────────────
+
+const POPULAR_SURAHS = [
+  { id: 1, nameAr: "الفاتحة" },
+  { id: 36, nameAr: "يس" },
+  { id: 67, nameAr: "الملك" },
+  { id: 55, nameAr: "الرحمن" },
+  { id: 56, nameAr: "الواقعة" },
+  { id: 18, nameAr: "الكهف" },
+  { id: 112, nameAr: "الإخلاص" },
+  { id: 2, nameAr: "البقرة" },
+  { id: 48, nameAr: "الفتح" },
+  { id: 78, nameAr: "النبأ" },
+];
+
+const SUGGESTED_KEYWORDS: Record<string, string[]> = {
+  tr: ["rahmet", "sabır", "namaz", "tövbe", "cennet", "şükür", "adalet", "ihsan", "tevekkül", "hidayet"],
+  en: ["mercy", "patience", "prayer", "repentance", "paradise", "grateful", "justice", "faith", "guidance", "forgiveness"],
+};
+
+function SearchSuggestions({ onSelect, locale, t }: { onSelect: (q: string) => void; locale: string; t: any }) {
+  const keywords = SUGGESTED_KEYWORDS[locale] ?? SUGGESTED_KEYWORDS.tr;
+
+  return (
+    <div className="space-y-5">
+      {/* Popüler sureler */}
+      <div>
+        <h3 className="text-[11px] font-semibold text-[var(--color-text-secondary)] mb-2">
+          {t.search.popularSurahs}
+        </h3>
+        <div className="flex flex-wrap gap-1.5">
+          {POPULAR_SURAHS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => onSelect(getSurahName(s.id, locale) || s.nameAr)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-accent)] text-xs transition-colors"
+            >
+              <span dir="rtl" style={{ fontFamily: "var(--font-arabic)", fontSize: "0.8rem" }}>{s.nameAr}</span>
+              <span className="text-[var(--color-text-secondary)]">{getSurahName(s.id, locale)}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Anahtar kelimeler */}
+      <div>
+        <h3 className="text-[11px] font-semibold text-[var(--color-text-secondary)] mb-2">
+          {t.search.suggestedKeywords}
+        </h3>
+        <div className="flex flex-wrap gap-1.5">
+          {keywords.map((kw) => (
+            <button
+              key={kw}
+              onClick={() => onSelect(kw)}
+              className="px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-accent)] text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+            >
+              {kw}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

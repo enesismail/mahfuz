@@ -34,6 +34,7 @@ export const en: Messages = {
     textStyleUthmani: "Medina mushaf",
     textStyleBasic: "Simple script",
     tajweedOnlyUthmani: "Tajweed is only available with Uthmani text style.",
+    colorize: "Word Coloring",
     select: "Select",
     searchPlaceholder: "Search...",
     labs: "Discovery Mode",
@@ -171,6 +172,8 @@ export const en: Messages = {
   search: {
     title: "Search",
     placeholder: "Search verse or translation...",
+    popularSurahs: "Popular surahs",
+    suggestedKeywords: "Search the Quran",
   },
 
   reader: {
