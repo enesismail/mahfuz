@@ -5,7 +5,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { searchQuran } from "~/lib/search-service";
+import { searchQuran, type SearchResult } from "~/lib/search-service";
+import { useMemo } from "react";
 import { useSettingsStore } from "~/stores/settings.store";
 import { getSurahName } from "~/lib/surah-names-i18n";
 import { useTranslation } from "~/hooks/useTranslation";
@@ -81,60 +82,89 @@ function SearchPage() {
       )}
 
       {results && results.length > 0 && (
-        <div className="space-y-3">
-          <p className="text-xs text-[var(--color-text-secondary)]">
-            {results.length} {t.common.results}
-          </p>
-
-          {results.map((r) => (
-            <button
-              key={`${r.surahId}:${r.ayahNumber}`}
-              onClick={() => {
-                if (readingMode === "list") {
-                  navigate({
-                    to: "/surah/$surahSlug",
-                    params: { surahSlug: surahSlug(r.surahId) },
-                    search: { ayah: r.ayahNumber },
-                  });
-                } else {
-                  navigate({
-                    to: "/page/$pageNumber",
-                    params: { pageNumber: String(r.pageNumber) },
-                    search: { ayah: `${r.surahId}:${r.ayahNumber}` },
-                  });
-                }
-              }}
-              className="block w-full text-left p-3 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors"
-            >
-              {/* Kaynak bilgisi */}
-              <div className="flex items-center gap-2 mb-2 text-xs text-[var(--color-text-secondary)]">
-                <span>{getSurahName(r.surahId, locale)}</span>
-                <span>&middot;</span>
-                <span>{t.common.verse} {r.ayahNumber}</span>
-                <span>&middot;</span>
-                <span>{t.common.page} {r.pageNumber}</span>
-              </div>
-
-              {/* Arapça metin */}
-              <p
-                className="text-base leading-[2.2] mb-1.5"
-                dir="rtl"
-                style={{ fontFamily: "var(--font-arabic)" }}
-              >
-                {r.textUthmani}
-              </p>
-
-              {/* Meal */}
-              {r.translation && (
-                <p className="text-sm text-[var(--color-text-translation)] leading-relaxed line-clamp-2">
-                  {r.translation}
-                </p>
-              )}
-            </button>
-          ))}
-        </div>
+        <GroupedResults results={results} readingMode={readingMode} locale={locale} t={t} navigate={navigate} />
       )}
     </div>
+  );
+}
+
+// ── Gruplandırılmış sonuçlar ─────────────────────────────
+
+const GROUP_LABELS: Record<string, { tr: string; en: string }> = {
+  surah: { tr: "Sureler", en: "Surahs" },
+  translation: { tr: "Meal Sonuçları", en: "Translation Results" },
+  arabic: { tr: "Arapça Metin", en: "Arabic Text" },
+};
+
+function GroupedResults({ results, readingMode, locale, t, navigate }: {
+  results: SearchResult[];
+  readingMode: string;
+  locale: string;
+  t: any;
+  navigate: any;
+}) {
+  const groups = useMemo(() => {
+    const map: Record<string, SearchResult[]> = {};
+    for (const r of results) {
+      const type = r.matchType ?? "translation";
+      (map[type] ??= []).push(r);
+    }
+    // Sıralama: surah → translation → arabic
+    const order = ["surah", "translation", "arabic"];
+    return order.filter((k) => map[k]?.length).map((k) => ({ type: k, items: map[k] }));
+  }, [results]);
+
+  return (
+    <div className="space-y-5">
+      <p className="text-xs text-[var(--color-text-secondary)]">
+        {results.length} {t.common.results}
+      </p>
+      {groups.map((group) => (
+        <div key={group.type}>
+          <h3 className="text-[11px] font-semibold text-[var(--color-text-secondary)] mb-2">
+            {GROUP_LABELS[group.type]?.[locale as "tr" | "en"] ?? GROUP_LABELS[group.type]?.tr ?? group.type}
+          </h3>
+          <div className="space-y-2">
+            {group.items.map((r) => (
+              <ResultCard key={`${r.surahId}:${r.ayahNumber}`} r={r} readingMode={readingMode} locale={locale} t={t} navigate={navigate} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ResultCard({ r, readingMode, locale, t, navigate }: {
+  r: SearchResult; readingMode: string; locale: string; t: any; navigate: any;
+}) {
+  return (
+    <button
+      onClick={() => {
+        if (readingMode === "list") {
+          navigate({ to: "/surah/$surahSlug", params: { surahSlug: surahSlug(r.surahId) }, search: { ayah: r.ayahNumber } });
+        } else {
+          navigate({ to: "/page/$pageNumber", params: { pageNumber: String(r.pageNumber) }, search: { ayah: `${r.surahId}:${r.ayahNumber}` } });
+        }
+      }}
+      className="block w-full text-left p-3 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-accent)] transition-colors"
+    >
+      <div className="flex items-center gap-2 mb-2 text-xs text-[var(--color-text-secondary)]">
+        <span>{r.surahNameSimple}</span>
+        <span>&middot;</span>
+        <span>{t.common.verse} {r.ayahNumber}</span>
+        <span>&middot;</span>
+        <span>{t.common.page} {r.pageNumber}</span>
+      </div>
+      <p className="text-base leading-[2.2] mb-1.5" dir="rtl" style={{ fontFamily: "var(--font-arabic)" }}>
+        {r.textUthmani}
+      </p>
+      {r.translation && (
+        <p className="text-sm text-[var(--color-text-translation)] leading-relaxed line-clamp-2">
+          {r.translation}
+        </p>
+      )}
+    </button>
   );
 }
 
