@@ -1,6 +1,7 @@
 /**
  * Route hata bileşeni — veri yükleme veya render hatalarında gösterilir.
  * i18n destekli + Twitter'dan bildir butonu.
+ * CSS değişkenleri yüklenmemiş olabilir — fallback renkleri sabit.
  */
 
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
@@ -23,30 +24,25 @@ export function RouteError({ error }: { error: Error }) {
   const home = t?.error?.goHome ?? "Ana Sayfa";
   const report = t?.error?.report ?? "Bildir";
 
-  // Build pre-filled tweet
   const shortError = error.message?.slice(0, 80) || "Unknown error";
   const tweetText = `@theilgaz mahfuz.ilg.az${pathname} sayfasında hata oluştu:\n\n"${shortError}"`;
   const tweetUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] px-4 text-center">
-      <p className="text-4xl mb-4">:(</p>
-      <p className="text-lg font-medium mb-2">{title}</p>
-      <p className="text-sm text-[var(--color-text-secondary)] mb-6 max-w-sm">
-        {desc}
-      </p>
-      <div className="flex flex-wrap items-center justify-center gap-3">
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "50vh", padding: "1rem", textAlign: "center", fontFamily: "system-ui, sans-serif" }}>
+      <p style={{ fontSize: "2.5rem", marginBottom: "1rem" }}>:(</p>
+      <p style={{ fontSize: "1.125rem", fontWeight: 600, marginBottom: "0.5rem", color: "#333" }}>{title}</p>
+      <p style={{ fontSize: "0.875rem", color: "#888", marginBottom: "1.5rem", maxWidth: "24rem" }}>{desc}</p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", justifyContent: "center" }}>
         <button
           onClick={() => router.invalidate()}
-          className="px-4 py-2 rounded-xl text-sm font-medium transition-opacity"
-          style={{ background: "var(--color-accent, #8b6914)", color: "#fff" }}
+          style={{ padding: "0.5rem 1rem", borderRadius: "0.75rem", fontSize: "0.875rem", fontWeight: 500, background: "#4a7c59", color: "#fff", border: "none", cursor: "pointer" }}
         >
           {retry}
         </button>
         <Link
           to="/"
-          className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-          style={{ border: "1px solid var(--color-border, #d9d0bc)", color: "var(--color-text-primary, #2a2418)" }}
+          style={{ padding: "0.5rem 1rem", borderRadius: "0.75rem", fontSize: "0.875rem", fontWeight: 500, border: "1px solid #ccc", color: "#333", textDecoration: "none" }}
         >
           {home}
         </Link>
@@ -54,10 +50,9 @@ export function RouteError({ error }: { error: Error }) {
           href={tweetUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-          style={{ border: "1px solid var(--color-border, #d9d0bc)", color: "var(--color-text-primary, #2a2418)" }}
+          style={{ display: "flex", alignItems: "center", gap: "0.375rem", padding: "0.5rem 1rem", borderRadius: "0.75rem", fontSize: "0.875rem", fontWeight: 500, border: "1px solid #ccc", color: "#333", textDecoration: "none" }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
           {report}
