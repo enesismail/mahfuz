@@ -14,6 +14,7 @@ import { BottomNav } from "~/components/BottomNav";
 import { useSettingsStore } from "~/stores/settings.store";
 import { useReadingStore } from "~/stores/reading.store";
 import { SettingsPanel } from "~/components/reader/SettingsPanel";
+import { ReadingProgressBar } from "~/components/reader/ReadingProgressBar";
 import { SurahPicker } from "~/components/reader/SurahPicker";
 import { MahfuzLogo } from "~/components/icons/MahfuzLogo";
 import { Link, useNavigate, useRouteContext, useRouterState } from "@tanstack/react-router";
@@ -275,6 +276,7 @@ function AppHeader() {
 
         </div>
         </header>
+        <ReadingProgressBar />
       </div>
 
       <SettingsPanel
@@ -289,6 +291,10 @@ function AppHeader() {
           if (path.startsWith("/page/")) {
             ctx.pageNumber = Number(path.split("/page/")[1]) || undefined;
           }
+          // Eksik alanları readingStore'dan tamamla
+          const pos = useReadingStore.getState().recentPositions[0];
+          if (!ctx.surahId && pos) ctx.surahId = pos.surahId;
+          if (!ctx.pageNumber && pos) ctx.pageNumber = pos.pageNumber;
           return ctx;
         })()}
       />

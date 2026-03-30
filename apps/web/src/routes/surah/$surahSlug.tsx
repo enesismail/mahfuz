@@ -3,13 +3,10 @@
  * Also supports numeric IDs: /surah/1 → redirects to /surah/al-fatiha
  */
 
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { SurahView } from "~/components/reader/SurahView";
-import { ReadingHeader } from "~/components/reader/ReadingHeader";
-import { SurahPicker } from "~/components/reader/SurahPicker";
 import { AudioBar } from "~/components/reader/AudioBar";
-import { surahDataQueryOptions, useSurahData } from "~/hooks/useQuranQuery";
-import { useSettingsStore } from "~/stores/settings.store";
+import { surahDataQueryOptions } from "~/hooks/useQuranQuery";
 import { ScrollToTop } from "~/components/ScrollToTop";
 import { FontSizeControl } from "~/components/reader/FontSizeControl";
 import { surahIdFromSlug, surahSlug } from "~/lib/surah-slugs";
@@ -40,48 +37,13 @@ export const Route = createFileRoute("/surah/$surahSlug")({
   component: SurahRoute,
 });
 
-const TOTAL_CHAPTERS = 114;
-
 function SurahRoute() {
   const { surahSlug: slug } = Route.useParams();
   const { ayah } = Route.useSearch();
   const id = surahIdFromSlug(slug)!;
-  const translationSlugs = useSettingsStore((s) => s.translationSlugs);
-  const { data: surahData } = useSurahData(id, translationSlugs);
-  const firstPageNumber = surahData?.ayahs[0]?.pageNumber;
 
   return (
     <div className="min-h-screen relative pb-20">
-      <ReadingHeader settingsContext={{ surahId: id, pageNumber: firstPageNumber }}>
-        {id > 1 ? (
-          <Link
-            to="/surah/$surahSlug"
-            params={{ surahSlug: surahSlug(id - 1) }}
-            search={{ ayah: undefined }}
-            className="p-1.5 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
-          >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 5L7 10L12 15" />
-            </svg>
-          </Link>
-        ) : <div className="w-7" />}
-
-        <SurahPicker currentSurahId={id} />
-
-        {id < TOTAL_CHAPTERS ? (
-          <Link
-            to="/surah/$surahSlug"
-            params={{ surahSlug: surahSlug(id + 1) }}
-            search={{ ayah: undefined }}
-            className="p-1.5 rounded-lg hover:bg-[var(--color-surface)] transition-colors shrink-0"
-          >
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8 5L13 10L8 15" />
-            </svg>
-          </Link>
-        ) : <div className="w-7" />}
-      </ReadingHeader>
-
       <SurahView surahId={id} highlightAyah={ayah} />
       <FontSizeControl />
       <AudioBar />

@@ -209,7 +209,15 @@ export function AyahBlock({
                   : "hover:bg-[var(--color-word-hover)]"
               }`}
             >
-              <span className="pb-2" style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, lineHeight: 2 }}>
+              <span
+                className="pb-2"
+                style={{
+                  fontFamily: "var(--font-arabic)",
+                  fontSize: `${arabicFontSize}rem`,
+                  lineHeight: 2,
+                  color: wordColors && wordPosition !== w.position ? wordColors[i % wordColors.length] : undefined,
+                }}
+              >
                 {w.textUthmani}
               </span>
               {w.transliteration && wbwTranslit !== "off" && (
@@ -260,19 +268,25 @@ export function AyahBlock({
         <div className="leading-[2.8]" dir="rtl" style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, textAlign: "justify" }}>
           {showTajweed && textTajweed && !colorizeWords
             ? parseTajweed(textTajweed, true)
-            : splitWords(textUthmani).map((word, i) => (
-                <span
-                  key={i}
-                  className={`inline rounded-sm px-[0.06em] transition-colors duration-150 cursor-default ${
-                    wordPosition === i + 1
-                      ? "word-audio-active"
-                      : "hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)]"
-                  }`}
-                  style={wordColors && wordPosition !== i + 1 ? { color: wordColors[i % wordColors.length] } : undefined}
-                >
-                  {word}{" "}
-                </span>
-              ))}
+            : splitWords(textUthmani).map((word, i) => {
+                const isActive = wordPosition === i + 1;
+                const wc = wordColors && !isActive ? wordColors[i % wordColors.length] : undefined;
+                return (
+                  <span
+                    key={i}
+                    className={`inline rounded-sm px-[0.06em] transition-colors duration-150 cursor-default ${
+                      isActive
+                        ? "word-audio-active"
+                        : wc
+                          ? "hover:bg-[var(--color-word-hover)]"
+                          : "hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)]"
+                    }`}
+                    style={wc ? { color: wc } : undefined}
+                  >
+                    {word}{" "}
+                  </span>
+                );
+              })}
           <VerseEndMarker ayahNumber={ayahNumber} onClick={handleBadgeClick} variant="inline" size={32} />
           {sajdah && <SajdahMarker />}
         </div>

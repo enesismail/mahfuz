@@ -38,13 +38,13 @@ export function ReadingProgressBar() {
   }, []);
 
   return (
-    <div className="h-[4px] w-full bg-[var(--color-border)]/30">
+    <div className="h-[3px] w-full bg-[var(--color-border)]/30">
       <div
         className="h-full rounded-r-full transition-[width] duration-100 ease-linear"
         style={{
           width: `${progress}%`,
-          background: "#ff0000",
-          boxShadow: "0 2px 12px #ff0000",
+          background: "var(--color-accent)",
+          boxShadow: "0 1px 6px var(--color-accent)",
         }}
       />
     </div>
