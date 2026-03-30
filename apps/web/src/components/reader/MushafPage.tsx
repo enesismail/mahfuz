@@ -3,7 +3,7 @@
  * Satır verisi mevcutsa gerçek Mushaf satır düzeni kullanılır.
  */
 
-import { useSettingsStore } from "~/stores/settings.store";
+import { useSettingsStore, COLOR_PALETTES } from "~/stores/settings.store";
 import { useReadingStore } from "~/stores/reading.store";
 import { useBookmarksStore } from "~/stores/bookmarks.store";
 import { useAudioStore } from "~/stores/audio.store";
@@ -209,6 +209,9 @@ interface MushafVerseProps {
 function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translation, pageNumber, highlight, sajdah }: MushafVerseProps) {
   const isBookmarked = useBookmarksStore((s) => s.isBookmarked(surahId, ayahNumber));
   const toggleBookmark = useBookmarksStore((s) => s.toggleBookmark);
+  const colorizeWords = useSettingsStore((s) => s.colorizeWords);
+  const colorPaletteId = useSettingsStore((s) => s.colorPaletteId);
+  const wordColors = colorizeWords ? COLOR_PALETTES[colorPaletteId].colors : null;
   const verseRef = useRef<HTMLSpanElement>(null);
   const [flash, setFlash] = useState(highlight);
 
@@ -259,7 +262,7 @@ function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translatio
         ref={verseRef}
         className={`transition-colors duration-1000 ${flash ? "bg-[var(--color-accent)]/15 rounded" : ""}`}
       >
-        {textTajweed
+        {textTajweed && !colorizeWords
           ? parseTajweed(textTajweed, true)
           : splitWords(textUthmani).map((word, i) => (
               <span
@@ -269,6 +272,7 @@ function MushafVerse({ surahId, ayahNumber, textUthmani, textTajweed, translatio
                     ? "word-audio-active"
                     : "hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)]"
                 }`}
+                style={wordColors && wordPosition !== i + 1 ? { color: wordColors[i % wordColors.length] } : undefined}
               >
                 {word}{" "}
               </span>

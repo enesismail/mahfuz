@@ -8,6 +8,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import type { MushafPageLines } from "~/hooks/useQuranQuery";
+import { useSettingsStore, COLOR_PALETTES } from "~/stores/settings.store";
 
 interface MushafLineViewProps {
   lineData: MushafPageLines;
@@ -18,6 +19,9 @@ export function MushafLineView({ lineData, arabicFontSize }: MushafLineViewProps
   const containerRef = useRef<HTMLDivElement>(null);
   const innerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const colorizeWords = useSettingsStore((s) => s.colorizeWords);
+  const colorPaletteId = useSettingsStore((s) => s.colorPaletteId);
+  const wordColors = colorizeWords ? COLOR_PALETTES[colorPaletteId].colors : null;
 
   const computeScale = useCallback(() => {
     const container = containerRef.current;
@@ -74,28 +78,36 @@ export function MushafLineView({ lineData, arabicFontSize }: MushafLineViewProps
           transformOrigin: "top right",
         }}
       >
-        {lineData.lines.map((line, lineIdx) => (
-          <div
-            key={lineIdx}
-            className="mushaf-line flex justify-between flex-nowrap"
-            style={{ lineHeight: 2.6 }}
-          >
-            {line.words.map((word, wordIdx) => (
-              <span
-                key={wordIdx}
-                className={
-                  word.c === "e"
-                    ? "mushaf-end-marker text-[var(--color-text-secondary)] text-[0.55em] self-center select-none whitespace-nowrap"
-                    : word.c === "p"
-                      ? "mushaf-pause-marker text-[var(--color-text-secondary)] text-[0.7em] self-center select-none whitespace-nowrap"
-                      : "mushaf-word transition-colors duration-150 cursor-default rounded-sm px-[0.04em] hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)] whitespace-nowrap"
-                }
-              >
-                {word.t}
-              </span>
-            ))}
-          </div>
-        ))}
+        {(() => {
+          let wordCounter = 0;
+          return lineData.lines.map((line, lineIdx) => (
+            <div
+              key={lineIdx}
+              className="mushaf-line flex justify-between flex-nowrap"
+              style={{ lineHeight: 2.6 }}
+            >
+              {line.words.map((word, wordIdx) => {
+                const isWord = word.c !== "e" && word.c !== "p";
+                const colorIdx = isWord ? wordCounter++ : 0;
+                return (
+                  <span
+                    key={wordIdx}
+                    className={
+                      word.c === "e"
+                        ? "mushaf-end-marker text-[var(--color-text-secondary)] text-[0.55em] self-center select-none whitespace-nowrap"
+                        : word.c === "p"
+                          ? "mushaf-pause-marker text-[var(--color-text-secondary)] text-[0.7em] self-center select-none whitespace-nowrap"
+                          : "mushaf-word transition-colors duration-150 cursor-default rounded-sm px-[0.04em] hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)] whitespace-nowrap"
+                    }
+                    style={wordColors && isWord ? { color: wordColors[colorIdx % wordColors.length] } : undefined}
+                  >
+                    {word.t}
+                  </span>
+                );
+              })}
+            </div>
+          ));
+        })()}
       </div>
     </div>
   );

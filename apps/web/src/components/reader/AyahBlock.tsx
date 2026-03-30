@@ -4,7 +4,7 @@
 
 import { useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import { useBookmarksStore } from "~/stores/bookmarks.store";
-import { useSettingsStore } from "~/stores/settings.store";
+import { useSettingsStore, COLOR_PALETTES } from "~/stores/settings.store";
 import { useAudioStore } from "~/stores/audio.store";
 import { parseTajweed } from "~/lib/tajweed-parser";
 import { splitWords } from "~/lib/split-words";
@@ -59,6 +59,9 @@ export function AyahBlock({
   const multiMode = translationSlugs.length > 1;
   const wbwTranslation = useSettingsStore((s) => s.wbwTranslation);
   const wbwTranslit = useSettingsStore((s) => s.wbwTranslit);
+  const colorizeWords = useSettingsStore((s) => s.colorizeWords);
+  const colorPaletteId = useSettingsStore((s) => s.colorPaletteId);
+  const wordColors = colorizeWords ? COLOR_PALETTES[colorPaletteId].colors : null;
 
   // Audio word tracking
   const verseKey = surahId ? `${surahId}:${ayahNumber}` : null;
@@ -255,7 +258,7 @@ export function AyahBlock({
       ) : (
         /* Normal metin */
         <div className="leading-[2.8]" dir="rtl" style={{ fontFamily: "var(--font-arabic)", fontSize: `${arabicFontSize}rem`, textAlign: "justify" }}>
-          {showTajweed && textTajweed
+          {showTajweed && textTajweed && !colorizeWords
             ? parseTajweed(textTajweed, true)
             : splitWords(textUthmani).map((word, i) => (
                 <span
@@ -265,6 +268,7 @@ export function AyahBlock({
                       ? "word-audio-active"
                       : "hover:bg-[var(--color-word-hover)] hover:text-[var(--color-word-hover-text)]"
                   }`}
+                  style={wordColors && wordPosition !== i + 1 ? { color: wordColors[i % wordColors.length] } : undefined}
                 >
                   {word}{" "}
                 </span>

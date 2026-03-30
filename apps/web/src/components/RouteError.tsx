@@ -38,13 +38,15 @@ export function RouteError({ error }: { error: Error }) {
       <div className="flex flex-wrap items-center justify-center gap-3">
         <button
           onClick={() => router.invalidate()}
-          className="px-4 py-2 rounded-xl bg-[var(--color-accent)] text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          className="px-4 py-2 rounded-xl text-sm font-medium transition-opacity"
+          style={{ background: "var(--color-accent, #8b6914)", color: "#fff" }}
         >
           {retry}
         </button>
         <Link
           to="/"
-          className="px-4 py-2 rounded-xl border border-[var(--color-border)] text-sm font-medium hover:bg-[var(--color-surface)] transition-colors"
+          className="px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+          style={{ border: "1px solid var(--color-border, #d9d0bc)", color: "var(--color-text-primary, #2a2418)" }}
         >
           {home}
         </Link>
@@ -52,7 +54,8 @@ export function RouteError({ error }: { error: Error }) {
           href={tweetUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-[var(--color-border)] text-sm font-medium hover:bg-[var(--color-surface)] transition-colors"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+          style={{ border: "1px solid var(--color-border, #d9d0bc)", color: "var(--color-text-primary, #2a2418)" }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />

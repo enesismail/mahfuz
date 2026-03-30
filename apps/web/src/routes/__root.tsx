@@ -277,7 +277,21 @@ function AppHeader() {
         </header>
       </div>
 
-      <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      <SettingsPanel
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        context={(() => {
+          const ctx: { surahId?: number; pageNumber?: number } = {};
+          if (path.startsWith("/surah/")) {
+            const slug = path.split("/surah/")[1]?.split("?")[0];
+            if (slug) ctx.surahId = surahIdFromSlug(slug);
+          }
+          if (path.startsWith("/page/")) {
+            ctx.pageNumber = Number(path.split("/page/")[1]) || undefined;
+          }
+          return ctx;
+        })()}
+      />
     </>
   );
 }

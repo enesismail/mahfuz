@@ -1,8 +1,6 @@
 /**
- * Okuma ilerleme çubuğu — sayfa/sure okuma görünümlerinde
- * kullanıcının ne kadar kaydırdığını gösteren ince çubuk.
- *
- * Sayfanın üstünde sabit, scroll başladığında görünür.
+ * Okuma ilerleme çubuğu — header'ın alt kenarında.
+ * Progress yokken border görevi görür, scroll'da accent bar'a dönüşür.
  */
 
 import { useEffect, useState, useRef } from "react";
@@ -39,13 +37,15 @@ export function ReadingProgressBar() {
     };
   }, []);
 
-  if (progress === 0) return null;
-
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 pointer-events-none">
+    <div className="h-[4px] w-full bg-[var(--color-border)]/30">
       <div
-        className="h-[3px] bg-[var(--color-accent)] transition-[width] duration-100 ease-linear rounded-r-full"
-        style={{ width: `${progress}%` }}
+        className="h-full rounded-r-full transition-[width] duration-100 ease-linear"
+        style={{
+          width: `${progress}%`,
+          background: "#ff0000",
+          boxShadow: "0 2px 12px #ff0000",
+        }}
       />
     </div>
   );

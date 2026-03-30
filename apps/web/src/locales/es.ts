@@ -34,6 +34,7 @@ export const es: Messages = {
     textStyleUthmani: "Mushaf de Medina",
     textStyleBasic: "Escritura simple",
     tajweedOnlyUthmani: "El tajweed solo está disponible con el estilo de texto Uthmani.",
+    colorize: "Colorear Palabras",
     select: "Seleccionar",
     searchPlaceholder: "Buscar...",
     labs: "Modo Descubrimiento",

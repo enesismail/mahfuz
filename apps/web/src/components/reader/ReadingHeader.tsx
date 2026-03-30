@@ -6,6 +6,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { SettingsPanel } from "./SettingsPanel";
+import { ReadingProgressBar } from "./ReadingProgressBar";
 
 interface ReadingHeaderProps {
   /** Orta alan — sure picker, sayfa picker vs. */
@@ -20,7 +21,8 @@ export function ReadingHeader({ children, settingsContext }: ReadingHeaderProps)
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex items-center h-11 px-1 bg-[var(--color-bg)]/95 backdrop-blur-sm border-b border-[var(--color-border)]">
+      <header className="sticky top-0 z-20 bg-[var(--color-bg)]/95 backdrop-blur-sm">
+      <div className="flex items-center h-11 px-1">
         {/* Geri */}
         <button
           onClick={() => navigate({ to: "/" })}
@@ -48,6 +50,8 @@ export function ReadingHeader({ children, settingsContext }: ReadingHeaderProps)
             <circle cx="12" cy="12" r="3" />
           </svg>
         </button>
+      </div>
+      <ReadingProgressBar />
       </header>
 
       <SettingsPanel open={settingsOpen} onClose={() => setSettingsOpen(false)} context={settingsContext} />
