@@ -4,6 +4,10 @@ export const en: Messages = {
   settings: {
     title: "Settings",
     close: "Close",
+    tabs: {
+      reading: "Reading",
+      general: "General",
+    },
     theme: "Theme",
     themes: {
       papyrus: "Papyrus",
@@ -24,6 +28,7 @@ export const en: Messages = {
     tajweed: "Tajweed Coloring",
     fontSize: "Font Size",
     fontDefault: "Default",
+    mealPreview: "In the name of God, the Most Gracious, the Most Merciful",
     arabic: "Arabic",
     reciter: "Reciter",
     resetAll: "Reset All Settings",

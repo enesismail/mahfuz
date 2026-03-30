@@ -2,6 +2,10 @@ export const tr = {
   settings: {
     title: "Ayarlar",
     close: "Kapat",
+    tabs: {
+      reading: "Okuma",
+      general: "Genel",
+    },
     theme: "Tema",
     themes: {
       papyrus: "Papirüs",
@@ -22,6 +26,7 @@ export const tr = {
     tajweed: "Tecvid Renklendirmesi",
     fontSize: "Yazı Boyutu",
     fontDefault: "Varsayılan",
+    mealPreview: "Rahmân ve Rahîm olan Allah'ın adıyla",
     arabic: "Arapça",
     reciter: "Kari",
     resetAll: "Tüm Ayarları Sıfırla",
